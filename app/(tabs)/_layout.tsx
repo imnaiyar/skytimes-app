@@ -127,6 +127,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      {/* <Tabs.Screen
+        name="widget_preview"
+        options={{
+          title: "Widget",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="cog-outline" size={24} color={color} />
+          ),
+        }}
+      /> */}
     </Tabs>
   );
 }

@@ -10,7 +10,26 @@ A simple Expo app for browsing Sky: CoTL in-game events (grandma, turtle, geyser
 - Shows current and upcoming events.
 - Keeps active and pinned events at the top.
 - Lets you enable reminders per event with a custom offset.
+- Home app widget (android) that shows upto 6 event times (I plan to make the shown event configurable in the future)
 - Supports light and dark themes.
+
+
+
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="./assets/images/app_preview.jpg" width="150"/><br/><br />
+      <sub>App Preview</sub>
+    </td>
+    <td align="center">
+      <img src="./assets/images/widget_preview.png" width="150"/><br/>
+<br />
+      <sub>App Widget Preview</sub>
+    </td>
+  </tr>
+</table>
+
 
 ## Tech stack
 
