@@ -76,12 +76,23 @@ jobs:
           cd android
           ./gradlew assembleRelease --no-daemon
 
-      - name: Create pre-release
+      - name: Set release variables
+        id: vars
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "tag=manual-${{ github.run_number }}" >> $GITHUB_OUTPUT
+            echo "title=Manual Build #${{ github.run_number }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "title=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create release
         uses: marvinpinto/action-automatic-releases@latest
         with:
-         repo_token: "${{ secrets.REPO_TOKEN }}"
-         automatic_release_tag: "pre-release"
-         prerelease: true
-         title: "Pre-release Build"
-         files: |
-          android/app/build/outputs/apk/release/*.apk
+          repo_token: "${{ secrets.REPO_TOKEN }}"
+          automatic_release_tag: ${{ steps.vars.outputs.tag }}
+          prerelease: ${{ github.event_name == 'workflow_dispatch' }}
+          title: ${{ steps.vars.outputs.title }}
+          files: |
+            android/app/build/outputs/apk/release/*.apk
