@@ -39,6 +39,7 @@ const plugins: ExpoConfig["plugins"] = [
         enableProguardInReleaseBuilds: true,
         enableShrinkResourcesInReleaseBuilds: true,
         enableMinifyInReleaseBuilds: true,
+        useLegacyPackaging: true
       },
     },
   ],
