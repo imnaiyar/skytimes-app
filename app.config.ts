@@ -5,6 +5,54 @@ const isDev = process.env.NODE_ENV === "development";
 const packageName = isDev ? "SkyTimesDev" : "SkyTimes";
 const identifier = isDev ? "com.skytimes.dev" : "com.skytimes.app";
 
+const plugins: ExpoConfig["plugins"] = [
+  "expo-router",
+  [
+    "expo-notifications",
+    {
+      icon: "./assets/images/sleepykid.png",
+      color: "#0d1423d1",
+      defaultChannel: "event-reminders",
+    },
+  ],
+  [
+    "expo-build-properties",
+    {
+      android: {
+        enableProguardInReleaseBuilds: true,
+        enableShrinkResourcesInReleaseBuilds: true,
+        enableMinifyInReleaseBuilds: true,
+      },
+    },
+  ],
+];
+
+// only do app sign in in prod
+if (!isDev) {
+  plugins.push([
+    "expo-signed",
+    {
+      store_file: {
+        key: "STORE_FILE",
+        value: "release-key.keystore",
+      },
+      key_alias: {
+        key: "KEY_ALIAS",
+        value: process.env.ANDROID_KEYSTORE_ALIAS,
+      },
+      store_password: {
+        key: "STORE_PASSWORD",
+        value: process.env.ANDROID_KEYSTORE_PASS,
+      },
+      key_password: {
+        key: "KEY_PASSWORD",
+        value: process.env.ANDROID_KEY_PASS,
+      },
+      keystorePath: "./android/app",
+    },
+  ]);
+}
+
 const config: ExpoConfig = {
   name: packageName,
   slug: packageName.toLowerCase(),
@@ -38,49 +86,7 @@ const config: ExpoConfig = {
     output: "static",
     favicon: "./assets/images/sleepykid.png",
   },
-  plugins: [
-    "expo-router",
-    [
-      "expo-notifications",
-      {
-        icon: "./assets/images/sleepykid.png",
-        color: "#0d1423d1",
-        defaultChannel: "event-reminders",
-      },
-    ],
-    [
-      "expo-build-properties",
-      {
-        android: {
-          enableProguardInReleaseBuilds: true,
-          enableShrinkResourcesInReleaseBuilds: true,
-          enableMinifyInReleaseBuilds: true,
-        },
-      },
-    ],
-    [
-      "expo-signed",
-      {
-        store_file: {
-          key: "STORE_FILE",
-          value: "release-key.keystore",
-        },
-        key_alias: {
-          key: "KEY_ALIAS",
-          value: process.env.ANDROID_KEYSTORE_ALIAS,
-        },
-        store_password: {
-          key: "STORE_PASSWORD",
-          value: process.env.ANDROID_KEYSTORE_PASS,
-        },
-        key_password: {
-          key: "KEY_PASSWORD",
-          value: process.env.ANDROID_KEY_PASS,
-        },
-        keystorePath: "./android/app",
-      },
-    ],
-  ],
+  plugins,
   experiments: {
     typedRoutes: true,
   },
