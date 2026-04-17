@@ -1,0 +1,86 @@
+name: Build APKs
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      #  pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}
+
+      - name: prebuild
+        run: npx expo prebuild --platform android --no-install
+
+      # enable ABI splits
+      - name: Enable ABI splits
+        run: |
+          sed -i '/android {/a\
+              splits {\
+                  abi {\
+                      enable true\
+                      reset()\
+                      include "armeabi-v7a", "arm64-v8a"\
+                      universalApk false\
+                  }\
+              }' android/app/build.gradle
+
+
+      - name: shrink & minify
+        run: |
+          sed -i 's/minifyEnabled false/minifyEnabled true/g' android/app/build.gradle
+          sed -i 's/shrinkResources false/shrinkResources true/g' android/app/build.gradle
+
+      - name: Build APKs
+        run: |
+          cd android
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Create pre-release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+         repo_token: "${{ secrets.REPO_TOKEN }}"
+         automatic_release_tag: "pre-release"
+         prerelease: true
+         title: "Pre-release Build"
+         files: |
+          android/app/build/outputs/apk/release/*.apk
