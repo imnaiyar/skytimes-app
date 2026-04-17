@@ -58,9 +58,9 @@ jobs:
           sed -i '/signingConfigs {/a\
            release {\
               storeFile file("release-key.keystore")\
-              storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")\
-              keyAlias System.getenv("ANDROID_KEY_ALIAS")\
-              keyPassword System.getenv("ANDROID_KEY_PASSWORD")\
+              storePassword System.getenv("ANDROID_KEYSTORE_PASS")\
+              keyAlias System.getenv("ANDROID_KEYSTORE_ALIAS")\
+              keyPassword System.getenv("ANDROID_KEY_PASS")\
              }' android/app/build.gradle
 
           sed -i 's/signingConfig signingConfigs.debug/signingConfig signingConfigs.release/' android/app/build.gradle
