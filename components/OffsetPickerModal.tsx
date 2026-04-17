@@ -1,20 +1,20 @@
+import { useColorScheme } from "@/components/useColorScheme";
+import Colors from "@/constants/Colors";
 import {
   MAX_NOTIFICATION_OFFSET_MINUTES,
   MIN_NOTIFICATION_OFFSET_MINUTES,
   NOTIFICATION_OFFSET_STEP_MINUTES,
   clampNotificationOffsetMinutes,
 } from "@/utils/storage";
-import { useColorScheme } from "@/components/useColorScheme";
-import Colors from "@/constants/Colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import Slider from "@react-native-community/slider";
+import { useEffect, useState } from "react";
 import {
   Modal,
   Pressable,
   StyleSheet,
   Text,
-  View,
-  type GestureResponderEvent,
+  View
 } from "react-native";
 
 type OffsetPickerModalProps = {
@@ -49,39 +49,10 @@ export function OffsetPickerModal({
     setOffsetMinutes(clampNotificationOffsetMinutes(initialOffsetMinutes));
   }, [initialOffsetMinutes, visible]);
 
-  const setClampedOffset = useCallback((next: number) => {
-    setOffsetMinutes(clampNotificationOffsetMinutes(next));
-  }, []);
 
-  const updateOffsetFromLocation = useCallback(
-    (locationX: number) => {
-      if (trackWidth <= 0) return;
-      const ratio = Math.max(0, Math.min(1, locationX / trackWidth));
-      const raw =
-        MIN_NOTIFICATION_OFFSET_MINUTES +
-        ratio * (MAX_NOTIFICATION_OFFSET_MINUTES - MIN_NOTIFICATION_OFFSET_MINUTES);
-      const stepped =
-        Math.round(raw / NOTIFICATION_OFFSET_STEP_MINUTES) * NOTIFICATION_OFFSET_STEP_MINUTES;
-      setClampedOffset(stepped);
-    },
-    [setClampedOffset, trackWidth],
-  );
-
-  const onTrackPress = useCallback(
-    (event: GestureResponderEvent) => {
-      updateOffsetFromLocation(event.nativeEvent.locationX);
-    },
-    [updateOffsetFromLocation],
-  );
-
-  const ratio = useMemo(() => {
-    if (range === 0) return 0;
-    return (offsetMinutes - MIN_NOTIFICATION_OFFSET_MINUTES) / range;
-  }, [offsetMinutes, range]);
 
   const isMinusDisabled = offsetMinutes <= MIN_NOTIFICATION_OFFSET_MINUTES;
   const isPlusDisabled = offsetMinutes >= MAX_NOTIFICATION_OFFSET_MINUTES;
-  const thumbLeft = ratio * trackWidth - TRACK_THUMB_SIZE / 2;
 
   return (
     <Modal
@@ -106,7 +77,7 @@ export function OffsetPickerModal({
 
           <View style={styles.valueRow}>
             <Pressable
-              onPress={() => setClampedOffset(offsetMinutes - NOTIFICATION_OFFSET_STEP_MINUTES)}
+              onPress={() => setOffsetMinutes(offsetMinutes - NOTIFICATION_OFFSET_STEP_MINUTES)}
               disabled={isMinusDisabled}
               style={[
                 styles.iconButton,
@@ -120,7 +91,7 @@ export function OffsetPickerModal({
             <Text style={[styles.valueText, { color: themeColors.text }]}>{offsetMinutes}m</Text>
 
             <Pressable
-              onPress={() => setClampedOffset(offsetMinutes + NOTIFICATION_OFFSET_STEP_MINUTES)}
+              onPress={() => setOffsetMinutes(offsetMinutes + NOTIFICATION_OFFSET_STEP_MINUTES)}
               disabled={isPlusDisabled}
               style={[
                 styles.iconButton,
@@ -132,42 +103,16 @@ export function OffsetPickerModal({
             </Pressable>
           </View>
 
-          <View
-            style={[styles.sliderTrack, { backgroundColor: themeColors.divider }]}
-            onLayout={event =>
-              setTrackWidth(Math.max(1, Math.round(event.nativeEvent.layout.width)))
-            }
-            onStartShouldSetResponder={() => true}
-            onMoveShouldSetResponder={() => true}
-            onResponderGrant={onTrackPress}
-            onResponderMove={onTrackPress}
-          >
-            <View
-              style={[
-                styles.sliderFilled,
-                { width: `${ratio * 100}%`, backgroundColor: themeColors.success },
-              ]}
-            />
-            <View
-              style={[
-                styles.sliderThumb,
-                {
-                  left: thumbLeft,
-                  backgroundColor: themeColors.success,
-                  borderColor: themeColors.card,
-                },
-              ]}
-            />
-          </View>
-
-          <View style={styles.labelsRow}>
-            <Text style={[styles.labelText, { color: themeColors.mutedText }]}>
-              {MIN_NOTIFICATION_OFFSET_MINUTES}m
-            </Text>
-            <Text style={[styles.labelText, { color: themeColors.mutedText }]}>
-              {MAX_NOTIFICATION_OFFSET_MINUTES}m
-            </Text>
-          </View>
+          <Slider
+            style={{ height: 40 }}
+            minimumValue={MIN_NOTIFICATION_OFFSET_MINUTES}
+            maximumValue={MAX_NOTIFICATION_OFFSET_MINUTES}
+            minimumTrackTintColor={themeColors.tint}
+            maximumTrackTintColor={themeColors.tabIconSelected}
+            onValueChange={setOffsetMinutes}
+            step={NOTIFICATION_OFFSET_STEP_MINUTES}
+            value={offsetMinutes}
+/>
 
           <View style={styles.actions}>
             <Pressable
