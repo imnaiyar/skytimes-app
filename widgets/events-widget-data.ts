@@ -34,18 +34,22 @@ function toGroupedEvent([key, event]: [EventKey, EventDetails]): GroupedEvent {
 
 export function getWidgetEventRows(
   events: Array<[EventKey, EventDetails]> = SkytimesUtils.allEventDetails(),
+  selectedEventKeys?: string[],
 ): WidgetEventRow[] {
-  return events
-    .map(toGroupedEvent)
-    .sort(sortGroupedEvents)
-    .slice(0, MAX_WIDGET_EVENTS)
-    .map((item) => ({
-      id: String(item.key),
-      name: item.event.event.name,
-      statusLabel:
-        item.status === "active"
-          ? "Active"
-          : formatReadableTime(item.event.nextOccurence.toMillis()),
-      active: item.status === "active",
-    }));
+  let mapped = events.map(toGroupedEvent).sort(sortGroupedEvents);
+
+  if (selectedEventKeys && selectedEventKeys.length > 0) {
+    const selectedSet = new Set(selectedEventKeys.map(String));
+    mapped = mapped.filter((item) => selectedSet.has(String(item.key)));
+  }
+
+  return mapped.slice(0, MAX_WIDGET_EVENTS).map((item) => ({
+    id: String(item.key),
+    name: item.event.event.name,
+    statusLabel:
+      item.status === "active"
+        ? "Active"
+        : formatReadableTime(item.event.nextOccurence.toMillis()),
+    active: item.status === "active",
+  }));
 }

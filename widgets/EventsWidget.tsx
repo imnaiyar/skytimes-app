@@ -7,6 +7,7 @@ import {
   type WidgetRepresentation,
 } from "react-native-android-widget";
 
+import { DateTime } from "luxon";
 import type { WidgetEventRow } from "./events-widget-data";
 import { getWidgetEventRows } from "./events-widget-data";
 
@@ -41,6 +42,44 @@ export function EventsWidget({
   rows: WidgetEventRow[];
   palette: WidgetPalette;
 }) {
+  const grouped = rows.reduce<WidgetEventRow[][]>((acc, _, i) => {
+    if (i % 2 === 0) acc.push(rows.slice(i, i + 2));
+    return acc;
+  }, []);
+
+  const generateStatusLabel = (row: WidgetEventRow, isRight = false) => {
+    return (
+      <FlexWidget
+        key={row.name}
+        style={{
+          flex: 1,
+          alignItems: isRight ? "flex-end" : "flex-start",
+        }}
+      >
+        <TextWidget
+          text={row.name}
+          maxLines={1}
+          truncate="END"
+          style={{
+            color: palette.text,
+            fontSize: 12,
+            fontWeight: "600",
+            textAlign: isRight ? "right" : "left",
+          }}
+        />
+
+        <TextWidget
+          text={row.statusLabel}
+          style={{
+            color: row.active ? palette.success : palette.mutedText,
+            fontSize: 12,
+            fontWeight: row.active ? "700" : "500",
+            textAlign: isRight ? "right" : "left",
+          }}
+        />
+      </FlexWidget>
+    );
+  };
   return (
     <FlexWidget
       clickAction="OPEN_APP"
@@ -55,14 +94,46 @@ export function EventsWidget({
         paddingVertical: 10,
       }}
     >
-      <FlexWidget style={{ flexDirection: "row", width: "match_parent", justifyContent: "space-between", alignItems: "center",  padding: 4}}>
-      <TextWidget
-        text="Sky Events"
-        style={{ color: palette.text, fontSize: 14, fontWeight: "700", marginBottom: 8 }}
-      />
-     <IconWidget font="material"  clickAction="REFRESH" size={30} style={{ color: palette.text }} icon="refresh" />
+      <FlexWidget
+        style={{
+          flexDirection: "row",
+          width: "match_parent",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          padding: 4,
+        }}
+      >
+        <FlexWidget style={{ flexGap: 2 }}>
+          <TextWidget
+            text="Sky Events"
+            style={{ color: palette.text, fontSize: 14, fontWeight: "700" }}
+          />
+          <TextWidget
+            text={`Last Updated: ${DateTime.now().toFormat("hh:mm a")}`}
+            style={{
+              color: palette.mutedText,
+              fontSize: 10,
+              fontWeight: "500",
+              marginBottom: 8,
+            }}
+          />
+        </FlexWidget>
+        <IconWidget
+          font="material"
+          clickAction="REFRESH"
+          size={30}
+          style={{ color: palette.text }}
+          icon="refresh"
+        />
       </FlexWidget>
-      <FlexWidget style={{ borderColor: palette.border, borderWidth: 0.5, width: "match_parent", marginBottom: 10 }} />
+      <FlexWidget
+        style={{
+          borderColor: palette.border,
+          borderWidth: 0.5,
+          width: "match_parent",
+          marginBottom: 10,
+        }}
+      />
 
       {!rows.length && (
         <TextWidget
@@ -75,40 +146,19 @@ export function EventsWidget({
         />
       )}
 
-      {rows.map((row, index) => (
+      {grouped.map((row, index) => (
         <FlexWidget
-          key={row.id}
           style={{
             flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
+            width: "match_parent",
             paddingTop: index === 0 ? 0 : 6,
             paddingBottom: 6,
             borderTopWidth: index === 0 ? 0 : 1,
             borderTopColor: palette.border,
+            borderStyle: "dotted",
           }}
         >
-          <FlexWidget style={{ flex: 1, paddingRight: 8 }}>
-            <TextWidget
-              text={row.name}
-              maxLines={1}
-              truncate="END"
-              style={{
-                color: palette.text,
-                fontSize: 12,
-                fontWeight: "600",
-              }}
-            />
-          </FlexWidget>
-
-          <TextWidget
-            text={row.statusLabel}
-            style={{
-              color: row.active ? palette.success : palette.mutedText,
-              fontSize: 12,
-              fontWeight: row.active ? "700" : "500",
-            }}
-          />
+          {row.map((item, idx) => generateStatusLabel(item, idx === 1))}
         </FlexWidget>
       ))}
     </FlexWidget>

@@ -12,11 +12,13 @@ const widgetConfig: WithAndroidWidgetsParams = {
       label: "Sky Events",
       description: "Shows up to 6 upcoming or active events.",
       minWidth: "320dp",
-      minHeight: "200dp",
+      minHeight: "120dp",
       targetCellWidth: 5,
       targetCellHeight: 2,
       previewImage: "./assets/images/widget_preview.png",
       updatePeriodMillis: 1_800_000,
+      widgetFeatures: "reconfigurable|configuration_optional",
+      resizeMode: "horizontal",
     },
   ],
   fonts: ["./assets/fonts/material.ttf"],
@@ -39,7 +41,7 @@ const plugins: ExpoConfig["plugins"] = [
         enableProguardInReleaseBuilds: true,
         enableShrinkResourcesInReleaseBuilds: true,
         enableMinifyInReleaseBuilds: true,
-        useLegacyPackaging: true
+        useLegacyPackaging: true,
       },
     },
   ],
@@ -115,7 +117,9 @@ const config: ExpoConfig = {
   extra: {
     router: {},
     eas: {
-      projectId: isDev ? "036f17e4-3bc6-4d50-bb1c-f7d7aa2a8362" : "6479b648-2cdf-472f-ba57-55fbdeeb9f9e",
+      projectId: isDev
+        ? "036f17e4-3bc6-4d50-bb1c-f7d7aa2a8362"
+        : "6479b648-2cdf-472f-ba57-55fbdeeb9f9e",
     },
   },
 };

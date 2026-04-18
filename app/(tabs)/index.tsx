@@ -4,7 +4,12 @@ import { Platform, StyleSheet } from "react-native";
 import { requestWidgetUpdate } from "react-native-android-widget";
 
 import { CategoryList } from "@/components/EventList";
-import { useNotificationSettings, useNotifiedEvents, useNow } from "@/utils/hooks";
+import {
+  useNotificationSettings,
+  useNotifiedEvents,
+  useNow,
+  useWidgetSettings,
+} from "@/utils/hooks";
 import { syncNotifications } from "@/utils/notifications";
 import { renderEventsWidget } from "@/widgets/EventsWidget";
 import { SKY_EVENTS_WIDGET_NAME } from "@/widgets/constants";
@@ -23,7 +28,9 @@ export default function TabTwoScreen() {
   const eventsSyncSignature = useMemo(
     () =>
       events
-        .map(([key, event]) => `${String(key)}:${event.nextOccurence.toMillis()}`)
+        .map(
+          ([key, event]) => `${String(key)}:${event.nextOccurence.toMillis()}`,
+        )
         .join("|"),
     [events],
   );
@@ -61,19 +68,27 @@ export default function TabTwoScreen() {
     ).catch(() => undefined);
   }, [notificationSyncInput, settings]);
 
-  useEffect(() => {
+  const { widgetSettings } = useWidgetSettings();
 
+  useEffect(() => {
     if (Platform.OS !== "android") return;
-    
+
     requestWidgetUpdate({
       widgetName: SKY_EVENTS_WIDGET_NAME,
-      renderWidget: () => renderEventsWidget(getWidgetEventRows()),
+      renderWidget: () =>
+        renderEventsWidget(
+          getWidgetEventRows(
+            undefined,
+            widgetSettings.enabled
+              ? widgetSettings.selectedEventKeys
+              : undefined,
+          ),
+        ),
     }).catch(() => undefined);
-  }, [widgetSyncSignature]);
-  
+  }, [widgetSyncSignature, widgetSettings]);
+
   return (
     <GestureHandlerRootView>
-    
       <CategoryList
         events={events}
         notificationOffsetsById={notificationOffsetsById}
@@ -82,26 +97,24 @@ export default function TabTwoScreen() {
         notificationsEnabled={settings.enabled}
       />
     </GestureHandlerRootView>
-
-
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    justifyContent: "space-between",
     flexDirection: "row",
     padding: 4,
-    paddingBottom: 10
+    paddingBottom: 10,
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   separator: {
     marginVertical: 30,
     height: 1,
-    width: '80%',
+    width: "80%",
   },
 });

@@ -1,12 +1,16 @@
-
+import { useWidgetSettings } from "@/utils/hooks";
 import { getWidgetEventRows } from "@/widgets/events-widget-data";
 import { DARK_PALETTE, EventsWidget } from "@/widgets/EventsWidget";
-import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { WidgetPreview } from 'react-native-android-widget';
+import * as React from "react";
+import { StyleSheet, View } from "react-native";
+import { WidgetPreview } from "react-native-android-widget";
 
 export default function HelloWidgetPreviewScreen() {
-    const rows = getWidgetEventRows()
+  const { widgetSettings } = useWidgetSettings();
+  const rows = getWidgetEventRows(
+    undefined,
+    widgetSettings.enabled ? widgetSettings.selectedEventKeys : undefined,
+  );
   return (
     <View style={styles.container}>
       <WidgetPreview
@@ -21,7 +25,7 @@ export default function HelloWidgetPreviewScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
