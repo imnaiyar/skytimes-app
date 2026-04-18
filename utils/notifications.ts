@@ -2,7 +2,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { EventDetails, EventKey } from "@skyhelperbot/utils";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
-import type { NotificationOffsetsByEventId, NotificationSettings } from "./storage";
+import type {
+  NotificationOffsetsByEventId,
+  NotificationSettings,
+} from "./storage";
 
 const SCHEDULED_NOTIFICATIONS_STORAGE_KEY = "notifications:scheduled";
 const NOTIFICATION_SOURCE = "game-app-event";
@@ -29,7 +32,10 @@ function isNativePlatform() {
   return Platform.OS === "ios" || Platform.OS === "android";
 }
 
-function toNotificationEvent([key, event]: [EventKey, EventDetails]): NotificationEvent {
+function toNotificationEvent([key, event]: [
+  EventKey,
+  EventDetails,
+]): NotificationEvent {
   return {
     id: String(key),
     name: event.event.name,
@@ -38,11 +44,14 @@ function toNotificationEvent([key, event]: [EventKey, EventDetails]): Notificati
 }
 
 function toNormalizedOffsetsById(offsetsById: NotificationOffsetsByEventId) {
-  return Object.entries(offsetsById).reduce<Record<string, number>>((acc, [eventId, value]) => {
-    if (typeof value !== "number") return acc;
-    acc[String(eventId)] = value;
-    return acc;
-  }, {});
+  return Object.entries(offsetsById).reduce<Record<string, number>>(
+    (acc, [eventId, value]) => {
+      if (typeof value !== "number") return acc;
+      acc[String(eventId)] = value;
+      return acc;
+    },
+    {},
+  );
 }
 
 async function loadScheduledMap() {
@@ -58,7 +67,10 @@ async function loadScheduledMap() {
 }
 
 async function saveScheduledMap(map: ScheduledMap) {
-  await AsyncStorage.setItem(SCHEDULED_NOTIFICATIONS_STORAGE_KEY, JSON.stringify(map));
+  await AsyncStorage.setItem(
+    SCHEDULED_NOTIFICATIONS_STORAGE_KEY,
+    JSON.stringify(map),
+  );
 }
 
 async function requestNotificationPermissions() {
@@ -88,6 +100,7 @@ async function scheduleReminderNotification(
   soundEnabled: boolean,
 ) {
   const triggerAtMs = event.startAtMs - offsetMinutes * 60_000;
+
   if (triggerAtMs <= Date.now()) return undefined;
 
   return Notifications.scheduleNotificationAsync({
@@ -95,12 +108,16 @@ async function scheduleReminderNotification(
       title: "Event reminder",
       body: `${event.name} starts in ${offsetMinutes} minutes.`,
       sound: soundEnabled,
-      data: { source: NOTIFICATION_SOURCE, kind: "reminder", eventId: event.id },
+      data: {
+        source: NOTIFICATION_SOURCE,
+        kind: "reminder",
+        eventId: event.id,
+      },
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DATE,
       channelId: Platform.OS === "android" ? ANDROID_CHANNEL_ID : undefined,
-      date: new Date(triggerAtMs),
+      date: triggerAtMs,
     },
   });
 }
@@ -131,7 +148,7 @@ async function cleanupOrphanedScheduledNotifications(map: ScheduledMap) {
 
   const all = await Notifications.getAllScheduledNotificationsAsync();
   const knownIds = new Set(
-    Object.values(map).flatMap(entry =>
+    Object.values(map).flatMap((entry) =>
       [entry.reminderNotificationId, entry.activeNotificationId].filter(
         (id): id is string => Boolean(id),
       ),
@@ -140,13 +157,15 @@ async function cleanupOrphanedScheduledNotifications(map: ScheduledMap) {
 
   const orphans = all
     .filter(
-      item =>
+      (item) =>
         item.content.data?.source === NOTIFICATION_SOURCE &&
         !knownIds.has(item.identifier),
     )
-    .map(item => item.identifier);
+    .map((item) => item.identifier);
 
-  await Promise.all(orphans.map(id => Notifications.cancelScheduledNotificationAsync(id)));
+  await Promise.all(
+    orphans.map((id) => Notifications.cancelScheduledNotificationAsync(id)),
+  );
 }
 
 function matchesEntry(
@@ -210,7 +229,10 @@ export async function scheduleEventNotification(
     offsetMinutes,
     options.soundEnabled,
   );
-  const activeNotificationId = await scheduleActiveNotification(event, options.soundEnabled);
+  const activeNotificationId = await scheduleActiveNotification(
+    event,
+    options.soundEnabled,
+  );
 
   const nextEntry: ScheduledEventNotifications = {
     eventId: event.id,
@@ -233,11 +255,14 @@ export async function cancelEventNotification(eventId: string) {
   const scheduled = map[eventId];
   if (!scheduled) return;
 
-  const ids = [scheduled.reminderNotificationId, scheduled.activeNotificationId].filter(
-    (id): id is string => Boolean(id),
-  );
+  const ids = [
+    scheduled.reminderNotificationId,
+    scheduled.activeNotificationId,
+  ].filter((id): id is string => Boolean(id));
 
-  await Promise.all(ids.map(id => Notifications.cancelScheduledNotificationAsync(id)));
+  await Promise.all(
+    ids.map((id) => Notifications.cancelScheduledNotificationAsync(id)),
+  );
   delete map[eventId];
   await saveScheduledMap(map);
 }
@@ -249,16 +274,22 @@ export async function resyncAllNotifications(
 ) {
   if (!isNativePlatform()) return;
 
-  const normalizedOffsetsById = toNormalizedOffsetsById(notificationOffsetsById);
+  const normalizedOffsetsById = toNormalizedOffsetsById(
+    notificationOffsetsById,
+  );
   const selectedIds = new Set(Object.keys(normalizedOffsetsById));
   const normalized = events
     .map(toNotificationEvent)
-    .filter(event => selectedIds.has(event.id));
-  const eventIds = new Set(normalized.map(event => event.id));
+    .filter((event) => selectedIds.has(event.id));
+  const eventIds = new Set(normalized.map((event) => event.id));
   const map = await loadScheduledMap();
 
-  const removedIds = Object.keys(map).filter(eventId => !eventIds.has(eventId));
-  await Promise.all(removedIds.map(eventId => cancelEventNotification(eventId)));
+  const removedIds = Object.keys(map).filter(
+    (eventId) => !eventIds.has(eventId),
+  );
+  await Promise.all(
+    removedIds.map((eventId) => cancelEventNotification(eventId)),
+  );
 
   for (const event of normalized) {
     const offsetMinutes = normalizedOffsetsById[event.id];
@@ -275,7 +306,8 @@ export async function resyncAllNotifications(
     }
 
     const current = map[event.id];
-    if (matchesEntry(current, event, offsetMinutes, settings.soundEnabled)) continue;
+    if (matchesEntry(current, event, offsetMinutes, settings.soundEnabled))
+      continue;
 
     await scheduleEventNotification(event, offsetMinutes, {
       enabled: settings.enabled,
@@ -293,17 +325,23 @@ export async function syncNotifications(
 ) {
   if (!isNativePlatform()) return;
 
-  const normalizedOffsetsById = toNormalizedOffsetsById(notificationOffsetsById);
+  const normalizedOffsetsById = toNormalizedOffsetsById(
+    notificationOffsetsById,
+  );
   const selectedIds = new Set(Object.keys(normalizedOffsetsById));
   const normalized = events
     .map(toNotificationEvent)
-    .filter(event => selectedIds.has(event.id));
-  const nextById = new Map(normalized.map(event => [event.id, event]));
+    .filter((event) => selectedIds.has(event.id));
+  const nextById = new Map(normalized.map((event) => [event.id, event]));
   const previous = await loadScheduledMap();
 
-  const removedIds = Object.keys(previous).filter(eventId => !nextById.has(eventId));
+  const removedIds = Object.keys(previous).filter(
+    (eventId) => !nextById.has(eventId),
+  );
   if (removedIds.length) {
-    await Promise.all(removedIds.map(eventId => cancelEventNotification(eventId)));
+    await Promise.all(
+      removedIds.map((eventId) => cancelEventNotification(eventId)),
+    );
   }
 
   for (const event of normalized) {
@@ -321,7 +359,8 @@ export async function syncNotifications(
     }
 
     const existing = previous[event.id];
-    if (matchesEntry(existing, event, offsetMinutes, settings.soundEnabled)) continue;
+    if (matchesEntry(existing, event, offsetMinutes, settings.soundEnabled))
+      continue;
 
     await scheduleEventNotification(event, offsetMinutes, {
       enabled: settings.enabled,
