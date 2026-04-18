@@ -1,6 +1,6 @@
+import { CATEGORY_ORDER } from "@/constants/common";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { EventKey } from "@skyhelperbot/utils";
-import { CATEGORY_ORDER } from "@/constants/categories";
 
 const PINNED_EVENTS_STORAGE_KEY = "events:pinned";
 const NOTIFIED_EVENTS_STORAGE_KEY = "events:notified";
@@ -48,8 +48,12 @@ function safeParseObject(value: string | null): Record<string, unknown> {
 }
 
 export function normalizeCategoryOrder(order: string[]) {
-  const valid = order.filter(category => DEFAULT_CATEGORY_ORDER.includes(category));
-  const missing = DEFAULT_CATEGORY_ORDER.filter(category => !valid.includes(category));
+  const valid = order.filter((category) =>
+    DEFAULT_CATEGORY_ORDER.includes(category),
+  );
+  const missing = DEFAULT_CATEGORY_ORDER.filter(
+    (category) => !valid.includes(category),
+  );
 
   return [...valid, ...missing];
 }
@@ -102,19 +106,20 @@ export async function loadNotificationOffsets() {
       return {} as NotificationOffsetsByEventId;
     }
 
-    return Object.entries(parsed as Record<string, unknown>).reduce<NotificationOffsetsByEventId>(
-      (acc, [key, value]) => {
-        acc[String(key)] = clampNotificationOffsetMinutes(value);
-        return acc;
-      },
-      {},
-    );
+    return Object.entries(
+      parsed as Record<string, unknown>,
+    ).reduce<NotificationOffsetsByEventId>((acc, [key, value]) => {
+      acc[String(key)] = clampNotificationOffsetMinutes(value);
+      return acc;
+    }, {});
   } catch {
     return {} as NotificationOffsetsByEventId;
   }
 }
 
-export async function saveNotificationOffsets(map: NotificationOffsetsByEventId) {
+export async function saveNotificationOffsets(
+  map: NotificationOffsetsByEventId,
+) {
   await AsyncStorage.setItem(NOTIFIED_EVENTS_STORAGE_KEY, JSON.stringify(map));
 }
 
@@ -128,7 +133,9 @@ export async function saveCategoryOrder(order: string[]) {
 }
 
 export async function loadNotificationSettings() {
-  const parsed = safeParseObject(await AsyncStorage.getItem(NOTIFICATION_SETTINGS_STORAGE_KEY));
+  const parsed = safeParseObject(
+    await AsyncStorage.getItem(NOTIFICATION_SETTINGS_STORAGE_KEY),
+  );
 
   return {
     enabled:
@@ -143,7 +150,10 @@ export async function loadNotificationSettings() {
 }
 
 export async function saveNotificationSettings(settings: NotificationSettings) {
-  await AsyncStorage.setItem(NOTIFICATION_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  await AsyncStorage.setItem(
+    NOTIFICATION_SETTINGS_STORAGE_KEY,
+    JSON.stringify(settings),
+  );
 }
 
 export type WidgetSettings = {
@@ -157,14 +167,24 @@ export const DEFAULT_WIDGET_SETTINGS: WidgetSettings = {
 };
 
 export async function loadWidgetSettings(): Promise<WidgetSettings> {
-  const parsed = safeParseObject(await AsyncStorage.getItem(WIDGET_SETTINGS_STORAGE_KEY));
+  const parsed = safeParseObject(
+    await AsyncStorage.getItem(WIDGET_SETTINGS_STORAGE_KEY),
+  );
 
   return {
-    enabled: typeof parsed.enabled === "boolean" ? parsed.enabled : DEFAULT_WIDGET_SETTINGS.enabled,
-    selectedEventKeys: Array.isArray(parsed.selectedEventKeys) ? (parsed.selectedEventKeys as string[]) : DEFAULT_WIDGET_SETTINGS.selectedEventKeys,
+    enabled:
+      typeof parsed.enabled === "boolean"
+        ? parsed.enabled
+        : DEFAULT_WIDGET_SETTINGS.enabled,
+    selectedEventKeys: Array.isArray(parsed.selectedEventKeys)
+      ? (parsed.selectedEventKeys as string[])
+      : DEFAULT_WIDGET_SETTINGS.selectedEventKeys,
   };
 }
 
 export async function saveWidgetSettings(settings: WidgetSettings) {
-  await AsyncStorage.setItem(WIDGET_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  await AsyncStorage.setItem(
+    WIDGET_SETTINGS_STORAGE_KEY,
+    JSON.stringify(settings),
+  );
 }

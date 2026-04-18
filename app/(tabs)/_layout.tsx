@@ -3,6 +3,7 @@ import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useReorderMode } from "@/utils/hooks";
+import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -14,7 +15,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import Entypo from '@expo/vector-icons/Entypo';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -57,6 +57,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: themeColors.tint,
+        tabBarPosition: ,
         tabBarInactiveTintColor: themeColors.tabIconDefault,
         tabBarStyle: {
           backgroundColor: themeColors.card,
@@ -80,29 +81,43 @@ export default function TabLayout() {
           title: reorder ? "Re-ordering..." : "SkyTimes",
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerRight: () => (
-            <View style={{ gap: 4, flexDirection: "row", alignItems: "center", backgroundColor: "transparent" }}>
-              {process.env.NODE_ENV === "development" && (<Link href="/widget_preview" asChild>
-                <Pressable>
-                  {({ pressed }) => (
-                    <Entypo name="popup" size={24} size={25}
-                      color={themeColors.text}
-                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }} />
-                  )}
-                </Pressable>
-              </Link>)}
-              
-              {!reorder && (<Link href="/instruction" asChild>
-                <Pressable>
-                  {({ pressed }) => (
-                    <FontAwesome
-                      name="info-circle"
-                      size={25}
-                      color={themeColors.text}
-                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                    />
-                  )}
-                </Pressable>
-              </Link>)}
+            <View
+              style={{
+                gap: 4,
+                flexDirection: "row",
+                alignItems: "center",
+                backgroundColor: "transparent",
+              }}
+            >
+              {process.env.NODE_ENV === "development" && (
+                <Link href="/widget_preview" asChild>
+                  <Pressable>
+                    {({ pressed }) => (
+                      <Entypo
+                        name="popup"
+                        size={25}
+                        color={themeColors.text}
+                        style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                      />
+                    )}
+                  </Pressable>
+                </Link>
+              )}
+
+              {!reorder && (
+                <Link href="/instruction" asChild>
+                  <Pressable>
+                    {({ pressed }) => (
+                      <FontAwesome
+                        name="info-circle"
+                        size={25}
+                        color={themeColors.text}
+                        style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                      />
+                    )}
+                  </Pressable>
+                </Link>
+              )}
               <Pressable onPress={toggle}>
                 <Animated.View>
                   <Animated.View
@@ -130,6 +145,18 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      {
+        <Tabs.Screen
+          name="quests"
+          options={{
+            title: "Quests",
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="cog-outline" size={24} color={color} />
+            ),
+          }}
+        />
+      }
       <Tabs.Screen
         name="settings"
         options={{
@@ -139,15 +166,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* <Tabs.Screen
-        name="widget_preview"
-        options={{
-          title: "Widget",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="cog-outline" size={24} color={color} />
-          ),
-        }}
-      /> */}
     </Tabs>
   );
 }

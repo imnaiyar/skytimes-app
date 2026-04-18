@@ -1,4 +1,4 @@
-import { CATEGORY_ORDER } from "@/constants/categories";
+import { CATEGORY_ORDER } from "@/constants/common";
 import type { EventKey } from "@skyhelperbot/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
