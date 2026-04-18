@@ -1,9 +1,13 @@
-import { StyleSheet, Switch } from 'react-native';
-import { Text, View } from '@/components/Themed';
-import { useNotifiedEvents, useNotificationSettings, useNow } from '@/utils/hooks';
-import { resyncAllNotifications } from '@/utils/notifications';
-import { useMemo } from 'react';
-import { SkytimesUtils } from '@skyhelperbot/utils';
+import { Text, View } from "@/components/Themed";
+import {
+  useNotificationSettings,
+  useNotifiedEvents,
+  useNow,
+} from "@/utils/hooks";
+import { resyncAllNotifications } from "@/utils/notifications";
+import { SkytimesUtils } from "@skyhelperbot/utils";
+import { useMemo } from "react";
+import { ScrollView, StyleSheet, Switch } from "react-native";
 
 export default function TabOneScreen() {
   const now = useNow();
@@ -13,32 +17,41 @@ export default function TabOneScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Notifications</Text>
-      <View style={styles.section}>
-        <View style={styles.row}>
-          <Text style={styles.label}>Enable notifications</Text>
-          <Switch
-            value={settings.enabled}
-            onValueChange={value => {
-              const nextSettings = { ...settings, enabled: value };
-              updateSettings({ enabled: value });
-              resyncAllNotifications(events, nextSettings, notificationOffsetsById).catch(() => undefined);
-            }}
-          />
+      <ScrollView style={styles.scrollContent}>
+        <Text style={styles.title}>Notifications</Text>
+        <View style={styles.section}>
+          <View style={styles.row}>
+            <Text style={styles.label}>Enable notifications</Text>
+            <Switch
+              value={settings.enabled}
+              onValueChange={(value) => {
+                const nextSettings = { ...settings, enabled: value };
+                updateSettings({ enabled: value });
+                resyncAllNotifications(
+                  events,
+                  nextSettings,
+                  notificationOffsetsById,
+                ).catch(() => undefined);
+              }}
+            />
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Play sound</Text>
+            <Switch
+              value={settings.soundEnabled}
+              onValueChange={(value) => {
+                const nextSettings = { ...settings, soundEnabled: value };
+                updateSettings({ soundEnabled: value });
+                resyncAllNotifications(
+                  events,
+                  nextSettings,
+                  notificationOffsetsById,
+                ).catch(() => undefined);
+              }}
+            />
+          </View>
         </View>
-
-        <View style={styles.row}>
-          <Text style={styles.label}>Play sound</Text>
-          <Switch
-            value={settings.soundEnabled}
-            onValueChange={value => {
-              const nextSettings = { ...settings, soundEnabled: value };
-              updateSettings({ soundEnabled: value });
-              resyncAllNotifications(events, nextSettings, notificationOffsetsById).catch(() => undefined);
-            }}
-          />
-        </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -50,19 +63,25 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
+  },
+
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 18,
+    paddingBottom: 30,
   },
   section: {
     gap: 16,
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

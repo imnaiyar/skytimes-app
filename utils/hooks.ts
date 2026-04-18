@@ -1,28 +1,32 @@
+import { CATEGORY_ORDER } from "@/constants/categories";
 import type { EventKey } from "@skyhelperbot/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CATEGORY_ORDER } from "@/constants/categories";
-import Animated, {
-  useSharedValue,
+import {
+  interpolate,
   useAnimatedStyle,
+  useSharedValue,
   withRepeat,
   withTiming,
-  interpolate,
 } from "react-native-reanimated";
 import { create } from "zustand";
 import {
+  clampNotificationOffsetMinutes,
   DEFAULT_NOTIFICATION_SETTINGS,
+  DEFAULT_WIDGET_SETTINGS,
   loadCategoryOrder,
   loadNotificationOffsets,
   loadNotificationSettings,
   loadPinnedEvents,
-  clampNotificationOffsetMinutes,
-  type NotificationOffsetsByEventId,
-  type NotificationSettings,
+  loadWidgetSettings,
   normalizeCategoryOrder,
   saveCategoryOrder,
   saveNotificationOffsets,
   saveNotificationSettings,
   savePinnedEvents,
+  saveWidgetSettings,
+  type NotificationOffsetsByEventId,
+  type NotificationSettings,
+  type WidgetSettings,
 } from "./storage";
 
 type ReorderModeState = {
@@ -30,7 +34,7 @@ type ReorderModeState = {
   setReorder: (v: boolean) => void;
 };
 
-export const useReorderMode = create<ReorderModeState>(set => ({
+export const useReorderMode = create<ReorderModeState>((set) => ({
   reorder: false,
   setReorder: (v: boolean) => set({ reorder: v }),
 }));
@@ -39,7 +43,9 @@ const useClockStore = create<{ now: number }>(() => ({
   now: Date.now(),
 }));
 
-const globalClock = globalThis as typeof globalThis & { __gameAppClockStarted?: boolean };
+const globalClock = globalThis as typeof globalThis & {
+  __gameAppClockStarted?: boolean;
+};
 
 if (!globalClock.__gameAppClockStarted) {
   globalClock.__gameAppClockStarted = true;
@@ -49,7 +55,7 @@ if (!globalClock.__gameAppClockStarted) {
 }
 
 export function useNow() {
-  return useClockStore(state => state.now);
+  return useClockStore((state) => state.now);
 }
 
 const DEFAULT_CATEGORY_ORDER: string[] = [...CATEGORY_ORDER];
@@ -61,7 +67,7 @@ export function usePinnedEvents() {
     let mounted = true;
 
     loadPinnedEvents()
-      .then(keys => {
+      .then((keys) => {
         if (!mounted) return;
         setPinnedKeys(keys);
       })
@@ -75,9 +81,9 @@ export function usePinnedEvents() {
   const pinnedSet = useMemo(() => new Set(pinnedKeys), [pinnedKeys]);
 
   const togglePin = useCallback((key: EventKey) => {
-    setPinnedKeys(prev => {
+    setPinnedKeys((prev) => {
       const next = prev.includes(key)
-        ? prev.filter(existing => existing !== key)
+        ? prev.filter((existing) => existing !== key)
         : [...prev, key];
 
       savePinnedEvents(next).catch(() => undefined);
@@ -89,13 +95,14 @@ export function usePinnedEvents() {
 }
 
 export function useNotifiedEvents() {
-  const [notificationOffsetsById, setNotificationOffsetsById] = useState<NotificationOffsetsByEventId>({});
+  const [notificationOffsetsById, setNotificationOffsetsById] =
+    useState<NotificationOffsetsByEventId>({});
 
   useEffect(() => {
     let mounted = true;
 
     loadNotificationOffsets()
-      .then(map => {
+      .then((map) => {
         if (!mounted) return;
         setNotificationOffsetsById(map);
       })
@@ -107,7 +114,9 @@ export function useNotifiedEvents() {
   }, []);
 
   const notificationEnabledSet = useMemo(() => {
-    return new Set(Object.keys(notificationOffsetsById).map(key => key as EventKey));
+    return new Set(
+      Object.keys(notificationOffsetsById).map((key) => key as EventKey),
+    );
   }, [notificationOffsetsById]);
 
   const getEventNotificationOffset = useCallback(
@@ -115,20 +124,23 @@ export function useNotifiedEvents() {
     [notificationOffsetsById],
   );
 
-  const setEventNotificationOffset = useCallback((key: EventKey, offsetMinutes: number) => {
-    setNotificationOffsetsById(previous => {
-      const next = {
-        ...previous,
-        [String(key)]: clampNotificationOffsetMinutes(offsetMinutes),
-      };
+  const setEventNotificationOffset = useCallback(
+    (key: EventKey, offsetMinutes: number) => {
+      setNotificationOffsetsById((previous) => {
+        const next = {
+          ...previous,
+          [String(key)]: clampNotificationOffsetMinutes(offsetMinutes),
+        };
 
-      saveNotificationOffsets(next).catch(() => undefined);
-      return next;
-    });
-  }, []);
+        saveNotificationOffsets(next).catch(() => undefined);
+        return next;
+      });
+    },
+    [],
+  );
 
   const disableEventNotification = useCallback((key: EventKey) => {
-    setNotificationOffsetsById(previous => {
+    setNotificationOffsetsById((previous) => {
       const next = { ...previous };
       delete next[String(key)];
       saveNotificationOffsets(next).catch(() => undefined);
@@ -146,13 +158,15 @@ export function useNotifiedEvents() {
 }
 
 export function useCategoryOrder() {
-  const [categoryOrder, setCategoryOrderState] = useState<string[]>(DEFAULT_CATEGORY_ORDER);
+  const [categoryOrder, setCategoryOrderState] = useState<string[]>(
+    DEFAULT_CATEGORY_ORDER,
+  );
 
   useEffect(() => {
     let mounted = true;
 
     loadCategoryOrder()
-      .then(order => {
+      .then((order) => {
         if (!mounted) return;
         setCategoryOrderState(order);
       })
@@ -181,11 +195,7 @@ export function usePulse(active = true) {
       return;
     }
 
-    progress.value = withRepeat(
-      withTiming(1, { duration: 1200 }),
-      -1,
-      true
-    );
+    progress.value = withRepeat(withTiming(1, { duration: 1200 }), -1, true);
   }, [active]);
 
   const style = useAnimatedStyle(() => {
@@ -210,7 +220,7 @@ export function useNotificationSettings() {
     let mounted = true;
 
     loadNotificationSettings()
-      .then(value => {
+      .then((value) => {
         if (!mounted) return;
         setSettingsState(value);
       })
@@ -222,7 +232,7 @@ export function useNotificationSettings() {
   }, []);
 
   const updateSettings = useCallback((next: Partial<NotificationSettings>) => {
-    setSettingsState(previous => {
+    setSettingsState((previous) => {
       const merged = { ...previous, ...next };
       saveNotificationSettings(merged).catch(() => undefined);
       return merged;
@@ -230,4 +240,35 @@ export function useNotificationSettings() {
   }, []);
 
   return { settings, updateSettings };
+}
+
+export function useWidgetSettings() {
+  const [widgetSettings, setWidgetSettings] = useState<WidgetSettings>(
+    DEFAULT_WIDGET_SETTINGS,
+  );
+
+  useEffect(() => {
+    let mounted = true;
+
+    loadWidgetSettings()
+      .then((value) => {
+        if (!mounted) return;
+        setWidgetSettings(value);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const updateWidgetSettings = useCallback((next: Partial<WidgetSettings>) => {
+    setWidgetSettings((prev) => {
+      const merged = { ...prev, ...next };
+      saveWidgetSettings(merged).catch(() => undefined);
+      return merged;
+    });
+  }, []);
+
+  return { widgetSettings, updateWidgetSettings };
 }
