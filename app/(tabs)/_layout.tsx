@@ -14,6 +14,8 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import Entypo from '@expo/vector-icons/Entypo';
+
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -79,6 +81,16 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerRight: () => (
             <View style={{ gap: 4, flexDirection: "row", alignItems: "center", backgroundColor: "transparent" }}>
+              {process.env.NODE_ENV === "development" && (<Link href="/widget_preview" asChild>
+                <Pressable>
+                  {({ pressed }) => (
+                    <Entypo name="popup" size={24} size={25}
+                      color={themeColors.text}
+                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }} />
+                  )}
+                </Pressable>
+              </Link>)}
+              
               {!reorder && (<Link href="/instruction" asChild>
                 <Pressable>
                   {({ pressed }) => (
