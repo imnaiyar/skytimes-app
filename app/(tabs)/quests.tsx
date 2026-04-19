@@ -13,8 +13,9 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { DateTime } from "luxon";
-import { useEffect } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import ImageView from "react-native-image-viewing";
 
 export default function Quests() {
   const { quests, loading, error, fetchQuests } = useDailyQuestsStore();
@@ -71,10 +72,13 @@ const styles = StyleSheet.create({
 
 function QuestItem({ quest }: { quest: DailyQuest }) {
   const themeColor = Colors[useColorScheme() ?? "dark"];
+
+  const [imageModalVisible, setImageModal] = useState(false);
   const image = quest.images?.[0];
   const credit = image?.by;
   const source = image?.source;
   const player = useVideoPlayer({ useCaching: true, uri: image?.url });
+
   const isValid = isTodaysDate(quest.date);
   const isVideo = getMediaType(image?.url ?? "") === "video";
 
@@ -171,15 +175,26 @@ function QuestItem({ quest }: { quest: DailyQuest }) {
                 allowsPictureInPicture
               />
             ) : (
-              <Image
-                source={image.url}
-                style={{
-                  width: "100%",
-                  height: 300,
-                  borderRadius: 10,
-                }}
-                contentFit="contain"
-              />
+              <>
+                {/* TODO: Have dedicate component for this with more customizations */}
+                <Pressable onPress={() => setImageModal(true)}>
+                  <Image
+                    source={image.url}
+                    style={{
+                      width: "100%",
+                      height: 300,
+                      borderRadius: 10,
+                    }}
+                    contentFit="contain"
+                  />
+                </Pressable>
+                <ImageView
+                  images={[{ uri: image.url }]}
+                  imageIndex={0}
+                  visible={imageModalVisible}
+                  onRequestClose={() => setImageModal(false)}
+                />
+              </>
             )}
           </View>
         )}
