@@ -34,7 +34,7 @@ export function CategoryList({
   onDisableNotification,
   notificationsEnabled,
 }: {
-  events: Array<[EventKey, EventDetails]>;
+  events: [EventKey, EventDetails][];
   notificationOffsetsById: NotificationOffsetsByEventId;
   onSetNotificationOffset: (key: EventKey, offsetMinutes: number) => void;
   onDisableNotification: (key: EventKey) => void;

@@ -1,13 +1,12 @@
 import { SkytimesUtils } from "@skyhelperbot/utils";
 import { useEffect, useMemo } from "react";
-import { Platform, StyleSheet } from "react-native";
+import { Platform } from "react-native";
 import { requestWidgetUpdate } from "react-native-android-widget";
 
 import { CategoryList } from "@/components/EventList";
 import {
   useNotificationSettings,
   useNotifiedEvents,
-  useNow,
   useWidgetSettings,
 } from "@/utils/hooks";
 import { syncNotifications } from "@/utils/notifications";
@@ -17,8 +16,7 @@ import { getWidgetEventRows } from "@/widgets/events-widget-data";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function TabTwoScreen() {
-  const now = useNow();
-  const events = useMemo(() => SkytimesUtils.allEventDetails(), [now]);
+  const events = SkytimesUtils.allEventDetails();
   const { settings } = useNotificationSettings();
   const {
     notificationOffsetsById,
@@ -99,22 +97,3 @@ export default function TabTwoScreen() {
     </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexDirection: "row",
-    padding: 4,
-    paddingBottom: 10,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
-  },
-});

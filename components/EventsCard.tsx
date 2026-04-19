@@ -31,7 +31,11 @@ export function EventCard({
   onTogglePin: (key: EventKey) => void;
   onEnableNotification: (key: EventKey, eventName: string) => void;
   onDisableNotification: (key: EventKey, eventName: string) => void;
-  onEditNotificationOffset: (key: EventKey, eventName: string, currentOffsetMinutes: number) => void;
+  onEditNotificationOffset: (
+    key: EventKey,
+    eventName: string,
+    currentOffsetMinutes: number,
+  ) => void;
   notificationsEnabled: boolean;
   index?: number;
 }) {
@@ -44,7 +48,8 @@ export function EventCard({
   if (status === "upcoming") {
     timeLabel += `(in ${formatTime(nextTime.toMillis() - now)})`;
   } else if (status === "active") {
-    timeLabel = "Ends at " + timeLabel + `(in ${formatTime(endTime!.toMillis() - now)})`;
+    timeLabel =
+      "Ends at " + timeLabel + `(in ${formatTime(endTime!.toMillis() - now)})`;
   } else {
     timeLabel = "Ended";
   }
@@ -53,7 +58,8 @@ export function EventCard({
   const Container = status === "active" ? Animated.View : View;
   const colors = [themeColors.eventRowA, themeColors.eventRowB];
   const eventName = item.event.event.name;
-  const currentOffsetMinutes = item.notificationOffsetMinutes ?? DEFAULT_NOTIFICATION_OFFSET_MINUTES;
+  const currentOffsetMinutes =
+    item.notificationOffsetMinutes ?? DEFAULT_NOTIFICATION_OFFSET_MINUTES;
 
   return (
     <Container
@@ -99,7 +105,12 @@ export function EventCard({
             }}
             onLongPress={
               item.notified
-                ? () => onEditNotificationOffset(item.key, eventName, currentOffsetMinutes)
+                ? () =>
+                    onEditNotificationOffset(
+                      item.key,
+                      eventName,
+                      currentOffsetMinutes,
+                    )
                 : undefined
             }
             delayLongPress={220}
@@ -137,7 +148,9 @@ export function EventCard({
         {timeLabel}
       </Text>
 
-      {status === "active" && <Text style={[styles.badge, { color: themeColors.success }]}>LIVE</Text>}
+      {status === "active" && (
+        <Text style={[styles.badge, { color: themeColors.success }]}>LIVE</Text>
+      )}
     </Container>
   );
 }
@@ -163,7 +176,11 @@ export function CategorySection({
   onTogglePin: (key: EventKey) => void;
   onEnableNotification: (key: EventKey, eventName: string) => void;
   onDisableNotification: (key: EventKey, eventName: string) => void;
-  onEditNotificationOffset: (key: EventKey, eventName: string, currentOffsetMinutes: number) => void;
+  onEditNotificationOffset: (
+    key: EventKey,
+    eventName: string,
+    currentOffsetMinutes: number,
+  ) => void;
   notificationsEnabled: boolean;
   disabled?: boolean;
 }) {
@@ -222,9 +239,14 @@ export function CategorySection({
               notificationsEnabled={notificationsEnabled}
               index={index}
             />
-            {(index + 1) < events.length && (<View
-              style={[styles.separator, { backgroundColor: themeColors.divider }]}
-            />)}
+            {index + 1 < events.length && (
+              <View
+                style={[
+                  styles.separator,
+                  { backgroundColor: themeColors.divider },
+                ]}
+              />
+            )}
           </View>
         ))}
     </View>
@@ -275,8 +297,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "700",
   },
-  chevron: {
-  },
+  chevron: {},
   separator: {
     height: 1.15,
     width: "100%",

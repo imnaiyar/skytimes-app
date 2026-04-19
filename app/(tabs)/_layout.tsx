@@ -20,7 +20,11 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+function CustomTabBar({
+  state,
+  descriptors,
+  navigation,
+}: BottomTabBarProps): React.ReactNode {
   const themeCOlor = Colors[useColorScheme() ?? "light"];
   const [pressedRoute, setPressedRoute] = React.useState<string | null>(null);
   const pressScale = useSharedValue(1);

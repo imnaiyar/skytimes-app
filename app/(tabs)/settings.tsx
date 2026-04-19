@@ -1,19 +1,13 @@
 import { Text, View } from "@/components/Themed";
-import {
-  useNotificationSettings,
-  useNotifiedEvents,
-  useNow,
-} from "@/utils/hooks";
+import { useNotificationSettings, useNotifiedEvents } from "@/utils/hooks";
 import { resyncAllNotifications } from "@/utils/notifications";
 import { SkytimesUtils } from "@skyhelperbot/utils";
-import { useMemo } from "react";
 import { ScrollView, StyleSheet, Switch } from "react-native";
 
 export default function TabOneScreen() {
-  const now = useNow();
   const { settings, updateSettings } = useNotificationSettings();
   const { notificationOffsetsById } = useNotifiedEvents();
-  const events = useMemo(() => SkytimesUtils.allEventDetails(), [now]);
+  const events = SkytimesUtils.allEventDetails();
 
   return (
     <View style={styles.container}>
