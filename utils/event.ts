@@ -1,5 +1,5 @@
-import type { Times, EventKey, EventDetails } from "@skyhelperbot/utils";
-import { EventCategory } from "@/constants/categories";
+import { EventCategory } from "@/constants/common";
+import type { EventDetails, EventKey, Times } from "@skyhelperbot/utils";
 import type { NotificationOffsetsByEventId } from "./storage";
 
 export type EventStatus = "active" | "upcoming";
@@ -25,12 +25,9 @@ export function formatTime(ms: number) {
   const m = Math.floor((total % 3600) / 60);
   const s = total % 60;
 
-  const parts = [
-    d && `${d}d`,
-    h && `${h}h`,
-    m && `${m}m`,
-    s && `${s}s`,
-  ].filter(Boolean);
+  const parts = [d && `${d}d`, h && `${h}h`, m && `${m}m`, s && `${s}s`].filter(
+    Boolean,
+  );
 
   return parts.length ? parts.join(" ") : "0s";
 }
@@ -43,7 +40,8 @@ function getSortPriority(status: EventStatus, pinned: boolean) {
 }
 
 export function sortGroupedEvents(a: GroupedEvent, b: GroupedEvent) {
-  const priority = getSortPriority(a.status, a.pinned) - getSortPriority(b.status, b.pinned);
+  const priority =
+    getSortPriority(a.status, a.pinned) - getSortPriority(b.status, b.pinned);
   if (priority !== 0) return priority;
 
   const timeA =
@@ -73,10 +71,13 @@ export function groupEvents(
     return { key, event, status, pinned, notified, notificationOffsetMinutes };
   });
 
-  return Object.entries(EventCategory).reduce((acc, next) => {
-    acc[next[0]] = mappedEvents
-      .filter(e => next[1].includes(e.key))
-      .sort(sortGroupedEvents);
-    return acc;
-  }, {} as Record<string, GroupedEvent[]>);
+  return Object.entries(EventCategory).reduce(
+    (acc, next) => {
+      acc[next[0]] = mappedEvents
+        .filter((e) => next[1].includes(e.key))
+        .sort(sortGroupedEvents);
+      return acc;
+    },
+    {} as Record<string, GroupedEvent[]>,
+  );
 }

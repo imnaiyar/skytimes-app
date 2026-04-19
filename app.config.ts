@@ -45,6 +45,12 @@ const plugins: ExpoConfig["plugins"] = [
       },
     },
   ],
+  [
+    "expo-video",
+    {
+      supportsPictureInPicture: true,
+    },
+  ],
   ["react-native-android-widget", widgetConfig],
 ];
 
