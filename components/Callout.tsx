@@ -31,10 +31,7 @@ type CalloutTone = {
   defaultIcon: string;
 };
 
-const CONFIG: Record<
-  CalloutVariant,
-  CalloutTone
-> = {
+const CONFIG: Record<CalloutVariant, CalloutTone> = {
   info: {
     bg: "#e8f0ff",
     border: "#b7caea",

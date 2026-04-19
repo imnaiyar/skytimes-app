@@ -9,13 +9,7 @@ import {
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
 import { useEffect, useState } from "react";
-import {
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View
-} from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 type OffsetPickerModalProps = {
   visible: boolean;
@@ -42,14 +36,13 @@ export function OffsetPickerModal({
     clampNotificationOffsetMinutes(initialOffsetMinutes),
   );
   const [trackWidth, setTrackWidth] = useState(1);
-  const range = MAX_NOTIFICATION_OFFSET_MINUTES - MIN_NOTIFICATION_OFFSET_MINUTES;
+  const range =
+    MAX_NOTIFICATION_OFFSET_MINUTES - MIN_NOTIFICATION_OFFSET_MINUTES;
 
   useEffect(() => {
     if (!visible) return;
     setOffsetMinutes(clampNotificationOffsetMinutes(initialOffsetMinutes));
   }, [initialOffsetMinutes, visible]);
-
-
 
   const isMinusDisabled = offsetMinutes <= MIN_NOTIFICATION_OFFSET_MINUTES;
   const isPlusDisabled = offsetMinutes >= MAX_NOTIFICATION_OFFSET_MINUTES;
@@ -65,19 +58,30 @@ export function OffsetPickerModal({
         <View
           style={[
             styles.card,
-            { backgroundColor: themeColors.card, borderColor: themeColors.border },
+            {
+              backgroundColor: themeColors.card,
+              borderColor: themeColors.border,
+            },
           ]}
         >
-          <Text style={[styles.title, { color: themeColors.text }]}>{title}</Text>
+          <Text style={[styles.title, { color: themeColors.text }]}>
+            {title}
+          </Text>
           {description ? (
-            <Text style={[styles.description, { color: themeColors.mutedText }]}>
+            <Text
+              style={[styles.description, { color: themeColors.mutedText }]}
+            >
               {description}
             </Text>
           ) : null}
 
           <View style={styles.valueRow}>
             <Pressable
-              onPress={() => setOffsetMinutes(offsetMinutes - NOTIFICATION_OFFSET_STEP_MINUTES)}
+              onPress={() =>
+                setOffsetMinutes(
+                  offsetMinutes - NOTIFICATION_OFFSET_STEP_MINUTES,
+                )
+              }
               disabled={isMinusDisabled}
               style={[
                 styles.iconButton,
@@ -88,10 +92,16 @@ export function OffsetPickerModal({
               <Ionicons name="remove" size={18} color={themeColors.icon} />
             </Pressable>
 
-            <Text style={[styles.valueText, { color: themeColors.text }]}>{offsetMinutes}m</Text>
+            <Text style={[styles.valueText, { color: themeColors.text }]}>
+              {offsetMinutes}m
+            </Text>
 
             <Pressable
-              onPress={() => setOffsetMinutes(offsetMinutes + NOTIFICATION_OFFSET_STEP_MINUTES)}
+              onPress={() =>
+                setOffsetMinutes(
+                  offsetMinutes + NOTIFICATION_OFFSET_STEP_MINUTES,
+                )
+              }
               disabled={isPlusDisabled}
               style={[
                 styles.iconButton,
@@ -112,20 +122,34 @@ export function OffsetPickerModal({
             onValueChange={setOffsetMinutes}
             step={NOTIFICATION_OFFSET_STEP_MINUTES}
             value={offsetMinutes}
-/>
+          />
 
           <View style={styles.actions}>
             <Pressable
               onPress={onCancel}
-              style={[styles.actionButton, { backgroundColor: themeColors.surfaceMuted }]}
+              style={[
+                styles.actionButton,
+                { backgroundColor: themeColors.surfaceMuted },
+              ]}
             >
-              <Text style={[styles.actionText, { color: themeColors.text }]}>Cancel</Text>
+              <Text style={[styles.actionText, { color: themeColors.text }]}>
+                Cancel
+              </Text>
             </Pressable>
             <Pressable
-              onPress={() => onSave(clampNotificationOffsetMinutes(offsetMinutes))}
-              style={[styles.actionButton, { backgroundColor: themeColors.success }]}
+              onPress={() =>
+                onSave(clampNotificationOffsetMinutes(offsetMinutes))
+              }
+              style={[
+                styles.actionButton,
+                { backgroundColor: themeColors.success },
+              ]}
             >
-              <Text style={[styles.actionText, { color: themeColors.background }]}>Save</Text>
+              <Text
+                style={[styles.actionText, { color: themeColors.background }]}
+              >
+                Save
+              </Text>
             </Pressable>
           </View>
         </View>

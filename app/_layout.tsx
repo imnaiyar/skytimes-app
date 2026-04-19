@@ -7,7 +7,7 @@ import {
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
@@ -80,17 +80,19 @@ function RootLayoutNav() {
         },
       }}
     >
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="instruction"
-          options={{ presentation: "modal", title: "Instructions" }}
-        />
-        <Stack.Screen
-          name="widget_preview"
-          options={{ presentation: "modal", title: "Widget" }}
-        />
-      </Stack>
+      <React.StrictMode>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="instruction"
+            options={{ presentation: "modal", title: "Instructions" }}
+          />
+          <Stack.Screen
+            name="widget_preview"
+            options={{ presentation: "modal", title: "Widget" }}
+          />
+        </Stack>
+      </React.StrictMode>
     </ThemeProvider>
   );
 }

@@ -119,6 +119,7 @@ const config: ExpoConfig = {
   plugins,
   experiments: {
     typedRoutes: true,
+    reactCompiler: true,
   },
   extra: {
     router: {},

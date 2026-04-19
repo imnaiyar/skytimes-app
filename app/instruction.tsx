@@ -1,10 +1,10 @@
-import { StatusBar } from 'expo-status-bar';
-import { Platform, ScrollView, StyleSheet } from 'react-native';
+import { StatusBar } from "expo-status-bar";
+import { Platform, ScrollView, StyleSheet } from "react-native";
 
-import { Text, View } from '@/components/Themed';
-import { useColorScheme } from '@/components/useColorScheme';
-import Colors from '@/constants/Colors';
-import { APP_INSTRUCTIONS } from '@/constants/instructions';
+import { Text, View } from "@/components/Themed";
+import { useColorScheme } from "@/components/useColorScheme";
+import Colors from "@/constants/Colors";
+import { APP_INSTRUCTIONS } from "@/constants/instructions";
 
 export default function ModalScreen() {
   const colorScheme = useColorScheme();
@@ -17,9 +17,7 @@ export default function ModalScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.hero}>
-          <Text style={styles.subtitle}>
-            Quick guide to the app.
-          </Text>
+          <Text style={styles.subtitle}>Quick guide to the app.</Text>
         </View>
 
         <View style={styles.list}>
@@ -36,7 +34,10 @@ export default function ModalScreen() {
                 darkColor={Colors.dark.card}
               >
                 <View
-                  style={[styles.badge, { backgroundColor: themeColors.surfaceMuted }]}
+                  style={[
+                    styles.badge,
+                    { backgroundColor: themeColors.surfaceMuted },
+                  ]}
                   lightColor={Colors.light.surfaceMuted}
                   darkColor={Colors.dark.surfaceMuted}
                 >
@@ -44,7 +45,9 @@ export default function ModalScreen() {
                 </View>
                 <Text style={styles.cardTitle}>{instruction.title}</Text>
               </View>
-              <Text style={styles.cardDescription}>{instruction.description}</Text>
+              <Text style={styles.cardDescription}>
+                {instruction.description}
+              </Text>
             </View>
           ))}
         </View>
@@ -55,13 +58,20 @@ export default function ModalScreen() {
           darkColor={Colors.dark.card}
         >
           <Text style={styles.footerText}>
-            Tip: Keep global notifications enabled in Settings so your per-event reminders can fire.
+            Tip: Keep global notifications enabled in Settings so your per-event
+            reminders can fire.
           </Text>
         </View>
       </ScrollView>
 
       <StatusBar
-        style={Platform.OS === "ios" ? (colorScheme === "dark" ? "light" : "dark") : "auto"}
+        style={
+          Platform.OS === "ios"
+            ? colorScheme === "dark"
+              ? "light"
+              : "dark"
+            : "auto"
+        }
       />
     </View>
   );
@@ -81,7 +91,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: '800',
+    fontWeight: "800",
     marginBottom: 8,
   },
   subtitle: {
@@ -99,8 +109,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
     marginBottom: 8,
   },
@@ -108,16 +118,16 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   badgeText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   cardTitle: {
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: "700",
     flex: 1,
   },
   cardDescription: {
