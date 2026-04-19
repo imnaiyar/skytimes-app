@@ -2,18 +2,21 @@ import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useReorderMode } from "@/utils/hooks";
+import { useDailyQuestsStore } from "@/utils/quests";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { Image } from "expo-image";
 import { Link, Tabs } from "expo-router";
-import React from "react";
-import { Pressable, Text, useWindowDimensions, View } from "react-native";
+import React, { useState } from "react";
+import { Pressable, Text, ToastAndroid, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
+  withRepeat,
   withTiming,
 } from "react-native-reanimated";
 
@@ -136,6 +139,44 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   );
 }
 
+function AnimatedRefreshButton() {
+  const themeColors = Colors[useColorScheme() ?? "light"];
+  const rotation = useSharedValue(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const refreshStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value}deg` }],
+  }));
+  const { fetchQuests } = useDailyQuestsStore();
+  const handleRefreshPress = () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    rotation.value = 0;
+    rotation.value = withRepeat(withTiming(360, { duration: 600 }), 1, false);
+    fetchQuests().then(() => {
+      setIsAnimating(false);
+      ToastAndroid.show("Refetched Quests", ToastAndroid.SHORT);
+    });
+  };
+
+  return (
+    <Pressable
+      style={{ margin: 15 }}
+      onPress={handleRefreshPress}
+      disabled={isAnimating}
+    >
+      <Animated.View style={refreshStyle}>
+        <Ionicons
+          name="refresh"
+          size={24}
+          color={isAnimating ? themeColors.mutedText : themeColors.text}
+          style={{ opacity: isAnimating ? 0.6 : 1 }}
+        />
+      </Animated.View>
+    </Pressable>
+  );
+}
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme ?? "light"];
@@ -164,7 +205,6 @@ export default function TabLayout() {
       duration: 200,
     });
   };
-  const isLargeScreen = useWindowDimensions().width >= 768;
   return (
     <Tabs
       screenOptions={{
@@ -261,8 +301,17 @@ export default function TabLayout() {
           options={{
             title: "Quests",
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="cog-outline" size={size} color={color} />
+              <Image
+                source={require("@/assets/images/quest_icon.svg")}
+                style={{
+                  width: size,
+                  height: size,
+                  borderRadius: 10,
+                  tintColor: color,
+                }}
+              />
             ),
+            headerRight: () => <AnimatedRefreshButton />,
           }}
         />
       }

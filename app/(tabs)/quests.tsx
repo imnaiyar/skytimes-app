@@ -1,24 +1,28 @@
 import { LoadingScreen } from "@/components/LoadingScreen";
-import { Text, View } from "@/components/Themed";
+import { Text } from "@/components/Themed";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import {
   DailyQuest,
   getMediaType,
   isTodaysDate,
-  useDailyQuests,
+  useDailyQuestsStore,
 } from "@/utils/quests";
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { Image } from "expo-image";
+import { useVideoPlayer, VideoView } from "expo-video";
+import { DateTime } from "luxon";
+import { useEffect } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
 
 export default function Quests() {
-  const { quests, loading, error, refresh } = useDailyQuests();
+  const { quests, loading, error, fetchQuests } = useDailyQuestsStore();
   const themeColor = Colors[useColorScheme() ?? "dark"];
-  const { height } = useWindowDimensions();
+
+  useEffect(() => {
+    // fetch quests at least once
+    fetchQuests();
+  }, []);
+
   return (
     <View style={styles.container}>
       {loading ? (
@@ -35,12 +39,18 @@ export default function Quests() {
               marginBottom: 10,
             }}
           >
-            Hello
+            Daily Quests ({quests?.quests.length}) -{" "}
+            {DateTime.fromISO(quests!.last_updated).toFormat("dd LLL yyyy")}
           </Text>
 
-          <ScrollView style={{ flex: 1, minHeight: "80%" }}>
+          <ScrollView
+            style={{ flex: 1, minHeight: "80%" }}
+            showsVerticalScrollIndicator={false}
+          >
             <View style={{ flex: 1, gap: 20 }}>
-              {quests?.quests.map(renderQuest)}
+              {quests?.quests.map((item, i) => (
+                <QuestItem key={i} quest={item} />
+              ))}
             </View>
           </ScrollView>
         </View>
@@ -52,30 +62,28 @@ export default function Quests() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 5,
     margin: 20,
   },
 });
 
-function renderQuest(quest: DailyQuest, index = 0) {
+function QuestItem({ quest }: { quest: DailyQuest }) {
   const themeColor = Colors[useColorScheme() ?? "dark"];
   const image = quest.images?.[0];
   const credit = image?.by;
   const source = image?.source;
-
+  const player = useVideoPlayer({ useCaching: true, uri: image?.url });
   const isValid = isTodaysDate(quest.date);
   const isVideo = getMediaType(image?.url ?? "") === "video";
+
   if (!isValid)
     return <Text>This quest seems to be outdated or invalid!.</Text>;
 
   return (
     <View
-      key={index}
       style={{
-        flex: 1,
+        width: "100%",
         gap: 4,
-        flexDirection: "row",
-        paddingLeft: 10,
         backgroundColor: themeColor.card,
         borderWidth: 1,
         borderColor: themeColor.border,
@@ -83,30 +91,55 @@ function renderQuest(quest: DailyQuest, index = 0) {
         overflow: "hidden",
       }}
     >
-      <View style={{ backgroundColor: "transparent" }}>
+      <View style={{ flex: 1 }}>
         <Text
           style={{
             fontWeight: "bold",
             marginBottom: 10,
-            fontSize: 30,
+            padding: 10,
+            fontSize: 20,
             borderBottomColor: themeColor.border,
             borderBottomWidth: 1,
-            width: "auto",
           }}
         >
           {quest.title}
         </Text>
+
         {quest.description && (
           <Text style={{ fontSize: 8, color: themeColor.mutedText }}>
             {quest.description}
           </Text>
         )}
+
         {image?.url && (
-          <View style={{ alignContent: "center", alignItems: "center" }}>
+          <View
+            style={{
+              width: "100%",
+              paddingVertical: 10,
+              paddingHorizontal: 10,
+            }}
+          >
             {isVideo ? (
-              "Video Not Supported Yet"
+              <VideoView
+                player={player}
+                style={{
+                  width: "100%",
+                  height: 200,
+                  borderRadius: 10,
+                }}
+                contentFit="contain"
+                allowsPictureInPicture
+              />
             ) : (
-              <Image height={40} width={40} source={{ uri: image.url }} />
+              <Image
+                source={image.url}
+                style={{
+                  width: "100%",
+                  height: 300,
+                  borderRadius: 10,
+                }}
+                contentFit="contain"
+              />
             )}
           </View>
         )}
