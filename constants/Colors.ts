@@ -21,8 +21,8 @@ export default {
     eventRowA: "#e8efff",
     eventRowB: "#dce8ff",
     overlay: "rgba(15, 23, 42, 0.42)",
-    tabIconDefault: "#64748b",
-    tabIconSelected: tintColorLight,
+    tabIconDefault: "#111",
+    tabIconSelected: "#eee",
   },
   dark: {
     text: "#e5edff",
@@ -43,7 +43,7 @@ export default {
     eventRowA: "#222d44ac",
     eventRowB: "#323c5198",
     overlay: "rgba(0, 0, 0, 0.58)",
-    tabIconDefault: "#8ea1c7",
-    tabIconSelected: tintColorDark,
+    tabIconDefault: "#aaa",
+    tabIconSelected: "#111",
   },
 };

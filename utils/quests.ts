@@ -72,3 +72,12 @@ export function useDailyQuests() {
 
   return { quests, loading, error, refresh: fetchQuests } as const;
 }
+
+export function getMediaType(url: string) {
+  const cleanUrl = url.split("?")[0].toLowerCase();
+
+  if (/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/.test(cleanUrl)) return "image";
+  if (/\.(mp4|webm|mov|avi|mkv)$/.test(cleanUrl)) return "video";
+
+  return "unknown";
+}
