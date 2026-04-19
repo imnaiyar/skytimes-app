@@ -23,6 +23,8 @@ export default {
     overlay: "rgba(15, 23, 42, 0.42)",
     tabIconDefault: "#111",
     tabIconSelected: "#eee",
+
+    link: "#3b82f6",
   },
   dark: {
     text: "#e5edff",
@@ -45,5 +47,6 @@ export default {
     overlay: "rgba(0, 0, 0, 0.58)",
     tabIconDefault: "#aaa",
     tabIconSelected: "#111",
+    link: "#7dc4ff",
   },
 };

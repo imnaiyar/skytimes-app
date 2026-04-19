@@ -1,3 +1,4 @@
+import { ExternalLink } from "@/components/ExternalLink";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { Text } from "@/components/Themed";
 import { useColorScheme } from "@/components/useColorScheme";
@@ -8,6 +9,7 @@ import {
   isTodaysDate,
   useDailyQuestsStore,
 } from "@/utils/quests";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { DateTime } from "luxon";
@@ -105,6 +107,44 @@ function QuestItem({ quest }: { quest: DailyQuest }) {
           {quest.title}
         </Text>
 
+        {(credit || source) && (
+          <View
+            style={{
+              alignContent: "center",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 5,
+              flexDirection: "row",
+            }}
+          >
+            {credit && (
+              <Text style={{ fontSize: 12, color: themeColor.mutedText }}>
+                {credit} {"  "}•{" "}
+              </Text>
+            )}
+            {source && (
+              <ExternalLink href={source} style={{ gap: 4 }}>
+                <View
+                  style={{
+                    gap: 2,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    alignContent: "center",
+                  }}
+                >
+                  <Text style={{ fontSize: 12, color: themeColor.link }}>
+                    Source
+                  </Text>
+                  <FontAwesome
+                    name="external-link"
+                    size={8}
+                    color={themeColor.link}
+                  />
+                </View>
+              </ExternalLink>
+            )}
+          </View>
+        )}
         {quest.description && (
           <Text style={{ fontSize: 8, color: themeColor.mutedText }}>
             {quest.description}
