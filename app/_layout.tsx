@@ -1,4 +1,10 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import {
+  AntDesign,
+  Entypo,
+  FontAwesome,
+  FontAwesome6,
+  Ionicons,
+} from "@expo/vector-icons";
 import {
   DarkTheme,
   DefaultTheme,
@@ -31,6 +37,10 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    ...Ionicons.font,
+    ...Entypo.font,
+    ...FontAwesome6.font,
+    ...AntDesign.font,
     ...FontAwesome.font,
   });
 

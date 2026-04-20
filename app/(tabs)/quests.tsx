@@ -15,6 +15,7 @@ import { useVideoPlayer, VideoView } from "expo-video";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import Collapsible from "react-native-collapsible";
 import ImageView from "react-native-image-viewing";
 
 export default function Quests() {
@@ -31,11 +32,11 @@ export default function Quests() {
       {loading ? (
         <LoadingScreen style={{ backgroundColor: "transparent" }} />
       ) : (
-        <View style={{ flex: 1, backgroundColor: "transparent" }}>
+        <View style={{ flex: 1 }}>
           <Text
             style={{
               fontWeight: "bold",
-              fontSize: 20,
+              fontSize: 15,
               padding: 8,
               borderColor: themeColor.border,
               borderBottomWidth: 1,
@@ -47,12 +48,25 @@ export default function Quests() {
           </Text>
 
           <ScrollView
-            style={{ flex: 1, minHeight: "80%" }}
+            style={{
+              flex: 1,
+              margin: 5,
+            }}
             showsVerticalScrollIndicator={false}
           >
-            <View style={{ flex: 1, gap: 20 }}>
-              {quests?.quests.map((item, i) => (
-                <QuestItem key={i} quest={item} />
+            <View
+              style={{
+                flex: 1,
+                gap: 10,
+                backgroundColor: themeColor.card,
+                borderWidth: 1,
+                borderColor: themeColor.border,
+                borderRadius: 15,
+                padding: 5,
+              }}
+            >
+              {quests?.quests.map((item, i, arr) => (
+                <QuestItem key={i} quest={item} isLast={i >= arr.length - 1} />
               ))}
             </View>
           </ScrollView>
@@ -66,14 +80,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 5,
-    margin: 20,
   },
 });
 
-function QuestItem({ quest }: { quest: DailyQuest }) {
+function QuestItem({ quest, isLast }: { quest: DailyQuest; isLast: boolean }) {
   const themeColor = Colors[useColorScheme() ?? "dark"];
 
   const [imageModalVisible, setImageModal] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const image = quest.images?.[0];
   const credit = image?.by;
   const source = image?.source;
@@ -90,114 +104,127 @@ function QuestItem({ quest }: { quest: DailyQuest }) {
       style={{
         width: "100%",
         gap: 4,
-        backgroundColor: themeColor.card,
-        borderWidth: 1,
-        borderColor: themeColor.border,
-        borderRadius: 15,
         overflow: "hidden",
+        borderBottomColor: themeColor.border,
+        borderBottomWidth: isLast ? 0 : 1,
       }}
     >
       <View style={{ flex: 1 }}>
-        <Text
+        <Pressable
+          onPress={() => setIsCollapsed(!isCollapsed)}
           style={{
-            fontWeight: "bold",
-            marginBottom: 10,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
             padding: 10,
-            fontSize: 20,
-            borderBottomColor: themeColor.border,
-            borderBottomWidth: 1,
           }}
         >
-          {quest.title}
-        </Text>
-
-        {(credit || source) && (
-          <View
+          <Text
             style={{
-              alignContent: "center",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 5,
-              flexDirection: "row",
+              fontWeight: "bold",
+              fontSize: 13,
+              flex: 1,
             }}
           >
-            {credit && (
-              <Text style={{ fontSize: 12, color: themeColor.mutedText }}>
-                {credit} {"  "}•{" "}
-              </Text>
-            )}
-            {source && (
-              <ExternalLink href={source} style={{ gap: 4 }}>
-                <View
-                  style={{
-                    gap: 2,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    alignContent: "center",
-                  }}
-                >
-                  <Text style={{ fontSize: 12, color: themeColor.link }}>
-                    Source
-                  </Text>
-                  <FontAwesome
-                    name="external-link"
-                    size={8}
-                    color={themeColor.link}
-                  />
-                </View>
-              </ExternalLink>
-            )}
-          </View>
-        )}
-        {quest.description && (
-          <Text style={{ fontSize: 8, color: themeColor.mutedText }}>
-            {quest.description}
+            {quest.title}
           </Text>
-        )}
+          <FontAwesome
+            name={isCollapsed ? "chevron-down" : "chevron-up"}
+            size={16}
+            color={themeColor.text}
+          />
+        </Pressable>
 
-        {image?.url && (
-          <View
-            style={{
-              width: "100%",
-              paddingVertical: 10,
-              paddingHorizontal: 10,
-            }}
-          >
-            {isVideo ? (
-              <VideoView
-                player={player}
-                style={{
-                  width: "100%",
-                  height: 200,
-                  borderRadius: 10,
-                }}
-                contentFit="contain"
-                allowsPictureInPicture
-              />
-            ) : (
-              <>
-                {/* TODO: Have dedicate component for this with more customizations */}
-                <Pressable onPress={() => setImageModal(true)}>
-                  <Image
-                    source={image.url}
+        <Collapsible collapsed={isCollapsed}>
+          {(credit || source) && (
+            <View
+              style={{
+                alignContent: "center",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 5,
+                flexDirection: "row",
+                marginTop: 10,
+              }}
+            >
+              {credit && (
+                <Text style={{ fontSize: 12, color: themeColor.mutedText }}>
+                  {credit} {"  "}•{" "}
+                </Text>
+              )}
+              {source && (
+                <ExternalLink href={source} style={{ gap: 4 }}>
+                  <View
                     style={{
-                      width: "100%",
-                      height: 300,
-                      borderRadius: 10,
+                      gap: 2,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      alignContent: "center",
                     }}
-                    contentFit="contain"
-                  />
-                </Pressable>
-                <ImageView
-                  images={[{ uri: image.url }]}
-                  imageIndex={0}
-                  visible={imageModalVisible}
-                  onRequestClose={() => setImageModal(false)}
+                  >
+                    <Text style={{ fontSize: 12, color: themeColor.link }}>
+                      Source
+                    </Text>
+                    <FontAwesome
+                      name="external-link"
+                      size={8}
+                      color={themeColor.link}
+                    />
+                  </View>
+                </ExternalLink>
+              )}
+            </View>
+          )}
+          {quest.description && (
+            <Text style={{ fontSize: 8, color: themeColor.mutedText }}>
+              {quest.description}
+            </Text>
+          )}
+
+          {image?.url && (
+            <View
+              style={{
+                width: "100%",
+                paddingVertical: 10,
+                paddingHorizontal: 10,
+              }}
+            >
+              {isVideo ? (
+                <VideoView
+                  player={player}
+                  style={{
+                    width: "100%",
+                    height: 200,
+                    borderRadius: 10,
+                  }}
+                  contentFit="contain"
+                  allowsPictureInPicture
                 />
-              </>
-            )}
-          </View>
-        )}
+              ) : (
+                <>
+                  {/* TODO: Have dedicate component for this with more customizations */}
+                  <Pressable onPress={() => setImageModal(true)}>
+                    <Image
+                      source={image.url}
+                      style={{
+                        width: "100%",
+                        height: 300,
+                        borderRadius: 10,
+                      }}
+                      contentFit="contain"
+                    />
+                  </Pressable>
+                  <ImageView
+                    images={[{ uri: image.url }]}
+                    imageIndex={0}
+                    visible={imageModalVisible}
+                    onRequestClose={() => setImageModal(false)}
+                  />
+                </>
+              )}
+            </View>
+          )}
+        </Collapsible>
       </View>
     </View>
   );
