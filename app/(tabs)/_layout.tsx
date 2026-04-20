@@ -1,22 +1,16 @@
 import { TopTabs } from "@/components/ui/MaterialTabs";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import { useDailyQuestsStore } from "@/utils/quests";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { MaterialTopTabBarProps } from "@react-navigation/material-top-tabs";
 import { Image } from "expo-image";
-import React, { useState } from "react";
-import { Pressable, Text, ToastAndroid, View } from "react-native";
+import React from "react";
+import { Pressable, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withRepeat,
   withTiming,
 } from "react-native-reanimated";
-
-export interface MaterialTopTabNavigationOption {
-  size?: number;
-}
 
 function CustomTabBar({
   state,
@@ -50,6 +44,7 @@ function CustomTabBar({
         const options = descriptors[route.key].options;
         const isPressed = pressedRoute === route.key;
 
+        // eslint-disable-next-line
         const pressStyle = useAnimatedStyle(() => ({
           transform: [{ scaleX: isPressed ? pressScale.value : 1 }],
         }));
@@ -135,44 +130,6 @@ function CustomTabBar({
   );
 }
 
-function AnimatedRefreshButton() {
-  const themeColors = Colors[useColorScheme() ?? "light"];
-  const rotation = useSharedValue(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  const refreshStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value}deg` }],
-  }));
-  const { fetchQuests } = useDailyQuestsStore();
-  const handleRefreshPress = () => {
-    if (isAnimating) return;
-    setIsAnimating(true);
-    rotation.value = 0;
-    rotation.value = withRepeat(withTiming(360, { duration: 600 }), 1, false);
-    fetchQuests().then(() => {
-      setIsAnimating(false);
-      ToastAndroid.show("Refetched Quests", ToastAndroid.SHORT);
-    });
-  };
-
-  return (
-    <Pressable
-      style={{ margin: 15 }}
-      onPress={handleRefreshPress}
-      disabled={isAnimating}
-    >
-      <Animated.View style={refreshStyle}>
-        <Ionicons
-          name="refresh"
-          size={24}
-          color={isAnimating ? themeColors.mutedText : themeColors.text}
-          style={{ opacity: isAnimating ? 0.6 : 1 }}
-        />
-      </Animated.View>
-    </Pressable>
-  );
-}
-
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme ?? "light"];
@@ -212,8 +169,6 @@ export default function TabLayout() {
                 }}
               />
             ),
-            headerRight: () => <AnimatedRefreshButton />,
-            headerStyle: { borderBottomWidth: 0, elevation: 0 },
           }}
         />
       }
