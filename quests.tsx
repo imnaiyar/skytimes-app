@@ -1,6 +1,7 @@
 import { ExternalLink } from "@/components/ExternalLink";
-import { LoadingScreen } from "@/components/LoadingScreen";
 import { Text } from "@/components/Themed";
+import { AnimatedChevron } from "@/components/ui/AnimatedChevron";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import {
@@ -15,7 +16,7 @@ import { useVideoPlayer, VideoView } from "expo-video";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import Collapsible from "react-native-collapsible";
+import { Collapsible } from "react-native-fast-collapsible";
 import ImageView from "react-native-image-viewing";
 
 export default function Quests() {
@@ -32,45 +33,41 @@ export default function Quests() {
       {loading ? (
         <LoadingScreen style={{ backgroundColor: "transparent" }} />
       ) : (
-        <View style={{ flex: 1 }}>
-          <Text
-            style={{
-              fontWeight: "bold",
-              fontSize: 15,
-              padding: 8,
-              borderColor: themeColor.border,
-              borderBottomWidth: 1,
-              marginBottom: 10,
-            }}
-          >
-            Daily Quests ({quests?.quests.length}) -{" "}
-            {DateTime.fromISO(quests!.last_updated).toFormat("dd LLL yyyy")}
-          </Text>
-
-          <ScrollView
+        <ScrollView
+          style={{
+            flex: 1,
+            margin: 5,
+          }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View
             style={{
               flex: 1,
-              margin: 5,
+              gap: 10,
+              backgroundColor: themeColor.card,
+              borderWidth: 1,
+              borderColor: themeColor.border,
+              borderRadius: 15,
+              padding: 5,
             }}
-            showsVerticalScrollIndicator={false}
           >
-            <View
+            <Text
               style={{
-                flex: 1,
-                gap: 10,
-                backgroundColor: themeColor.card,
-                borderWidth: 1,
-                borderColor: themeColor.border,
-                borderRadius: 15,
-                padding: 5,
+                fontWeight: "bold",
+                fontSize: 15,
+                padding: 8,
+                position: "fixed",
+                marginBottom: 10,
               }}
             >
-              {quests?.quests.map((item, i, arr) => (
-                <QuestItem key={i} quest={item} isLast={i >= arr.length - 1} />
-              ))}
-            </View>
-          </ScrollView>
-        </View>
+              Daily Quests ({quests?.quests.length}) -{" "}
+              {DateTime.fromISO(quests!.last_updated).toFormat("dd LLL yyyy")}
+            </Text>
+            {quests?.quests.map((item, i, arr) => (
+              <QuestItem key={i} quest={item} isLast={i >= arr.length - 1} />
+            ))}
+          </View>
+        </ScrollView>
       )}
     </View>
   );
@@ -112,12 +109,18 @@ function QuestItem({ quest, isLast }: { quest: DailyQuest; isLast: boolean }) {
       <View style={{ flex: 1 }}>
         <Pressable
           onPress={() => setIsCollapsed(!isCollapsed)}
-          style={{
+          style={(state) => ({
             flexDirection: "row",
             justifyContent: "space-between",
+            backgroundColor:
+              state.pressed || state.hovered
+                ? themeColor.overlay
+                : "transparent",
             alignItems: "center",
-            padding: 10,
-          }}
+            borderRadius: 12,
+            marginBottom: 5,
+            padding: 8,
+          })}
         >
           <Text
             style={{
@@ -128,14 +131,14 @@ function QuestItem({ quest, isLast }: { quest: DailyQuest; isLast: boolean }) {
           >
             {quest.title}
           </Text>
-          <FontAwesome
-            name={isCollapsed ? "chevron-down" : "chevron-up"}
-            size={16}
+          <AnimatedChevron
+            isCollapsed={isCollapsed}
             color={themeColor.text}
+            size={16}
           />
         </Pressable>
 
-        <Collapsible collapsed={isCollapsed}>
+        <Collapsible isVisible={!isCollapsed}>
           {(credit || source) && (
             <View
               style={{

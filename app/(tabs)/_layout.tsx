@@ -312,6 +312,7 @@ export default function TabLayout() {
               />
             ),
             headerRight: () => <AnimatedRefreshButton />,
+            headerStyle: { borderBottomWidth: 0, elevation: 0 },
           }}
         />
       }

@@ -20,7 +20,7 @@ export default {
     dangerSurface: "#fee2e2",
     eventRowA: "#e8efff",
     eventRowB: "#dce8ff",
-    overlay: "rgba(15, 23, 42, 0.42)",
+    overlay: "rgba(15, 23, 42, 0.36)",
     tabIconDefault: "#111",
     tabIconSelected: "#eee",
 
@@ -44,7 +44,7 @@ export default {
     dangerSurface: "#7f1d1d",
     eventRowA: "#222d44ac",
     eventRowB: "#323c5198",
-    overlay: "rgba(0, 0, 0, 0.58)",
+    overlay: "rgba(0, 0, 0, 0.36)",
     tabIconDefault: "#aaa",
     tabIconSelected: "#111",
     link: "#7dc4ff",

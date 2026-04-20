@@ -16,6 +16,7 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import "react-native-reanimated";
 
+import { SplashScreen as CustomSplash } from "@/components/ui/SplashScreen";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { initializeNotifications } from "@/utils/notifications";
@@ -65,7 +66,7 @@ export default function RootLayout() {
   }, []);
 
   if (!loaded) {
-    return null;
+    return <CustomSplash message="Initializing..." />;
   }
 
   return <RootLayoutNav />;
