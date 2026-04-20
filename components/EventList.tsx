@@ -15,10 +15,10 @@ import type { EventDetails, EventKey } from "@skyhelperbot/utils";
 import { useCallback, useMemo, useState } from "react";
 import { FlatList } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
-import { Callout } from "./Callout";
 import { CategorySection } from "./EventsCard";
 import { OffsetPickerModal } from "./OffsetPickerModal";
 import { View } from "./Themed";
+import { Callout } from "./ui/Callout";
 
 type NotificationPickerState = {
   mode: "enable" | "edit";

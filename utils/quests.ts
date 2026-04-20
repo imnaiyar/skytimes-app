@@ -6,11 +6,11 @@ export interface DailyQuest {
   title: string;
   date: string;
   description?: string;
-  images?: Array<{
+  images?: {
     url: string;
     by: string;
     source?: string;
-  }>;
+  }[];
 }
 
 export interface DailyQuestsSchema {

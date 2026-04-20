@@ -9,10 +9,12 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import type { EventKey } from "@skyhelperbot/utils";
 import type { DateTime } from "luxon";
 import { useState } from "react";
-import { Pressable, StyleSheet, TouchableOpacity } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
+import { Collapsible } from "react-native-fast-collapsible";
 import Animated from "react-native-reanimated";
-import { ConfirmAlert } from "./Alert";
 import { Text, View } from "./Themed";
+import { ConfirmAlert } from "./ui/Alert";
+import { AnimatedChevron } from "./ui/AnimatedChevron";
 
 const formatReadable = (date: DateTime) => date.toLocal().toFormat("hh:mm a");
 
@@ -199,11 +201,16 @@ export function CategorySection({
         { backgroundColor: themeColors.card, borderColor: themeColors.border },
       ]}
     >
-      <TouchableOpacity
+      <Pressable
         {...props}
-        style={[
+        style={(state) => [
           styles.categoryHeader,
-          { backgroundColor: themeColors.card },
+          {
+            backgroundColor:
+              state.hovered || state.pressed
+                ? themeColors.overlay
+                : themeColors.card,
+          },
           disabled && { opacity: 0.2 },
         ]}
         disabled={disabled}
@@ -219,15 +226,17 @@ export function CategorySection({
             style={{ marginRight: 15 }}
           />
         ) : (
-          <Text style={[styles.chevron, { color: themeColors.mutedText }]}>
-            {collapsed ? "▼" : "▲"}
-          </Text>
+          <AnimatedChevron
+            isCollapsed={collapsed}
+            color={themeColors.text}
+            duration={200}
+            size={16}
+          />
         )}
-      </TouchableOpacity>
+      </Pressable>
 
-      {!collapsed &&
-        !reorder &&
-        events.map((item, index) => (
+      <Collapsible duration={200} isVisible={!collapsed && !reorder}>
+        {events.map((item, index) => (
           <View key={item.key} style={{ backgroundColor: "transparent" }}>
             <EventCard
               item={item}
@@ -249,6 +258,7 @@ export function CategorySection({
             )}
           </View>
         ))}
+      </Collapsible>
     </View>
   );
 }
@@ -270,12 +280,12 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: "600",
   },
 
   timer: {
-    marginTop: 8,
+    fontSize: 12,
   },
 
   activeTimer: {
@@ -284,7 +294,7 @@ const styles = StyleSheet.create({
 
   badge: {
     marginTop: 8,
-    fontSize: 12,
+    fontSize: 8,
     fontWeight: "bold",
   },
   categoryHeader: {
@@ -294,7 +304,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   categoryTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "700",
   },
   chevron: {},

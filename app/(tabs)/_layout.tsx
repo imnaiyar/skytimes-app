@@ -1,16 +1,10 @@
-import { useClientOnlyValue } from "@/components/useClientOnlyValue";
+import { TopTabs } from "@/components/ui/MaterialTabs";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import { useReorderMode } from "@/utils/hooks";
 import { useDailyQuestsStore } from "@/utils/quests";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Entypo from "@expo/vector-icons/Entypo";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { MaterialTopTabBarProps } from "@react-navigation/material-top-tabs";
 import { Image } from "expo-image";
-import { Link, Tabs } from "expo-router";
 import React, { useState } from "react";
 import { Pressable, Text, ToastAndroid, View } from "react-native";
 import Animated, {
@@ -20,11 +14,15 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+export interface MaterialTopTabNavigationOption {
+  size?: number;
+}
+
 function CustomTabBar({
   state,
   descriptors,
   navigation,
-}: BottomTabBarProps): React.ReactNode {
+}: MaterialTopTabBarProps): React.ReactNode {
   const themeCOlor = Colors[useColorScheme() ?? "light"];
   const [pressedRoute, setPressedRoute] = React.useState<string | null>(null);
   const pressScale = useSharedValue(1);
@@ -178,123 +176,28 @@ function AnimatedRefreshButton() {
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme ?? "light"];
-  const rotation = useSharedValue(0);
-  const { reorder, setReorder } = useReorderMode();
-
-  const reorderStyle = useAnimatedStyle(() => ({
-    opacity: 1 - rotation.value,
-    transform: [
-      { rotate: `${rotation.value * 90}deg` },
-      { scale: 1 - 0.3 * rotation.value },
-    ],
-  }));
-
-  const checkStyle = useAnimatedStyle(() => ({
-    opacity: rotation.value,
-    transform: [
-      { rotate: `${-90 + rotation.value * 90}deg` },
-      { scale: 0.7 + 0.3 * rotation.value },
-    ],
-  }));
-
-  const toggle = () => {
-    setReorder(!reorder);
-    rotation.value = withTiming(rotation.value === 1 ? 0 : 1, {
-      duration: 200,
-    });
-  };
   return (
-    <Tabs
+    <TopTabs
+      tabBarPosition="bottom"
       screenOptions={{
         sceneStyle: {
           backgroundColor: themeColors.background,
         },
-        headerStyle: {
-          backgroundColor: themeColors.card,
-        },
-
-        headerTintColor: themeColors.text,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
       }}
       tabBar={(props) => <CustomTabBar {...props} />}
     >
-      <Tabs.Screen
+      <TopTabs.Screen
         name="index"
         options={{
-          title: reorder ? "Re-ordering..." : "SkyTimes",
+          title: "SkyTimes",
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="clock-circle" size={size} color={color} />
-          ),
-          headerRight: () => (
-            <View
-              style={{
-                gap: 4,
-                flexDirection: "row",
-                alignItems: "center",
-                backgroundColor: "transparent",
-              }}
-            >
-              {process.env.NODE_ENV === "development" && (
-                <Link href="/widget_preview" asChild>
-                  <Pressable>
-                    {({ pressed }) => (
-                      <Entypo
-                        name="popup"
-                        size={25}
-                        color={themeColors.text}
-                        style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                      />
-                    )}
-                  </Pressable>
-                </Link>
-              )}
-
-              {!reorder && (
-                <Link href="/instruction" asChild>
-                  <Pressable>
-                    {({ pressed }) => (
-                      <FontAwesome
-                        name="info-circle"
-                        size={25}
-                        color={themeColors.text}
-                        style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                      />
-                    )}
-                  </Pressable>
-                </Link>
-              )}
-              <Pressable onPress={toggle}>
-                <Animated.View>
-                  <Animated.View
-                    style={[{ position: "relative" }, reorderStyle]}
-                  >
-                    <FontAwesome6
-                      name="arrow-down-wide-short"
-                      size={25}
-                      color={themeColors.text}
-                      style={{ marginRight: 15 }}
-                    />
-                  </Animated.View>
-
-                  <Animated.View style={[{ position: "absolute" }, checkStyle]}>
-                    <Ionicons
-                      name="checkmark"
-                      size={25}
-                      color={themeColors.text}
-                      style={{ marginRight: 15 }}
-                    />
-                  </Animated.View>
-                </Animated.View>
-              </Pressable>
-            </View>
           ),
         }}
       />
 
       {
-        <Tabs.Screen
+        <TopTabs.Screen
           name="quests"
           options={{
             title: "Quests",
@@ -310,10 +213,11 @@ export default function TabLayout() {
               />
             ),
             headerRight: () => <AnimatedRefreshButton />,
+            headerStyle: { borderBottomWidth: 0, elevation: 0 },
           }}
         />
       }
-      <Tabs.Screen
+      <TopTabs.Screen
         name="settings"
         options={{
           title: "Settings",
@@ -322,6 +226,6 @@ export default function TabLayout() {
           ),
         }}
       />
-    </Tabs>
+    </TopTabs>
   );
 }

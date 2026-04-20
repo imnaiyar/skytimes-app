@@ -78,7 +78,7 @@ export function usePinnedEvents() {
     };
   }, []);
 
-  const pinnedSet = useMemo(() => new Set(pinnedKeys), [pinnedKeys]);
+  const pinnedSet = new Set(pinnedKeys);
 
   const togglePin = useCallback((key: EventKey) => {
     setPinnedKeys((prev) => {
