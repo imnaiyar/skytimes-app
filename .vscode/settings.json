@@ -3,5 +3,10 @@
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit",
     "source.sortMembers": "explicit"
+  },
+  "workbench.editor.customLabels.enabled": true,
+  "workbench.editor.customLabels.patterns": {
+    "**/index.tsx": "${dirname}/${filename}",
+    "**/_layout.tsx": "${dirname}/${filename}"
   }
 }

@@ -285,7 +285,6 @@ const styles = StyleSheet.create({
   },
 
   timer: {
-    marginTop: 8,
     fontSize: 12,
   },
 

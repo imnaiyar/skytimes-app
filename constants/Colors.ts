@@ -1,7 +1,9 @@
+import { useColorScheme } from "react-native";
+
 const tintColorLight = "#3b82f6";
 const tintColorDark = "#7dc4ff";
 
-export default {
+const Colors = {
   light: {
     text: "#111827",
     mutedText: "#5c6b86",
@@ -50,3 +52,9 @@ export default {
     link: "#7dc4ff",
   },
 };
+
+export default Colors;
+
+export function useTheme() {
+  return Colors[useColorScheme() ?? "dark"];
+}

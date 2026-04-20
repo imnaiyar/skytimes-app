@@ -1,6 +1,6 @@
-import { useNow } from "@/utils/hooks";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
+import { useNow } from "@/utils/hooks";
 import { DateTime } from "luxon";
 import { Image, StyleSheet } from "react-native";
 import { Text, View } from "./Themed";
@@ -70,16 +70,16 @@ const styles = StyleSheet.create({
     width: "70%",
     height: "70%",
 
-    top: -25,
-    right: -20,
+    top: -10,
+    left: -50,
   },
 
   header: {
     fontWeight: "900",
-    fontSize: 100,
+    fontSize: 40,
   },
 
-  timer: { fontWeight: "400", fontSize: 30 },
+  timer: { fontWeight: "400", fontSize: 20 },
 
-  label: { fontWeight: "200", fontSize: 15 },
+  label: { fontWeight: "200", fontSize: 10 },
 });
