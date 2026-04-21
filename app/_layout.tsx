@@ -103,8 +103,8 @@ function RootLayoutNav() {
               options={{ presentation: "modal", title: "Instructions" }}
             />
             <Stack.Screen
-              name="widget_preview"
-              options={{ presentation: "modal", title: "Widget" }}
+              name="debug"
+              options={{ presentation: "modal", title: "Debug Stuff" }}
             />
           </Stack>
         </React.StrictMode>

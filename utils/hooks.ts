@@ -34,6 +34,14 @@ type ReorderModeState = {
   setReorder: (v: boolean) => void;
 };
 
+export const useDebugMode = create<{
+  DEBUG: boolean;
+  setDebugMode: (v: boolean) => void;
+}>((set) => ({
+  DEBUG: false,
+  setDebugMode: (v) => set({ DEBUG: v }),
+}));
+
 export const useReorderMode = create<ReorderModeState>((set) => ({
   reorder: false,
   setReorder: (v: boolean) => set({ reorder: v }),

@@ -8,6 +8,7 @@ import { Header } from "@/components/ui/Header";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import {
+  useDebugMode,
   useNotificationSettings,
   useNotifiedEvents,
   useReorderMode,
@@ -65,7 +66,7 @@ export default function TabTwoScreen() {
       duration: 200,
     });
   };
-
+  const { DEBUG } = useDebugMode();
   return (
     <View style={{ flex: 1 }}>
       <Header
@@ -80,12 +81,12 @@ export default function TabTwoScreen() {
               backgroundColor: "transparent",
             }}
           >
-            {process.env.NODE_ENV === "development" && (
-              <Link href="/widget_preview" asChild>
+            {DEBUG && (
+              <Link href="/debug" asChild>
                 <Pressable>
                   {({ pressed }) => (
                     <Entypo
-                      name="popup"
+                      name="code"
                       size={20}
                       color={themeColors.text}
                       style={{

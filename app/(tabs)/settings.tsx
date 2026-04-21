@@ -1,11 +1,17 @@
 import { Header } from "@/components/ui/Header";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import { useNotificationSettings, useNotifiedEvents } from "@/utils/hooks";
+import {
+  useDebugMode,
+  useNotificationSettings,
+  useNotifiedEvents,
+} from "@/utils/hooks";
 import { resyncAllNotifications } from "@/utils/notifications";
 import {
+  Box,
   Card,
   Column,
+  HorizontalDivider,
   Host,
   Icon,
   LazyColumn,
@@ -13,9 +19,16 @@ import {
   Switch,
   Text,
 } from "@expo/ui/jetpack-compose";
-import { fillMaxWidth, padding } from "@expo/ui/jetpack-compose/modifiers";
+import {
+  align,
+  fillMaxSize,
+  fillMaxWidth,
+  padding,
+  paddingAll,
+  weight,
+} from "@expo/ui/jetpack-compose/modifiers";
 import { SkytimesUtils } from "@skyhelperbot/utils";
-import { View } from "react-native";
+import { Appearance, View } from "react-native";
 
 /**
  * Settings screen using Jetpack Compose
@@ -43,7 +56,17 @@ export default function SettingsScreen() {
       () => undefined,
     );
   };
+  const switchStyle = {
+    colors: {
+      checkedTrackColor: themeColors.tint,
+      checkedThumbColor: themeColors.border,
+      uncheckedTrackColor: themeColors.overlay,
+      uncheckedThumbColor: themeColors.divider,
+      uncheckedBorderColor: themeColors.divider,
+    },
+  };
 
+  const { DEBUG, setDebugMode } = useDebugMode();
   return (
     <View style={{ flex: 1, backgroundColor: themeColors.background }}>
       <Header title="Settings" />
@@ -59,20 +82,20 @@ export default function SettingsScreen() {
               icon={require("@/assets/icons/notifications.xml")}
               trailing={
                 <Switch
+                  {...switchStyle}
                   value={settings.enabled}
                   onCheckedChange={handleNotificationToggle}
                 />
               }
             />
-          </SettingsCard>
-
-          <SettingsCard>
+            <HorizontalDivider color={themeColors.border} />
             <SettingsItem
               title="Play Sound"
               description="Notification sounds for events"
               icon={require("@/assets/icons/volume.xml")}
               trailing={
                 <Switch
+                  {...switchStyle}
                   value={settings.soundEnabled}
                   onCheckedChange={handleSoundToggle}
                 />
@@ -80,30 +103,56 @@ export default function SettingsScreen() {
             />
           </SettingsCard>
 
-          {/* Future sections can be added here */}
-          {/* Display Section */}
+          {/*region Display Section */}
           <SettingsSectionHeader title="Display" />
 
           <SettingsCard>
             <SettingsItem
-              title="Theme"
-              description="Automatically switch between light and dark"
-              icon={require("@/assets/icons/theme.xml")}
-              trailing={null}
+              title="Dark Mode"
+              description="Switch between light and dark"
+              icon={
+                colorScheme === "dark"
+                  ? require("@/assets/icons/light_mode_24px.xml")
+                  : require("@/assets/icons/dark_mode_24px.xml")
+              }
+              trailing={
+                <Switch
+                  {...switchStyle}
+                  value={colorScheme === "dark"}
+                  onCheckedChange={(v) =>
+                    Appearance.setColorScheme(v ? "dark" : "light")
+                  }
+                />
+              }
             />
           </SettingsCard>
 
-          {/* About Section */}
-          <SettingsSectionHeader title="About" />
-
+          <SettingsSectionHeader title="Advanced" />
           <SettingsCard>
             <SettingsItem
-              title="Version"
-              description="App version 1.0.0"
-              icon={require("@/assets/icons/info.xml")}
-              trailing={null}
+              title="Debug Mode"
+              description="Enable debug mode."
+              icon={require("@/assets/icons/code.xml")}
+              trailing={
+                <Switch
+                  {...switchStyle}
+                  value={DEBUG}
+                  onCheckedChange={(v) => setDebugMode(v)}
+                />
+              }
             />
           </SettingsCard>
+          <Box modifiers={[fillMaxSize()]}>
+            <Text
+              modifiers={[align("bottomEnd"), paddingAll(5)]}
+              color={themeColors.mutedText}
+              style={{
+                typography: "bodySmall",
+              }}
+            >
+              App version 1.0.0
+            </Text>
+          </Box>
         </LazyColumn>
       </Host>
     </View>
@@ -143,7 +192,7 @@ function SettingsCard({ children }: { children: React.ReactNode }) {
       border={{ color: themeColors.border, width: 1 }}
       colors={{ containerColor: themeColors.card }}
     >
-      {children}
+      <Column verticalArrangement={{ spacedBy: 8 }}>{children}</Column>
     </Card>
   );
 }
@@ -170,12 +219,13 @@ function SettingsItem({
     <Row
       modifiers={[padding(8, 6, 6, 8), fillMaxWidth()]}
       verticalAlignment="center"
+      horizontalArrangement={{ spacedBy: 8 }}
     >
       {/* Icon */}
       {icon && <Icon source={icon} size={24} tint={themeColors.tint} />}
 
       {/* Content */}
-      <Column modifiers={[fillMaxWidth()]}>
+      <Column modifiers={[weight(1)]}>
         <Text
           color={themeColors.text}
           style={{
