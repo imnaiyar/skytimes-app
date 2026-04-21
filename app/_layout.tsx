@@ -75,7 +75,7 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const themeColors = Colors[colorScheme ?? "light"];
+  const themeColors = Colors[colorScheme];
   const navigationTheme = colorScheme === "dark" ? DarkTheme : DefaultTheme;
   StatusBar.setBarStyle(
     colorScheme === "dark" ? "light-content" : "dark-content",

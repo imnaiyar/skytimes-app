@@ -6,10 +6,20 @@ import {
   NOTIFICATION_OFFSET_STEP_MINUTES,
   clampNotificationOffsetMinutes,
 } from "@/utils/storage";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import Slider from "@react-native-community/slider";
+import {
+  BasicAlertDialog,
+  Button,
+  Card,
+  Column,
+  Host,
+  IconButton,
+  Row,
+  Slider,
+  Text,
+  TextButton,
+} from "@expo/ui/jetpack-compose";
+import { fillMaxWidth, paddingAll } from "@expo/ui/jetpack-compose/modifiers";
 import { useEffect, useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 type OffsetPickerModalProps = {
   visible: boolean;
@@ -20,8 +30,6 @@ type OffsetPickerModalProps = {
   onSave: (offsetMinutes: number) => void;
 };
 
-const TRACK_THUMB_SIZE = 22;
-
 export function OffsetPickerModal({
   visible,
   title,
@@ -31,13 +39,10 @@ export function OffsetPickerModal({
   onSave,
 }: OffsetPickerModalProps) {
   const colorScheme = useColorScheme();
-  const themeColors = Colors[colorScheme ?? "light"];
+  const themeColors = Colors[colorScheme];
   const [offsetMinutes, setOffsetMinutes] = useState(
     clampNotificationOffsetMinutes(initialOffsetMinutes),
   );
-  const [trackWidth, setTrackWidth] = useState(1);
-  const range =
-    MAX_NOTIFICATION_OFFSET_MINUTES - MIN_NOTIFICATION_OFFSET_MINUTES;
 
   useEffect(() => {
     if (!visible) return;
@@ -47,198 +52,147 @@ export function OffsetPickerModal({
   const isMinusDisabled = offsetMinutes <= MIN_NOTIFICATION_OFFSET_MINUTES;
   const isPlusDisabled = offsetMinutes >= MAX_NOTIFICATION_OFFSET_MINUTES;
 
+  if (!visible) return null;
+
   return (
-    <Modal
-      transparent
-      animationType="fade"
-      visible={visible}
-      onRequestClose={onCancel}
-    >
-      <View style={[styles.backdrop, { backgroundColor: themeColors.overlay }]}>
-        <View
-          style={[
-            styles.card,
-            {
-              backgroundColor: themeColors.card,
-              borderColor: themeColors.border,
-            },
-          ]}
+    <Host style={{ flex: 1 }}>
+      <BasicAlertDialog
+        onDismissRequest={onCancel}
+        properties={{ dismissOnBackPress: true, dismissOnClickOutside: true }}
+        modifiers={[fillMaxWidth()]}
+      >
+        <Card
+          colors={{ containerColor: themeColors.card }}
+          border={{ color: themeColors.border, width: 1 }}
+          modifiers={[fillMaxWidth()]}
         >
-          <Text style={[styles.title, { color: themeColors.text }]}>
-            {title}
-          </Text>
-          {description ? (
+          <Column
+            verticalArrangement={{ spacedBy: 8 }}
+            modifiers={[fillMaxWidth(), paddingAll(15)]}
+          >
+            {/* Title */}
             <Text
-              style={[styles.description, { color: themeColors.mutedText }]}
+              color={themeColors.text}
+              style={{
+                typography: "titleMedium",
+              }}
             >
-              {description}
-            </Text>
-          ) : null}
-
-          <View style={styles.valueRow}>
-            <Pressable
-              onPress={() =>
-                setOffsetMinutes(
-                  offsetMinutes - NOTIFICATION_OFFSET_STEP_MINUTES,
-                )
-              }
-              disabled={isMinusDisabled}
-              style={[
-                styles.iconButton,
-                { backgroundColor: themeColors.surfaceMuted },
-                isMinusDisabled && styles.iconButtonDisabled,
-              ]}
-            >
-              <Ionicons name="remove" size={18} color={themeColors.icon} />
-            </Pressable>
-
-            <Text style={[styles.valueText, { color: themeColors.text }]}>
-              {offsetMinutes}m
+              {title}
             </Text>
 
-            <Pressable
-              onPress={() =>
-                setOffsetMinutes(
-                  offsetMinutes + NOTIFICATION_OFFSET_STEP_MINUTES,
-                )
-              }
-              disabled={isPlusDisabled}
-              style={[
-                styles.iconButton,
-                { backgroundColor: themeColors.surfaceMuted },
-                isPlusDisabled && styles.iconButtonDisabled,
-              ]}
-            >
-              <Ionicons name="add" size={18} color={themeColors.icon} />
-            </Pressable>
-          </View>
-
-          <Slider
-            style={{ height: 40 }}
-            minimumValue={MIN_NOTIFICATION_OFFSET_MINUTES}
-            maximumValue={MAX_NOTIFICATION_OFFSET_MINUTES}
-            minimumTrackTintColor={themeColors.tint}
-            maximumTrackTintColor={themeColors.tabIconSelected}
-            onValueChange={setOffsetMinutes}
-            step={NOTIFICATION_OFFSET_STEP_MINUTES}
-            value={offsetMinutes}
-          />
-
-          <View style={styles.actions}>
-            <Pressable
-              onPress={onCancel}
-              style={[
-                styles.actionButton,
-                { backgroundColor: themeColors.surfaceMuted },
-              ]}
-            >
-              <Text style={[styles.actionText, { color: themeColors.text }]}>
-                Cancel
-              </Text>
-            </Pressable>
-            <Pressable
-              onPress={() =>
-                onSave(clampNotificationOffsetMinutes(offsetMinutes))
-              }
-              style={[
-                styles.actionButton,
-                { backgroundColor: themeColors.success },
-              ]}
-            >
+            {description ? (
               <Text
-                style={[styles.actionText, { color: themeColors.background }]}
+                color={themeColors.mutedText}
+                style={{
+                  typography: "bodySmall",
+                }}
               >
-                Save
+                {description}
               </Text>
-            </Pressable>
-          </View>
-        </View>
-      </View>
-    </Modal>
+            ) : null}
+
+            {/* Value Row with minus/plus buttons */}
+            <Row
+              horizontalArrangement="spaceEvenly"
+              modifiers={[fillMaxWidth()]}
+            >
+              <IconButton
+                onClick={() =>
+                  setOffsetMinutes(
+                    offsetMinutes - NOTIFICATION_OFFSET_STEP_MINUTES,
+                  )
+                }
+                enabled={!isMinusDisabled}
+                colors={{
+                  containerColor: themeColors.surfaceMuted,
+                  contentColor: themeColors.icon,
+                  disabledContainerColor: themeColors.surfaceMuted,
+                  disabledContentColor: themeColors.iconMuted,
+                }}
+              >
+                <Text style={{ typography: "bodyLarge" }}>−</Text>
+              </IconButton>
+
+              <Text
+                color={themeColors.text}
+                style={{
+                  typography: "headlineMedium",
+                }}
+              >
+                {offsetMinutes}m
+              </Text>
+
+              <IconButton
+                onClick={() =>
+                  setOffsetMinutes(
+                    offsetMinutes + NOTIFICATION_OFFSET_STEP_MINUTES,
+                  )
+                }
+                enabled={!isPlusDisabled}
+                colors={{
+                  containerColor: themeColors.surfaceMuted,
+                  contentColor: themeColors.icon,
+                  disabledContainerColor: themeColors.surfaceMuted,
+                  disabledContentColor: themeColors.iconMuted,
+                }}
+              >
+                <Text style={{ typography: "bodyLarge" }}>+</Text>
+              </IconButton>
+            </Row>
+
+            <Slider
+              min={MIN_NOTIFICATION_OFFSET_MINUTES}
+              max={MAX_NOTIFICATION_OFFSET_MINUTES}
+              colors={{
+                activeTrackColor: themeColors.tint,
+                inactiveTrackColor: themeColors.tabIconSelected,
+                activeTickColor: themeColors.divider,
+                inactiveTickColor: themeColors.iconMuted,
+              }}
+              steps={MAX_NOTIFICATION_OFFSET_MINUTES}
+              value={offsetMinutes}
+              onValueChange={(v) => setOffsetMinutes(Math.round(v))}
+            />
+
+            {/* Action Buttons */}
+            <Row horizontalArrangement="center" modifiers={[fillMaxWidth()]}>
+              <TextButton
+                onClick={onCancel}
+                colors={{
+                  contentColor: themeColors.text,
+                }}
+              >
+                <Text
+                  color={themeColors.text}
+                  style={{
+                    typography: "labelLarge",
+                  }}
+                >
+                  Cancel
+                </Text>
+              </TextButton>
+              <Button
+                onClick={() =>
+                  onSave(clampNotificationOffsetMinutes(offsetMinutes))
+                }
+                colors={{
+                  containerColor: themeColors.success,
+                  contentColor: themeColors.background,
+                }}
+              >
+                <Text
+                  color={themeColors.background}
+                  style={{
+                    typography: "labelLarge",
+                  }}
+                >
+                  Save
+                </Text>
+              </Button>
+            </Row>
+          </Column>
+        </Card>
+      </BasicAlertDialog>
+    </Host>
   );
 }
-
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-  card: {
-    width: "100%",
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 18,
-    gap: 14,
-    borderWidth: 1,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  description: {
-    fontSize: 13,
-  },
-  valueRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 14,
-  },
-  valueText: {
-    fontSize: 26,
-    fontWeight: "800",
-    minWidth: 72,
-    textAlign: "center",
-  },
-  iconButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  iconButtonDisabled: {
-    opacity: 0.35,
-  },
-  sliderTrack: {
-    height: 6,
-    borderRadius: 999,
-    position: "relative",
-    overflow: "visible",
-  },
-  sliderFilled: {
-    height: 6,
-    borderRadius: 999,
-  },
-  sliderThumb: {
-    position: "absolute",
-    top: -(TRACK_THUMB_SIZE / 2 - 3),
-    width: TRACK_THUMB_SIZE,
-    height: TRACK_THUMB_SIZE,
-    borderRadius: TRACK_THUMB_SIZE / 2,
-    borderWidth: 2,
-  },
-  labelsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  labelText: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  actions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 10,
-  },
-  actionButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: 10,
-  },
-  actionText: {
-    fontWeight: "700",
-  },
-});

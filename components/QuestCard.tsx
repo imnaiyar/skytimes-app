@@ -25,7 +25,7 @@ export function QuestCard({
   collapsible = false,
   title,
 }: QuestCardProps) {
-  const themeColor = Colors[useColorScheme() ?? "dark"];
+  const themeColor = Colors[useColorScheme()];
   const [imageModalVisible, setImageModal] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
 

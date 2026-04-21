@@ -187,7 +187,7 @@ export function CategorySection({
   disabled?: boolean;
 }) {
   const colorScheme = useColorScheme();
-  const themeColors = Colors[colorScheme ?? "light"];
+  const themeColors = Colors[colorScheme];
   const [collapsed, setCollapsed] = useState(false);
   const props = {
     onPress: reorder ? undefined : () => setCollapsed(!collapsed),

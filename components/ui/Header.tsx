@@ -1,8 +1,9 @@
 import Colors from "@/constants/Colors";
 import React from "react";
-import { StyleSheet, useColorScheme, View, ViewStyle } from "react-native";
+import { StyleSheet, View, ViewStyle } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "../Themed";
+import { useColorScheme } from "../useColorScheme";
 
 interface HeaderProps {
   title: string;

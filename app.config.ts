@@ -26,6 +26,9 @@ const widgetConfig: WithAndroidWidgetsParams = {
 
 const plugins: ExpoConfig["plugins"] = [
   "expo-router",
+  "expo-font",
+  "expo-image",
+  "expo-web-browser",
   [
     "expo-notifications",
     {
@@ -42,6 +45,8 @@ const plugins: ExpoConfig["plugins"] = [
         enableShrinkResourcesInReleaseBuilds: true,
         enableMinifyInReleaseBuilds: true,
         useLegacyPackaging: true,
+        useHermesV1: true,
+        buildReactNativeFromSource: true,
       },
     },
   ],
@@ -89,7 +94,6 @@ const config: ExpoConfig = {
   scheme: "skytimes",
   userInterfaceStyle: "dark",
   jsEngine: "hermes",
-  newArchEnabled: true,
   splash: {
     image: "./assets/images/sleepykid.png",
     resizeMode: "contain",
@@ -107,7 +111,6 @@ const config: ExpoConfig = {
       foregroundImage: "./assets/images/sleepykid.png",
       backgroundColor: "#0d1423",
     },
-    edgeToEdgeEnabled: true,
     package: identifier,
     predictiveBackGestureEnabled: false,
   },

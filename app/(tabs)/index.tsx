@@ -5,7 +5,8 @@ import { requestWidgetUpdate } from "react-native-android-widget";
 
 import { CategoryList } from "@/components/EventList";
 import { Header } from "@/components/ui/Header";
-import { useTheme } from "@/constants/Colors";
+import { useColorScheme } from "@/components/useColorScheme";
+import Colors from "@/constants/Colors";
 import {
   useNotificationSettings,
   useNotifiedEvents,
@@ -38,7 +39,7 @@ export default function TabTwoScreen() {
     notificationOffsetsById,
   } = useSync();
 
-  const themeColors = useTheme();
+  const themeColors = Colors[useColorScheme()];
   const rotation = useSharedValue(0);
   const { reorder, setReorder } = useReorderMode();
 
@@ -136,13 +137,15 @@ export default function TabTwoScreen() {
           </View>
         }
       />
-      <CategoryList
-        events={events}
-        notificationOffsetsById={notificationOffsetsById}
-        onSetNotificationOffset={setEventNotificationOffset}
-        onDisableNotification={disableEventNotification}
-        notificationsEnabled={settings.enabled}
-      />
+      <View style={{ flex: 1, padding: 5 }}>
+        <CategoryList
+          events={events}
+          notificationOffsetsById={notificationOffsetsById}
+          onSetNotificationOffset={setEventNotificationOffset}
+          onDisableNotification={disableEventNotification}
+          notificationsEnabled={settings.enabled}
+        />
+      </View>
     </View>
   );
 }

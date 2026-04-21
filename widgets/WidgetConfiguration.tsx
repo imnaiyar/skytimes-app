@@ -1,10 +1,30 @@
-import { Text, View } from "@/components/Themed";
+import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useWidgetSettings } from "@/utils/hooks";
+import {
+  Button,
+  Card,
+  Column,
+  FilterChip,
+  FlowRow,
+  Host,
+  LazyColumn,
+  Row,
+  Switch,
+  Text,
+} from "@expo/ui/jetpack-compose";
+import {
+  fillMaxWidth,
+  padding,
+  paddingAll,
+  weight,
+} from "@expo/ui/jetpack-compose/modifiers";
 import { EventKey, SkytimesUtils } from "@skyhelperbot/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, StyleSheet, Switch, useColorScheme } from "react-native";
-import { WidgetConfigurationScreenProps } from "react-native-android-widget";
+import {
+  WidgetConfigurationScreenProps,
+  WidgetPreview,
+} from "react-native-android-widget";
 import { getWidgetEventRows } from "./events-widget-data";
 import { DARK_PALETTE, EventsWidget } from "./EventsWidget";
 
@@ -42,7 +62,7 @@ export function WidgetConfigurationScreen({
     [localSelectedKeys],
   );
 
-  const theme = Colors[useColorScheme() ?? "dark"];
+  const theme = Colors[useColorScheme()];
 
   const isDisabled = useCallback(
     (key: string) =>
@@ -69,16 +89,6 @@ export function WidgetConfigurationScreen({
     [selectedSet],
   );
 
-  const warning = useMemo(
-    () =>
-      selectedSet.size >= 6
-        ? "Max 6 events can be selected to display on the widget"
-        : selectedSet.size <= 2
-          ? "Min. 2 events should be selected to show on the widget"
-          : null,
-    [selectedSet.size],
-  );
-
   const handleToggleEnabled = useCallback((value: boolean) => {
     setLocalEnabled(value);
     if (value) {
@@ -89,102 +99,136 @@ export function WidgetConfigurationScreen({
   }, []);
 
   return (
-    <View style={style.container}>
-      <View
-        style={{
-          ...style.row,
-          marginBottom: 8,
-          borderBottomWidth: 1,
-          borderBottomColor: theme.border,
-          paddingBottom: 8,
-        }}
+    <Host style={{ flex: 1 }}>
+      <Column
+        modifiers={[fillMaxWidth(), paddingAll(12), padding(0, 15, 0, 0)]}
       >
-        <View style={{ gap: 2 }}>
-          <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-            Display custom events on the widget?
-          </Text>
-          <Text style={{ fontSize: 10, color: theme.mutedText }}>
-            Choose which event shows up on the widget.
-          </Text>
-        </View>
-        <Switch value={localEnabled} onValueChange={handleToggleEnabled} />
-      </View>
-      {warning && localEnabled && (
-        <Text style={{ color: theme.danger, fontSize: 10, textAlign: "left" }}>
-          {warning}
-        </Text>
-      )}
-      <View style={{ padding: 10, marginBottom: 10 }}>
-        {event.map(([key, event]) => {
-          return (
-            <View key={key} style={{ ...style.row, marginBottom: 10 }}>
-              <Text>{event.event.name}</Text>
+        <LazyColumn
+          modifiers={[fillMaxWidth(), weight(1)]}
+          verticalArrangement={{ spacedBy: 16 }}
+        >
+          {/* Header Section */}
+          <Column
+            verticalArrangement={{ spacedBy: 4 }}
+            modifiers={[fillMaxWidth(), padding(0, 8, 0, 8)]}
+          >
+            <Text
+              color={theme.text}
+              style={{
+                typography: "titleLarge",
+              }}
+            >
+              Display custom events on the widget?
+            </Text>
+            <Text
+              color={theme.mutedText}
+              style={{
+                typography: "labelSmall",
+              }}
+            >
+              Choose which event shows up on the widget
+            </Text>
+          </Column>
+
+          {/* Enable/Disable Chip */}
+          <Card border={{ width: 1 }} modifiers={[fillMaxWidth()]}>
+            <Row
+              modifiers={[fillMaxWidth(), paddingAll(8)]}
+              verticalAlignment="center"
+              horizontalArrangement={"spaceBetween"}
+            >
+              <Text>Enable Custom Events?</Text>
               <Switch
-                value={selectedSet.has(key)}
-                disabled={isDisabled(key)}
-                onValueChange={() => toggleSelectEvent(key)}
+                value={localEnabled}
+                onCheckedChange={(v) => setLocalEnabled(v)}
               />
-            </View>
-          );
-        })}
-      </View>
+            </Row>
+          </Card>
 
-      <View style={style.actions}>
-        <Button
-          title={"Cancel"}
-          color={theme.iconMuted}
-          onPress={() => setResult("cancel")}
-        />
-        <Button
-          title={"Save"}
-          color={theme.success}
-          onPress={() => {
-            const config = {
-              enabled: localEnabled,
-              selectedEventKeys: localSelectedKeys,
-            };
-            const rows = config.enabled
-              ? getWidgetEventRows(undefined, config.selectedEventKeys)
-              : getWidgetEventRows();
+          {/* Events Selection */}
+          <Column
+            verticalArrangement={{ spacedBy: 8 }}
+            modifiers={[fillMaxWidth()]}
+          >
+            <Text
+              color={theme.text}
+              style={{
+                typography: "labelMedium",
+              }}
+            >
+              Select Events (2-6)
+            </Text>
+            <FlowRow horizontalArrangement={{ spacedBy: 8 }}>
+              {event.map(([key, eventData]) => {
+                const isSelected = selectedSet.has(key);
+                const isDisabledState = isDisabled(key);
+                return (
+                  <FilterChip
+                    key={key}
+                    selected={isSelected}
+                    onClick={() => {
+                      if (!isDisabledState) {
+                        toggleSelectEvent(key);
+                      }
+                    }}
+                    enabled={!isDisabledState}
+                  >
+                    <FilterChip.Label>
+                      <Text>{eventData.event.name}</Text>
+                    </FilterChip.Label>
+                  </FilterChip>
+                );
+              })}
+            </FlowRow>
+          </Column>
 
-            renderWidget(<EventsWidget rows={rows} palette={DARK_PALETTE} />);
+          <Text color={theme.text} style={{ typography: "labelLarge" }}>
+            Preview
+          </Text>
+          <WidgetPreview
+            renderWidget={() => (
+              <EventsWidget
+                rows={getWidgetEventRows(undefined, localSelectedKeys)}
+                palette={DARK_PALETTE}
+              />
+            )}
+            height={220}
+            width={320}
+          />
+        </LazyColumn>
 
-            updateWidgetSettings(config);
+        <Row
+          horizontalArrangement={{ spacedBy: 15 }}
+          modifiers={[fillMaxWidth(), paddingAll(16)]}
+        >
+          <Button onClick={() => setResult("cancel")}>
+            <Text color={theme.background}>Cancel</Text>
+          </Button>
+          <Button
+            colors={{
+              containerColor: theme.success,
+              contentColor: theme.background,
+            }}
+            onClick={() => {
+              const config = {
+                enabled: localEnabled,
+                selectedEventKeys: localSelectedKeys,
+              };
+              const rows = config.enabled
+                ? getWidgetEventRows(undefined, config.selectedEventKeys)
+                : getWidgetEventRows();
 
-            setResult("ok");
-          }}
-        />
-      </View>
-    </View>
+              renderWidget(<EventsWidget rows={rows} palette={DARK_PALETTE} />);
+
+              updateWidgetSettings(config);
+
+              setResult("ok");
+            }}
+          >
+            <Text>Save</Text>
+          </Button>
+        </Row>
+      </Column>
+    </Host>
   );
 }
-
-const style = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 10,
-  },
-
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-  },
-
-  actions: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 20,
-  },
-  actionButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: 10,
-  },
-  actionText: {
-    fontWeight: "700",
-  },
-});

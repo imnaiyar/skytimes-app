@@ -7,7 +7,7 @@ import { Text, View } from "./Themed";
 export function SkyClock() {
   const now = useNow();
   const colorScheme = useColorScheme();
-  const themeColors = Colors[colorScheme ?? "light"];
+  const themeColors = Colors[colorScheme];
 
   const [local, ingame] = [
     DateTime.fromMillis(now),
