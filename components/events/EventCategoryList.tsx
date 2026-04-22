@@ -1,4 +1,5 @@
-import { SkyClock } from "@/components/Clock";
+import { SkyClock } from "@/components/events/Clock";
+import { useThemeColor } from "@/constants/Colors";
 import type { GroupedEvent } from "@/utils/event";
 import { groupEvents, sortGroupedEvents } from "@/utils/event";
 import {
@@ -11,14 +12,23 @@ import {
   DEFAULT_NOTIFICATION_OFFSET_MINUTES,
   type NotificationOffsetsByEventId,
 } from "@/utils/storage";
+import {
+  Column,
+  HorizontalDivider,
+  Host,
+  ModalBottomSheet,
+  ModalBottomSheetRef,
+  RNHostView,
+  Text,
+} from "@expo/ui/jetpack-compose";
+import { fillMaxHeight, paddingAll } from "@expo/ui/jetpack-compose/modifiers";
 import type { EventDetails, EventKey } from "@skyhelperbot/utils";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { FlatList } from "react-native";
-import DraggableFlatList from "react-native-draggable-flatlist";
-import { CategorySection } from "./EventsCard";
-import { OffsetPickerModal } from "./OffsetPickerModal";
-import { View } from "./Themed";
-import { Callout } from "./ui/Callout";
+import { OffsetPickerModal } from "../OffsetPickerModal";
+import { View } from "../Themed";
+import { Callout } from "../ui/Callout";
+import EventCategory from "./EventCategory";
 
 type NotificationPickerState = {
   mode: "enable" | "edit";
@@ -27,7 +37,7 @@ type NotificationPickerState = {
   initialOffsetMinutes: number;
 };
 
-export function CategoryList({
+export default function EventCategoryList({
   events,
   notificationOffsetsById,
   onSetNotificationOffset,
@@ -114,65 +124,59 @@ export function CategoryList({
       ? "Choose how many minutes before the event you want the reminder."
       : "Update reminder offset for this event.";
 
-  const { reorder } = useReorderMode();
-
+  const { reorder, setReorder } = useReorderMode();
+  const themeColors = useThemeColor();
+  const sheetRef = useRef<ModalBottomSheetRef>(null);
+  const hideSheet = async () => {
+    await sheetRef.current?.hide();
+    setReorder(false);
+  };
   if (reorder) {
     return (
-      <View style={{ flex: 1 }}>
-        <DraggableFlatList
-          data={categoryOrder}
-          keyExtractor={(item) => item}
-          ListHeaderComponent={
-            <>
+      <Host style={{ flex: 1 }}>
+        <ModalBottomSheet
+          ref={sheetRef}
+          onDismissRequest={() => setReorder(false)}
+          sheetGesturesEnabled={false}
+          showDragHandle={false}
+          skipPartiallyExpanded
+          modifiers={[fillMaxHeight()]}
+        >
+          <Column
+            verticalArrangement={{ spacedBy: 10 }}
+            modifiers={[paddingAll(10)]}
+          >
+            <RNHostView matchContents>
               <Callout style={{ marginBottom: 10 }}>
                 Long press and drag the three lines to re-arrange the
                 categories! You cannot re-arrange the pinned/active category.
               </Callout>
-              {!!hoistedEvents.length && (
-                <CategorySection
-                  title="Pinned & Active"
-                  events={hoistedEvents}
-                  now={now}
-                  reorder
-                  disabled={true}
-                  onTogglePin={togglePin}
-                  onEnableNotification={openEnableOffsetPicker}
-                  onDisableNotification={(key) => onDisableNotification(key)}
-                  onEditNotificationOffset={openEditOffsetPicker}
-                  notificationsEnabled={notificationsEnabled}
-                />
-              )}
-            </>
-          }
-          style={{ marginTop: 16 }}
-          onDragEnd={({ data }) => setCategoryOrder(data)}
-          renderItem={({ item, drag }) => (
-            <CategorySection
-              title={item}
-              events={grouped[item] ?? []}
-              now={now}
-              reorder
-              drag={drag}
-              onTogglePin={togglePin}
-              onEnableNotification={openEnableOffsetPicker}
-              onDisableNotification={(key) => onDisableNotification(key)}
-              onEditNotificationOffset={openEditOffsetPicker}
-              notificationsEnabled={notificationsEnabled}
-            />
-          )}
-        />
-        <OffsetPickerModal
-          visible={Boolean(pickerState)}
-          title={pickerTitle}
-          description={pickerDescription}
-          initialOffsetMinutes={
-            pickerState?.initialOffsetMinutes ??
-            DEFAULT_NOTIFICATION_OFFSET_MINUTES
-          }
-          onCancel={closeOffsetPicker}
-          onSave={saveOffsetPickerValue}
-        />
-      </View>
+            </RNHostView>
+            <Text
+              color={themeColors.mutedText}
+              style={{ typography: "bodyLarge" }}
+            >
+              Pinned
+            </Text>
+
+            <HorizontalDivider color={themeColors.divider} />
+
+            {categoryOrder.map((c, i) => {
+              return (
+                <Column verticalArrangement={{ spacedBy: 10 }} key={i}>
+                  <Text
+                    color={themeColors.text}
+                    style={{ typography: "bodyLarge" }}
+                  >
+                    {c}
+                  </Text>
+                  <HorizontalDivider color={themeColors.divider} />
+                </Column>
+              );
+            })}
+          </Column>
+        </ModalBottomSheet>
+      </Host>
     );
   }
 
@@ -185,7 +189,7 @@ export function CategoryList({
           <>
             <SkyClock />
             {!!hoistedEvents.length && (
-              <CategorySection
+              <EventCategory
                 title="Pinned & Active"
                 events={hoistedEvents}
                 now={now}
@@ -200,7 +204,7 @@ export function CategoryList({
         }
         style={{ marginTop: 16 }}
         renderItem={({ item }) => (
-          <CategorySection
+          <EventCategory
             title={item}
             events={nonHoistedGrouped[item] ?? []}
             now={now}

@@ -57,7 +57,8 @@ const plugins: ExpoConfig["plugins"] = [
     },
   ],
   ["react-native-android-widget", widgetConfig],
-  ["expo-gradle-jvmargs", { xmx: "4g", maxMetaspace: "1024m" }]
+  ["expo-gradle-jvmargs", { xmx: "4g", maxMetaspace: "1024m" }],
+  "react-native-video",
 ];
 
 // only do app sign in in prod

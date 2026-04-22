@@ -1,24 +1,19 @@
-import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
-import type { GroupedEvent } from "@/utils/event";
-import { formatTime, getEventStatus } from "@/utils/event";
+import { formatTime, getEventStatus, GroupedEvent } from "@/utils/event";
 import { usePulse } from "@/utils/hooks";
 import { DEFAULT_NOTIFICATION_OFFSET_MINUTES } from "@/utils/storage";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import type { EventKey } from "@skyhelperbot/utils";
-import type { DateTime } from "luxon";
-import { useState } from "react";
-import { Pressable, StyleSheet } from "react-native";
-import { Collapsible } from "react-native-fast-collapsible";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { EventKey } from "@skyhelperbot/utils";
+import { DateTime } from "luxon";
+import { Pressable, StyleSheet, View } from "react-native";
 import Animated from "react-native-reanimated";
-import { Text, View } from "./Themed";
-import { ConfirmAlert } from "./ui/Alert";
-import { AnimatedChevron } from "./ui/AnimatedChevron";
+import { Text } from "../Themed";
+import { ConfirmAlert } from "../ui/Alert";
+import { useColorScheme } from "../useColorScheme";
 
 const formatReadable = (date: DateTime) => date.toLocal().toFormat("hh:mm a");
 
-export function EventCard({
+export default function EventCategoryItem({
   item,
   now,
   onTogglePin,
@@ -42,10 +37,13 @@ export function EventCard({
   index?: number;
 }) {
   const status = getEventStatus(item.event.status);
+
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme ?? "light"];
+
   const endTime = status === "active" ? item.event.status.endTime : null;
   const nextTime = item.event.nextOccurence;
+
   let timeLabel = `${formatReadable(endTime ?? nextTime)} `;
   if (status === "upcoming") {
     timeLabel += `(in ${formatTime(nextTime.toMillis() - now)})`;
@@ -58,7 +56,9 @@ export function EventCard({
 
   const pulseStyle = usePulse(status === "active");
   const Container = status === "active" ? Animated.View : View;
-  const colors = [themeColors.eventRowA, themeColors.eventRowB];
+
+  const iTemcolors = [themeColors.eventRowA, themeColors.eventRowB];
+
   const eventName = item.event.event.name;
   const currentOffsetMinutes =
     item.notificationOffsetMinutes ?? DEFAULT_NOTIFICATION_OFFSET_MINUTES;
@@ -67,7 +67,7 @@ export function EventCard({
     <Container
       style={[
         styles.eventCard,
-        { backgroundColor: colors[index % colors.length] },
+        { backgroundColor: iTemcolors[index % iTemcolors.length] },
         status === "active" && styles.activeCard,
         status === "active" && {
           backgroundColor: themeColors.successSurface,
@@ -83,7 +83,14 @@ export function EventCard({
           backgroundColor: "transparent",
         }}
       >
-        <Text style={styles.title}>{eventName}</Text>
+        <Text
+          style={[
+            styles.title,
+            status === "active" && { color: themeColors.success },
+          ]}
+        >
+          {eventName}
+        </Text>
         <View
           style={{
             backgroundColor: "transparent",
@@ -157,159 +164,29 @@ export function EventCard({
   );
 }
 
-export function CategorySection({
-  title,
-  events,
-  now,
-  drag,
-  reorder,
-  onTogglePin,
-  onEnableNotification,
-  onDisableNotification,
-  onEditNotificationOffset,
-  notificationsEnabled,
-  disabled = false,
-}: {
-  title: string;
-  events: GroupedEvent[];
-  now: number;
-  drag?: () => void;
-  reorder?: boolean;
-  onTogglePin: (key: EventKey) => void;
-  onEnableNotification: (key: EventKey, eventName: string) => void;
-  onDisableNotification: (key: EventKey, eventName: string) => void;
-  onEditNotificationOffset: (
-    key: EventKey,
-    eventName: string,
-    currentOffsetMinutes: number,
-  ) => void;
-  notificationsEnabled: boolean;
-  disabled?: boolean;
-}) {
-  const colorScheme = useColorScheme();
-  const themeColors = Colors[colorScheme];
-  const [collapsed, setCollapsed] = useState(false);
-  const props = {
-    onPress: reorder ? undefined : () => setCollapsed(!collapsed),
-    onLongPress: reorder && drag ? drag : undefined,
-    delayLongPress: 150,
-  };
-  return (
-    <View
-      style={[
-        styles.category,
-        { backgroundColor: themeColors.card, borderColor: themeColors.border },
-      ]}
-    >
-      <Pressable
-        {...props}
-        style={(state) => [
-          styles.categoryHeader,
-          {
-            backgroundColor:
-              state.hovered || state.pressed
-                ? themeColors.overlay
-                : themeColors.card,
-          },
-          disabled && { opacity: 0.2 },
-        ]}
-        disabled={disabled}
-      >
-        <Text style={styles.categoryTitle}>
-          {title} ({events.length})
-        </Text>
-        {reorder ? (
-          <Ionicons
-            name="reorder-three"
-            size={25}
-            color={themeColors.icon}
-            style={{ marginRight: 15 }}
-          />
-        ) : (
-          <AnimatedChevron
-            isCollapsed={collapsed}
-            color={themeColors.text}
-            duration={200}
-            size={16}
-          />
-        )}
-      </Pressable>
-
-      <Collapsible duration={200} isVisible={!collapsed && !reorder}>
-        {events.map((item, index) => (
-          <View key={item.key} style={{ backgroundColor: "transparent" }}>
-            <EventCard
-              item={item}
-              now={now}
-              onTogglePin={onTogglePin}
-              onEnableNotification={onEnableNotification}
-              onDisableNotification={onDisableNotification}
-              onEditNotificationOffset={onEditNotificationOffset}
-              notificationsEnabled={notificationsEnabled}
-              index={index}
-            />
-            {index + 1 < events.length && (
-              <View
-                style={[
-                  styles.separator,
-                  { backgroundColor: themeColors.divider },
-                ]}
-              />
-            )}
-          </View>
-        ))}
-      </Collapsible>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  category: {
-    marginBottom: 8,
-    borderWidth: 1,
-    borderRadius: 15,
-    overflow: "hidden",
+  title: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  badge: {
+    marginTop: 8,
+    fontSize: 8,
+    fontWeight: "bold",
   },
 
   eventCard: {
     padding: 8,
+  },
+  activeTimer: {
+    fontWeight: "bold",
   },
 
   activeCard: {
     borderWidth: 1,
   },
 
-  title: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-
   timer: {
     fontSize: 12,
-  },
-
-  activeTimer: {
-    fontWeight: "bold",
-  },
-
-  badge: {
-    marginTop: 8,
-    fontSize: 8,
-    fontWeight: "bold",
-  },
-  categoryHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 8,
-  },
-  categoryTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  chevron: {},
-  separator: {
-    height: 1.15,
-    width: "100%",
   },
 });

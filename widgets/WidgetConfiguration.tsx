@@ -99,7 +99,7 @@ export function WidgetConfigurationScreen({
   }, []);
 
   return (
-    <Host style={{ flex: 1 }}>
+    <Host style={{ flex: 1, backgroundColor: theme.background }}>
       <Column
         modifiers={[fillMaxWidth(), paddingAll(12), padding(0, 15, 0, 0)]}
       >
@@ -131,7 +131,11 @@ export function WidgetConfigurationScreen({
           </Column>
 
           {/* Enable/Disable Chip */}
-          <Card border={{ width: 1 }} modifiers={[fillMaxWidth()]}>
+          <Card
+            border={{ width: 1 }}
+            colors={{ containerColor: theme.card }}
+            modifiers={[fillMaxWidth()]}
+          >
             <Row
               modifiers={[fillMaxWidth(), paddingAll(8)]}
               verticalAlignment="center"
@@ -140,7 +144,14 @@ export function WidgetConfigurationScreen({
               <Text>Enable Custom Events?</Text>
               <Switch
                 value={localEnabled}
-                onCheckedChange={(v) => setLocalEnabled(v)}
+                colors={{
+                  checkedTrackColor: theme.tint,
+                  checkedThumbColor: theme.border,
+                  uncheckedTrackColor: theme.overlay,
+                  uncheckedThumbColor: theme.divider,
+                  uncheckedBorderColor: theme.divider,
+                }}
+                onCheckedChange={handleToggleEnabled}
               />
             </Row>
           </Card>
@@ -171,10 +182,14 @@ export function WidgetConfigurationScreen({
                         toggleSelectEvent(key);
                       }
                     }}
+                    colors={{
+                      selectedContainerColor: theme.success,
+                      containerColor: theme.danger,
+                    }}
                     enabled={!isDisabledState}
                   >
                     <FilterChip.Label>
-                      <Text>{eventData.event.name}</Text>
+                      <Text color={theme.text}>{eventData.event.name}</Text>
                     </FilterChip.Label>
                   </FilterChip>
                 );
@@ -201,13 +216,17 @@ export function WidgetConfigurationScreen({
           horizontalArrangement={{ spacedBy: 15 }}
           modifiers={[fillMaxWidth(), paddingAll(16)]}
         >
-          <Button onClick={() => setResult("cancel")}>
-            <Text color={theme.background}>Cancel</Text>
+          <Button
+            colors={{
+              containerColor: theme.card,
+            }}
+            onClick={() => setResult("cancel")}
+          >
+            <Text color={theme.text}>Cancel</Text>
           </Button>
           <Button
             colors={{
               containerColor: theme.success,
-              contentColor: theme.background,
             }}
             onClick={() => {
               const config = {
@@ -225,7 +244,7 @@ export function WidgetConfigurationScreen({
               setResult("ok");
             }}
           >
-            <Text>Save</Text>
+            <Text color={theme.text}>Save</Text>
           </Button>
         </Row>
       </Column>

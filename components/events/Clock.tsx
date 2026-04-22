@@ -3,7 +3,7 @@ import Colors from "@/constants/Colors";
 import { useNow } from "@/utils/hooks";
 import { DateTime } from "luxon";
 import { Image, StyleSheet } from "react-native";
-import { Text, View } from "./Themed";
+import { Text, View } from "../Themed";
 export function SkyClock() {
   const now = useNow();
   const colorScheme = useColorScheme();
@@ -20,7 +20,7 @@ export function SkyClock() {
         <Text style={[styles.header, { color: themeColors.text }]}>Clock</Text>
 
         <Image
-          source={require("../assets/images/skykid.png")}
+          source={require("@/assets/images/skykid.png")}
           style={styles.skykid}
           resizeMode="contain"
         />
