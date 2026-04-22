@@ -70,8 +70,8 @@ export default function EventCategoryItem({
         { backgroundColor: iTemcolors[index % iTemcolors.length] },
         status === "active" && styles.activeCard,
         status === "active" && {
-          backgroundColor: themeColors.successSurface,
-          borderColor: themeColors.success,
+          backgroundColor: themeColors.success,
+          borderColor: themeColors.successSurface,
         },
         status === "active" && pulseStyle,
       ]}
@@ -86,7 +86,7 @@ export default function EventCategoryItem({
         <Text
           style={[
             styles.title,
-            status === "active" && { color: themeColors.success },
+            status === "active" && { color: themeColors.successSurface },
           ]}
         >
           {eventName}
@@ -129,7 +129,7 @@ export default function EventCategoryItem({
               size={20}
               color={
                 item.notified
-                  ? themeColors.success
+                  ? themeColors.successSurface
                   : notificationsEnabled
                     ? themeColors.icon
                     : themeColors.iconMuted
@@ -141,7 +141,9 @@ export default function EventCategoryItem({
             <MaterialCommunityIcons
               name={item.pinned ? "pin" : "pin-outline"}
               size={20}
-              color={item.pinned ? themeColors.success : themeColors.icon}
+              color={
+                item.pinned ? themeColors.successSurface : themeColors.icon
+              }
             />
           </Pressable>
         </View>
@@ -150,7 +152,7 @@ export default function EventCategoryItem({
         style={[
           styles.timer,
           { color: themeColors.mutedText },
-          status === "active" && { color: themeColors.success },
+          status === "active" && { color: themeColors.successSurface },
           status === "active" && styles.activeTimer,
         ]}
       >
@@ -158,7 +160,9 @@ export default function EventCategoryItem({
       </Text>
 
       {status === "active" && (
-        <Text style={[styles.badge, { color: themeColors.success }]}>LIVE</Text>
+        <Text style={[styles.badge, { color: themeColors.successSurface }]}>
+          LIVE
+        </Text>
       )}
     </Container>
   );

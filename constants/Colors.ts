@@ -50,7 +50,7 @@ const Colors = {
     tabIconSelected: "#49454F",
     link: tintColorDark,
   },
-};
+} as const;
 
 export default Colors;
 

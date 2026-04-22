@@ -1,6 +1,7 @@
+import Colors from "@/constants/Colors";
 import { useWidgetSettings } from "@/utils/hooks";
 import { getWidgetEventRows } from "@/widgets/events-widget-data";
-import { DARK_PALETTE, EventsWidget } from "@/widgets/EventsWidget";
+import { EventsWidget } from "@/widgets/EventsWidget";
 import {
   SchedulableTriggerInputTypes,
   scheduleNotificationAsync,
@@ -71,7 +72,9 @@ export default function HelloWidgetPreviewScreen() {
       ></Button>
 
       <WidgetPreview
-        renderWidget={() => <EventsWidget rows={rows} palette={DARK_PALETTE} />}
+        renderWidget={() => (
+          <EventsWidget rows={rows} palette={Colors["dark"]} />
+        )}
         width={320}
         height={200}
       />

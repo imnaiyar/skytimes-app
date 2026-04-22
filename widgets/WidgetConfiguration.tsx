@@ -2,11 +2,13 @@ import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useWidgetSettings } from "@/utils/hooks";
 import {
+  Box,
   Button,
-  Card,
+  Checkbox,
   Column,
   FilterChip,
   FlowRow,
+  HorizontalDivider,
   Host,
   LazyColumn,
   Row,
@@ -26,7 +28,7 @@ import {
   WidgetPreview,
 } from "react-native-android-widget";
 import { getWidgetEventRows } from "./events-widget-data";
-import { DARK_PALETTE, EventsWidget } from "./EventsWidget";
+import { EventsWidget } from "./EventsWidget";
 
 const MAX_WIDGET_EVENTS = 6;
 const DEFAULT_6_EVENTS: EventKey[] = [
@@ -97,64 +99,77 @@ export function WidgetConfigurationScreen({
       setLocalSelectedKeys([]);
     }
   }, []);
-
+  const [showClickArea, setClickArea] = useState(false);
   return (
     <Host style={{ flex: 1, backgroundColor: theme.background }}>
       <Column
-        modifiers={[fillMaxWidth(), paddingAll(12), padding(0, 15, 0, 0)]}
+        modifiers={[fillMaxWidth(), paddingAll(12), padding(0, 20, 0, 0)]}
+        horizontalAlignment="center"
       >
+        <WidgetPreview
+          highlightClickableAreas={showClickArea}
+          renderWidget={() => (
+            <EventsWidget
+              rows={getWidgetEventRows(undefined, localSelectedKeys)}
+              palette={Colors["dark"]}
+            />
+          )}
+          height={220}
+          width={320}
+        />
+        <Box contentAlignment="topEnd">
+          <Row
+            verticalAlignment="center"
+            horizontalArrangement={{ spacedBy: 3 }}
+          >
+            <Text color={theme.mutedText} style={{ typography: "bodySmall" }}>
+              Show clickable area?
+            </Text>
+            <Checkbox value={showClickArea} onCheckedChange={setClickArea} />
+          </Row>
+        </Box>
+        <HorizontalDivider color={theme.border} />
         <LazyColumn
           modifiers={[fillMaxWidth(), weight(1)]}
           verticalArrangement={{ spacedBy: 16 }}
         >
           {/* Header Section */}
-          <Column
-            verticalArrangement={{ spacedBy: 4 }}
-            modifiers={[fillMaxWidth(), padding(0, 8, 0, 8)]}
-          >
-            <Text
-              color={theme.text}
-              style={{
-                typography: "titleLarge",
-              }}
-            >
-              Display custom events on the widget?
-            </Text>
-            <Text
-              color={theme.mutedText}
-              style={{
-                typography: "labelSmall",
-              }}
-            >
-              Choose which event shows up on the widget
-            </Text>
-          </Column>
 
-          {/* Enable/Disable Chip */}
-          <Card
-            border={{ width: 1 }}
-            colors={{ containerColor: theme.card }}
-            modifiers={[fillMaxWidth()]}
+          <Row
+            modifiers={[fillMaxWidth(), padding(0, 8, 0, 8)]}
+            verticalAlignment="center"
+            horizontalArrangement={"spaceBetween"}
           >
-            <Row
-              modifiers={[fillMaxWidth(), paddingAll(8)]}
-              verticalAlignment="center"
-              horizontalArrangement={"spaceBetween"}
-            >
-              <Text>Enable Custom Events?</Text>
-              <Switch
-                value={localEnabled}
-                colors={{
-                  checkedTrackColor: theme.tint,
-                  checkedThumbColor: theme.border,
-                  uncheckedTrackColor: theme.overlay,
-                  uncheckedThumbColor: theme.divider,
-                  uncheckedBorderColor: theme.divider,
+            <Column verticalArrangement={{ spacedBy: 4 }}>
+              <Text
+                color={theme.text}
+                style={{
+                  typography: "titleLarge",
                 }}
-                onCheckedChange={handleToggleEnabled}
-              />
-            </Row>
-          </Card>
+              >
+                Display custom events?
+              </Text>
+              <Text
+                color={theme.mutedText}
+                style={{
+                  typography: "labelSmall",
+                }}
+              >
+                Choose which event shows up on the widget
+              </Text>
+            </Column>
+            <Switch
+              value={localEnabled}
+              colors={{
+                checkedTrackColor: theme.tint,
+                checkedThumbColor: theme.border,
+                uncheckedTrackColor: theme.overlay,
+                uncheckedThumbColor: theme.divider,
+                uncheckedBorderColor: theme.divider,
+              }}
+              onCheckedChange={handleToggleEnabled}
+            />
+          </Row>
 
           {/* Events Selection */}
           <Column
@@ -184,32 +199,23 @@ export function WidgetConfigurationScreen({
                     }}
                     colors={{
                       selectedContainerColor: theme.success,
-                      containerColor: theme.danger,
+
+                      containerColor: theme.overlay,
                     }}
                     enabled={!isDisabledState}
                   >
                     <FilterChip.Label>
-                      <Text color={theme.text}>{eventData.event.name}</Text>
+                      <Text
+                        color={isDisabledState ? theme.mutedText : theme.text}
+                      >
+                        {eventData.event.name}
+                      </Text>
                     </FilterChip.Label>
                   </FilterChip>
                 );
               })}
             </FlowRow>
           </Column>
-
-          <Text color={theme.text} style={{ typography: "labelLarge" }}>
-            Preview
-          </Text>
-          <WidgetPreview
-            renderWidget={() => (
-              <EventsWidget
-                rows={getWidgetEventRows(undefined, localSelectedKeys)}
-                palette={DARK_PALETTE}
-              />
-            )}
-            height={220}
-            width={320}
-          />
         </LazyColumn>
 
         <Row
@@ -237,7 +243,9 @@ export function WidgetConfigurationScreen({
                 ? getWidgetEventRows(undefined, config.selectedEventKeys)
                 : getWidgetEventRows();
 
-              renderWidget(<EventsWidget rows={rows} palette={DARK_PALETTE} />);
+              renderWidget(
+                <EventsWidget rows={rows} palette={Colors["dark"]} />,
+              );
 
               updateWidgetSettings(config);
 
