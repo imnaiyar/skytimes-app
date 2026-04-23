@@ -1,44 +1,18 @@
 import { SkyClock } from "@/components/events/Clock";
-import { useThemeColor } from "@/constants/Colors";
 import type { GroupedEvent } from "@/utils/event";
 import { groupEvents, sortGroupedEvents } from "@/utils/event";
-import {
-  useCategoryOrder,
-  useNow,
-  usePinnedEvents,
-  useReorderMode,
-} from "@/utils/hooks";
+import { useCategoryOrder, useNow, usePinnedEvents } from "@/utils/hooks";
 import {
   DEFAULT_NOTIFICATION_OFFSET_MINUTES,
   type NotificationOffsetsByEventId,
 } from "@/utils/storage";
-import {
-  Column,
-  ElevatedButton,
-  HorizontalDivider,
-  Host,
-  Icon,
-  IconButton,
-  ModalBottomSheet,
-  ModalBottomSheetRef,
-  RNHostView,
-  Row,
-  Text,
-} from "@expo/ui/jetpack-compose";
-import {
-  align,
-  fillMaxHeight,
-  fillMaxWidth,
-  paddingAll,
-  rotate,
-} from "@expo/ui/jetpack-compose/modifiers";
 import type { EventDetails, EventKey } from "@skyhelperbot/utils";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { FlatList } from "react-native";
 import { OffsetPickerModal } from "../OffsetPickerModal";
 import { View } from "../Themed";
-import { Callout } from "../ui/Callout";
 import EventCategory from "./EventCategory";
+import { CategoryReorderDrawer } from "./ReorderCategoryDrawer";
 
 type NotificationPickerState = {
   mode: "enable" | "edit";
@@ -134,128 +108,9 @@ export default function EventCategoryList({
       ? "Choose how many minutes before the event you want the reminder."
       : "Update reminder offset for this event.";
 
-  const { reorder, setReorder } = useReorderMode();
-  const themeColors = useThemeColor();
-  const sheetRef = useRef<ModalBottomSheetRef>(null);
-
-  const hideSheet = async () => {
-    await sheetRef.current?.hide();
-    setReorder(false);
-  };
-
-  const moveCategory = useCallback(
-    (fromIndex: number, direction: -1 | 1) => {
-      const targetIndex = fromIndex + direction;
-      if (targetIndex < 0 || targetIndex >= categoryOrder.length) return;
-
-      const next = [...categoryOrder];
-      const [moved] = next.splice(fromIndex, 1);
-      next.splice(targetIndex, 0, moved);
-      setCategoryOrder(next);
-    },
-    [categoryOrder, setCategoryOrder],
-  );
-
-  if (reorder) {
-    return (
-      <Host style={{ flex: 1 }}>
-        <ModalBottomSheet
-          ref={sheetRef}
-          onDismissRequest={() => setReorder(false)}
-          sheetGesturesEnabled={false}
-          showDragHandle={false}
-          skipPartiallyExpanded
-          modifiers={[fillMaxHeight()]}
-        >
-          <Column
-            verticalArrangement={{ spacedBy: 10 }}
-            modifiers={[paddingAll(10)]}
-          >
-            <Row horizontalArrangement="end" modifiers={[fillMaxWidth()]}>
-              <ElevatedButton
-                colors={{
-                  containerColor: themeColors.success,
-                }}
-                onClick={() => void hideSheet()}
-              >
-                <Icon
-                  source={require("@/assets/icons/check_24px.xml")}
-                  tint={themeColors.successSurface}
-                />
-              </ElevatedButton>
-            </Row>
-            <RNHostView matchContents>
-              <Callout style={{ marginBottom: 10 }}>
-                Use move controls to reorder categories. Pinned/active stays
-                fixed at the top.
-              </Callout>
-            </RNHostView>
-            <Text
-              color={themeColors.mutedText}
-              style={{ typography: "bodyLarge" }}
-            >
-              Pinned
-            </Text>
-
-            <HorizontalDivider color={themeColors.divider} />
-
-            {categoryOrder.map((c, i) => {
-              const isFirst = i === 0;
-              const isLast = i === categoryOrder.length - 1;
-              const activeControlColor = themeColors.text;
-              const disabledControlColor = themeColors.iconMuted;
-
-              return (
-                <Column verticalArrangement={{ spacedBy: 10 }} key={i}>
-                  <Row
-                    horizontalArrangement={"spaceBetween"}
-                    verticalAlignment="center"
-                    modifiers={[fillMaxWidth(), align("center")]}
-                  >
-                    <Text
-                      color={themeColors.text}
-                      style={{ typography: "bodyLarge" }}
-                    >
-                      {c}
-                    </Text>
-                    <Row>
-                      <IconButton
-                        onClick={() => moveCategory(i, -1)}
-                        enabled={!isFirst}
-                      >
-                        <Icon
-                          source={require("@/assets/icons/expand_more_24px.xml")}
-                          modifiers={[rotate(180)]}
-                          tint={
-                            isFirst ? disabledControlColor : activeControlColor
-                          }
-                        />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => moveCategory(i, 1)}
-                        enabled={!isLast}
-                      >
-                        <Icon
-                          source={require("@/assets/icons/expand_more_24px.xml")}
-                          tint={
-                            isLast ? disabledControlColor : activeControlColor
-                          }
-                        />
-                      </IconButton>
-                    </Row>
-                  </Row>
-                  <HorizontalDivider color={themeColors.divider} />
-                </Column>
-              );
-            })}
-          </Column>
-        </ModalBottomSheet>
-      </Host>
-    );
-  }
-
   return (
-    <View style={{ flex: 1 }}>
+    <View>
+      <CategoryReorderDrawer />
       <FlatList
         data={categoryOrder}
         keyExtractor={(item) => item}

@@ -87,6 +87,8 @@ if (!isDev) {
   ]);
 }
 
+const backgroundColor = "#1C1B1F";
+
 const config: ExpoConfig = {
   name: packageName,
   slug: packageName.toLowerCase(),
@@ -94,12 +96,11 @@ const config: ExpoConfig = {
   orientation: "portrait",
   icon: "./assets/images/sleepykid.png",
   scheme: "skytimes",
-  userInterfaceStyle: "dark",
   jsEngine: "hermes",
   splash: {
     image: "./assets/images/sleepykid.png",
     resizeMode: "contain",
-    backgroundColor: "#0d1423",
+    backgroundColor,
   },
   ios: {
     supportsTablet: true,
@@ -111,7 +112,7 @@ const config: ExpoConfig = {
   android: {
     adaptiveIcon: {
       foregroundImage: "./assets/images/sleepykid.png",
-      backgroundColor: "#0d1423",
+      backgroundColor,
     },
     package: identifier,
     predictiveBackGestureEnabled: false,

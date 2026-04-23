@@ -13,7 +13,7 @@ export default function EventHeader() {
 
   return (
     <Header
-      title={reorder ? "Re-ordering..." : "SkyTimes"}
+      title={"SkyTimes"}
       bottomBorder
       right={
         <View
@@ -42,23 +42,22 @@ export default function EventHeader() {
             </Link>
           )}
 
-          {!reorder && (
-            <Link href="/instruction" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={20}
-                    color={themeColors.text}
-                    style={{
-                      marginRight: 15,
-                      opacity: pressed ? 0.5 : 1,
-                    }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          )}
+          <Link href="/instruction" asChild>
+            <Pressable>
+              {({ pressed }) => (
+                <FontAwesome
+                  name="info-circle"
+                  size={20}
+                  color={themeColors.text}
+                  style={{
+                    marginRight: 15,
+                    opacity: pressed ? 0.5 : 1,
+                  }}
+                />
+              )}
+            </Pressable>
+          </Link>
+
           <Pressable onPress={() => setReorder(!reorder)}>
             <FontAwesome6
               name="arrow-down-wide-short"

@@ -1,6 +1,5 @@
 import Colors from "@/constants/Colors";
 import { GroupedEvent } from "@/utils/event";
-import { Ionicons } from "@expo/vector-icons";
 import { EventKey } from "@skyhelperbot/utils";
 import { useState } from "react";
 import { Pressable, StyleSheet } from "react-native";
@@ -16,11 +15,6 @@ export default function EventCategory(props: EventCategoryProps) {
 
   const [collapsed, setCollapsed] = useState(false);
 
-  const pressableprops = {
-    onPress: props.reorder ? undefined : () => setCollapsed(!collapsed),
-    onLongPress: props.reorder && props.drag ? props.drag : undefined,
-    delayLongPress: 150,
-  };
   return (
     <View
       style={[
@@ -29,7 +23,7 @@ export default function EventCategory(props: EventCategoryProps) {
       ]}
     >
       <Pressable
-        {...pressableprops}
+        onPress={() => setCollapsed(!collapsed)}
         style={(state) => [
           styles.categoryHeader,
           {
@@ -38,31 +32,20 @@ export default function EventCategory(props: EventCategoryProps) {
                 ? themeColors.overlay
                 : themeColors.card,
           },
-          props.disabled && { opacity: 0.2 },
         ]}
-        disabled={props.disabled}
       >
         <Text style={styles.categoryTitle}>
           {props.title} ({props.events.length})
         </Text>
-        {props.reorder ? (
-          <Ionicons
-            name="reorder-three"
-            size={25}
-            color={themeColors.icon}
-            style={{ marginRight: 15 }}
-          />
-        ) : (
-          <AnimatedChevron
-            isCollapsed={collapsed}
-            color={themeColors.text}
-            duration={200}
-            size={16}
-          />
-        )}
+        <AnimatedChevron
+          isCollapsed={collapsed}
+          color={themeColors.text}
+          duration={200}
+          size={16}
+        />
       </Pressable>
 
-      <Collapsible duration={200} isVisible={!collapsed && !props.reorder}>
+      <Collapsible duration={200} isVisible={!collapsed}>
         {props.events.map((item, index) => (
           <View key={item.key} style={{ backgroundColor: "transparent" }}>
             <EventCategoryItem
@@ -119,8 +102,6 @@ interface EventCategoryProps {
   title: string;
   events: GroupedEvent[];
   now: number;
-  drag?: () => void;
-  reorder?: boolean;
   onTogglePin: (key: EventKey) => void;
   onEnableNotification: (key: EventKey, eventName: string) => void;
   onDisableNotification: (key: EventKey, eventName: string) => void;
@@ -130,5 +111,4 @@ interface EventCategoryProps {
     currentOffsetMinutes: number,
   ) => void;
   notificationsEnabled: boolean;
-  disabled?: boolean;
 }
