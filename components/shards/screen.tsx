@@ -1,0 +1,143 @@
+import { useThemeColor } from "@/constants/Colors";
+import { SKY_ZONE } from "@/constants/common";
+import {
+  AssistChip,
+  Card,
+  Column,
+  DatePickerDialog,
+  FlowRow,
+  HorizontalDivider,
+  Host,
+  Icon,
+  LazyColumn,
+  Row,
+  Spacer,
+  Text,
+} from "@expo/ui/jetpack-compose";
+import {
+  fillMaxWidth,
+  height,
+  paddingAll,
+} from "@expo/ui/jetpack-compose/modifiers";
+import { ShardsUtil } from "@skyhelperbot/utils";
+import { DateTime } from "luxon";
+import { useState } from "react";
+import { Header } from "../ui/Header";
+import { ShardDetails } from "./sharddetails";
+import ShardLocationImage from "./shardsimage";
+import ShardStatus from "./status";
+
+// Original shard info has discord emoji hardcoded in info (i made it like when i was learning tbf), im lazy to remove it their, so doing it here
+const emojiRegex = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/;
+
+export default function Screen() {
+  const themeColor = useThemeColor();
+  const [date, setDate] = useState(DateTime.now().setZone(SKY_ZONE));
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const shards = ShardsUtil.getShard(date);
+
+  return (
+    <>
+      <Header title="Shards" />
+      <Host>
+        <LazyColumn>
+          <Card
+            border={{ width: 1, color: themeColor.border }}
+            modifiers={[fillMaxWidth(), paddingAll(10)]}
+          >
+            <Column
+              verticalArrangement={{ spacedBy: 10 }}
+              modifiers={[paddingAll(10)]}
+            >
+              <Row
+                horizontalArrangement={"spaceBetween"}
+                verticalAlignment="center"
+                modifiers={[fillMaxWidth()]}
+              >
+                <Text
+                  color={themeColor.text}
+                  style={{ typography: "titleLarge" }}
+                >
+                  Shards
+                </Text>
+                <AssistChip onClick={() => setShowDatePicker(true)}>
+                  <AssistChip.Label>
+                    <Text>
+                      {date.hasSame(DateTime.now().setZone(SKY_ZONE), "day")
+                        ? "Today"
+                        : date.toFormat("dd-MM-yyyy")}
+                    </Text>
+                  </AssistChip.Label>
+                  <AssistChip.LeadingIcon>
+                    <Icon
+                      source={require("@/assets/icons/calendar_24px.xml")}
+                      tint={themeColor.tint}
+                      size={18}
+                    />
+                  </AssistChip.LeadingIcon>
+                </AssistChip>
+              </Row>
+              {showDatePicker && (
+                <DatePickerDialog
+                  onDismissRequest={() => setShowDatePicker(false)}
+                  color={themeColor.tint}
+                  initialDate={date.toISODate()}
+                  showVariantToggle
+                  onDateSelected={(pickedDate) => {
+                    const pickedInSkyZone = DateTime.fromObject(
+                      {
+                        year: pickedDate.getFullYear(),
+                        month: pickedDate.getMonth() + 1,
+                        day: pickedDate.getDate(),
+                      },
+                      { zone: SKY_ZONE },
+                    );
+
+                    setDate(pickedInSkyZone);
+                    setShowDatePicker(false);
+                  }}
+                />
+              )}
+              <HorizontalDivider />
+              <Column
+                horizontalAlignment="center"
+                verticalArrangement={{ spacedBy: 15 }}
+              >
+                {!shards ? (
+                  <Text>No Shards</Text>
+                ) : (
+                  <Column
+                    verticalArrangement={{ spacedBy: 8 }}
+                    horizontalAlignment="center"
+                  >
+                    <FlowRow modifiers={[fillMaxWidth()]}>
+                      <Text
+                        color={shards.type === "black" ? "#000000" : `#8C1D18`}
+                        style={{ typography: "titleSmall" }}
+                      >
+                        {shards.type === "black" ? "Black" : "Red"} Shard
+                      </Text>
+                      <Text> at</Text>
+                      <Text style={{ typography: "titleSmall" }}>
+                        {" "}
+                        {shards.area.replace(emojiRegex, "")}
+                      </Text>
+                    </FlowRow>
+
+                    <Spacer modifiers={[height(10)]} />
+                    <ShardStatus date={date} />
+                    <Spacer modifiers={[height(30)]} />
+
+                    <ShardDetails date={date} />
+                    <ShardLocationImage info={shards} />
+                  </Column>
+                )}
+              </Column>
+            </Column>
+          </Card>
+        </LazyColumn>
+      </Host>
+    </>
+  );
+}

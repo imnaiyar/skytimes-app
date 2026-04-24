@@ -46,12 +46,12 @@ export function sortGroupedEvents(a: GroupedEvent, b: GroupedEvent) {
 
   const timeA =
     a.status === "active"
-      ? (a.event.status.endTime ?? a.event.nextOccurence).toMillis()
-      : a.event.nextOccurence.toMillis();
+      ? (a.event.status.endTime ?? a.event.nextOccurence)
+      : a.event.nextOccurence;
   const timeB =
     b.status === "active"
-      ? (b.event.status.endTime ?? b.event.nextOccurence).toMillis()
-      : b.event.nextOccurence.toMillis();
+      ? (b.event.status.endTime ?? b.event.nextOccurence)
+      : b.event.nextOccurence;
 
   if (timeA !== timeB) return timeA - timeB;
   return a.event.event.name.localeCompare(b.event.event.name);
@@ -92,6 +92,6 @@ export function groupEvents(
 
 export function getEventSignature(events: EventDetails[]) {
   return events
-    .map((e) => `${e.key}:${e.nextOccurence.toMillis()}:${e.status.active}`)
+    .map((e) => `${e.key}:${e.nextOccurence}:${e.status.active}`)
     .join("|");
 }

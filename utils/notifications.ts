@@ -36,7 +36,7 @@ function toNotificationEvent(event: EventDetails): NotificationEvent {
   return {
     id: String(event.key),
     name: event.event.name,
-    startAtMs: event.nextOccurence.toMillis(),
+    startAtMs: event.nextOccurence,
   };
 }
 

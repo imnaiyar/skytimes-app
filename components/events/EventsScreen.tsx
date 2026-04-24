@@ -69,8 +69,8 @@ function useSync() {
     () =>
       events
         .map(({ key, ...event }) => {
-          const endTime = event.status.endTime?.toMillis() ?? 0;
-          return `${String(key)}:${event.status.active ? "active" : "upcoming"}:${endTime}:${event.nextOccurence.toMillis()}`;
+          const endTime = event.status.endTime ?? 0;
+          return `${String(key)}:${event.status.active ? "active" : "upcoming"}:${endTime}:${event.nextOccurence}`;
         })
         .join("|"),
     [events],

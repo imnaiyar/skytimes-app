@@ -45,7 +45,7 @@ export function getWidgetEventRows(
     statusLabel:
       item.status === "active"
         ? "Active"
-        : formatReadableTime(item.event.nextOccurence.toMillis()),
+        : formatReadableTime(item.event.nextOccurence),
     active: item.status === "active",
   }));
 }

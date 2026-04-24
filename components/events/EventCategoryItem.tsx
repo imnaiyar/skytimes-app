@@ -1,4 +1,5 @@
 import Colors from "@/constants/Colors";
+import { SKY_ZONE } from "@/constants/common";
 import { formatTime, getEventStatus, GroupedEvent } from "@/utils/event";
 import { useNow, usePulse } from "@/utils/hooks";
 import { DEFAULT_NOTIFICATION_OFFSET_MINUTES } from "@/utils/storage";
@@ -44,12 +45,11 @@ export default function EventCategoryItem({
   const endTime = status === "active" ? item.event.status.endTime : null;
   const nextTime = item.event.nextOccurence;
 
-  let timeLabel = `${formatReadable(endTime ?? nextTime)} `;
+  let timeLabel = `${formatReadable(DateTime.fromMillis(endTime ?? nextTime, { zone: SKY_ZONE }))} `;
   if (status === "upcoming") {
-    timeLabel += `(in ${formatTime(nextTime.toMillis() - now)})`;
+    timeLabel += `(in ${formatTime(nextTime - now)})`;
   } else if (status === "active") {
-    timeLabel =
-      "Ends at " + timeLabel + `(in ${formatTime(endTime!.toMillis() - now)})`;
+    timeLabel = "Ends at " + timeLabel + `(in ${formatTime(endTime! - now)})`;
   } else {
     timeLabel = "Ended";
   }
