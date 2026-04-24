@@ -40,9 +40,10 @@ export default function Screen() {
   return (
     <>
       <Header title="Shards" />
-      <Host>
+      <Host style={{ flex: 1, backgroundColor: themeColor.background }}>
         <LazyColumn>
           <Card
+            colors={{ containerColor: themeColor.card }}
             border={{ width: 1, color: themeColor.border }}
             modifiers={[fillMaxWidth(), paddingAll(10)]}
           >
@@ -118,8 +119,11 @@ export default function Screen() {
                       >
                         {shards.type === "black" ? "Black" : "Red"} Shard
                       </Text>
-                      <Text> at</Text>
-                      <Text style={{ typography: "titleSmall" }}>
+                      <Text color={themeColor.text}> at</Text>
+                      <Text
+                        color={themeColor.text}
+                        style={{ typography: "titleSmall" }}
+                      >
                         {" "}
                         {shards.area.replace(emojiRegex, "")}
                       </Text>

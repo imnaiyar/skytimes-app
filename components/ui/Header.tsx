@@ -14,7 +14,7 @@ interface HeaderProps {
 export function Header({
   title,
   right,
-  bottomBorder,
+  bottomBorder = true,
   style = {},
 }: HeaderProps) {
   const theme = Colors[useColorScheme() ?? "dark"];

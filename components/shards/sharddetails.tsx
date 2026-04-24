@@ -94,6 +94,7 @@ export function ShardDetails({ date }: { date: DateTime }) {
                 key={index}
                 selected={index === selected}
                 onClick={() => setTab(index)}
+                colors={{ activeContainerColor: themeColor.border }}
               >
                 <SegmentedButton.Label>
                   <Text color={themeColor.text}>

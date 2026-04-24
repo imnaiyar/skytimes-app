@@ -1,6 +1,7 @@
 import { Text, View } from "@/components/Themed";
 import { useColorScheme } from "@/components/useColorScheme";
-import Colors from "@/constants/Colors";
+import Colors, { useThemeColor } from "@/constants/Colors";
+import { Box, PullToRefreshBox } from "@expo/ui/jetpack-compose";
 import React, { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, ViewStyle } from "react-native";
 import Animated, {
@@ -169,3 +170,20 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+
+export function LoadingBasic() {
+  const themeColor = useThemeColor();
+  return (
+    <Box contentAlignment="center">
+      <PullToRefreshBox
+        indicator={{
+          color: themeColor.iconMuted,
+          containerColor: themeColor.overlay,
+        }}
+        isRefreshing
+      >
+        <Text> </Text>
+      </PullToRefreshBox>
+    </Box>
+  );
+}

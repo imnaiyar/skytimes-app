@@ -176,7 +176,15 @@ export default function TabLayout() {
         options={{
           title: "Shards",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="cog-outline" size={size} color={color} />
+            <Image
+              source={require("@/assets/images/shards_icon.svg")}
+              style={{
+                width: size,
+                height: size,
+                borderRadius: 10,
+                tintColor: color,
+              }}
+            />
           ),
         }}
       />

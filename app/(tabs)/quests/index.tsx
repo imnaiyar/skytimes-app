@@ -69,6 +69,7 @@ export default function Quests() {
                 modifiers={[paddingAll(5)]}
               >
                 <Text
+                  color={themeColor.text}
                   style={{ typography: "titleSmall", fontWeight: "700" }}
                   modifiers={[paddingAll(8)]}
                 >

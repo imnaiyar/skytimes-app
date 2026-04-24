@@ -30,6 +30,7 @@ export default function ShardLocationImage({ info }: { info: ShardInfo }) {
             key={label}
             selected={selectedTab === label}
             onClick={() => setTab(label)}
+            colors={{ activeContainerColor: themeColor.border }}
           >
             <SegmentedButton.Label>
               <Text color={themeColor.text}>{label}</Text>
@@ -42,6 +43,7 @@ export default function ShardLocationImage({ info }: { info: ShardInfo }) {
           <Pressable onPress={() => setImageView(true)}>
             <Image
               source={url}
+              loading="lazy"
               style={{
                 width: "100%",
                 height: 300,
