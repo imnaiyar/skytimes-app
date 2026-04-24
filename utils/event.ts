@@ -58,17 +58,25 @@ export function sortGroupedEvents(a: GroupedEvent, b: GroupedEvent) {
 }
 
 export function groupEvents(
-  events: [EventKey, EventDetails][],
+  events: EventDetails[],
   pinnedKeys: Set<EventKey>,
   notificationOffsetsById: NotificationOffsetsByEventId,
 ) {
-  const mappedEvents = events.map(([key, event]) => {
+  const mappedEvents = events.map((event) => {
     const status = getEventStatus(event.status);
-    const pinned = pinnedKeys.has(key);
-    const notificationOffsetMinutes = notificationOffsetsById[String(key)];
+    const pinned = pinnedKeys.has(event.key);
+    const notificationOffsetMinutes =
+      notificationOffsetsById[String(event.key)];
     const notified = typeof notificationOffsetMinutes === "number";
 
-    return { key, event, status, pinned, notified, notificationOffsetMinutes };
+    return {
+      key: event.key,
+      event,
+      status,
+      pinned,
+      notified,
+      notificationOffsetMinutes,
+    };
   });
 
   return Object.entries(EventCategory).reduce(
@@ -82,8 +90,8 @@ export function groupEvents(
   );
 }
 
-export function getEventSignature(events: [EventKey, EventDetails][]) {
+export function getEventSignature(events: EventDetails[]) {
   return events
-    .map(([k, e]) => `${k}:${e.nextOccurence.toMillis()}:${e.status.active}`)
+    .map((e) => `${e.key}:${e.nextOccurence.toMillis()}:${e.status.active}`)
     .join("|");
 }

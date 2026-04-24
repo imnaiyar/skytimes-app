@@ -1,3 +1,4 @@
+import { getEventSignature } from "@/utils/event";
 import {
   useNotificationSettings,
   useNotifiedEvents,
@@ -16,7 +17,6 @@ import EventHeader from "./EventHeader";
 
 export default function EventsScreen() {
   const {
-    events,
     settings,
     setEventNotificationOffset,
     disableEventNotification,
@@ -28,7 +28,6 @@ export default function EventsScreen() {
       <EventHeader />
       <View style={{ flex: 1, padding: 5 }}>
         <EventCategoryList
-          events={events}
           notificationOffsetsById={notificationOffsetsById}
           onSetNotificationOffset={setEventNotificationOffset}
           onDisableNotification={disableEventNotification}
@@ -48,12 +47,7 @@ function useSync() {
     disableEventNotification,
   } = useNotifiedEvents();
   const eventsSyncSignature = useMemo(
-    () =>
-      events
-        .map(
-          ([key, event]) => `${String(key)}:${event.nextOccurence.toMillis()}`,
-        )
-        .join("|"),
+    () => getEventSignature(events),
     [events],
   );
   const notificationOffsetsSignature = useMemo(
@@ -74,7 +68,7 @@ function useSync() {
   const widgetSyncSignature = useMemo(
     () =>
       events
-        .map(([key, event]) => {
+        .map(({ key, ...event }) => {
           const endTime = event.status.endTime?.toMillis() ?? 0;
           return `${String(key)}:${event.status.active ? "active" : "upcoming"}:${endTime}:${event.nextOccurence.toMillis()}`;
         })

@@ -185,7 +185,8 @@ export function WidgetConfigurationScreen({
               Select Events (2-6)
             </Text>
             <FlowRow horizontalArrangement={{ spacedBy: 8 }}>
-              {event.map(([key, eventData]) => {
+              {event.map((eventData) => {
+                const key = eventData.key;
                 const isSelected = selectedSet.has(key);
                 const isDisabledState = isDisabled(key);
                 return (

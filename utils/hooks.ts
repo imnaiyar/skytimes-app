@@ -60,7 +60,7 @@ const initialEvents = SkytimesUtils.allEventDetails();
 const initialEventsSignature = getEventSignature(initialEvents);
 
 export const useEventsStore = create<{
-  events: [EventKey, EventDetails][];
+  events: EventDetails[];
   eventsSignature: string;
 }>((set) => ({
   events: initialEvents,
