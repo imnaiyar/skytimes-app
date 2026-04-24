@@ -1,5 +1,9 @@
 import { CATEGORY_ORDER } from "@/constants/common";
-import type { EventKey } from "@skyhelperbot/utils";
+import {
+  EventDetails,
+  SkytimesUtils,
+  type EventKey,
+} from "@skyhelperbot/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   interpolate,
@@ -9,6 +13,7 @@ import {
   withTiming,
 } from "react-native-reanimated";
 import { create } from "zustand";
+import { getEventSignature } from "./event";
 import {
   clampNotificationOffsetMinutes,
   DEFAULT_NOTIFICATION_SETTINGS,
@@ -51,6 +56,17 @@ const useClockStore = create<{ now: number }>(() => ({
   now: Date.now(),
 }));
 
+const initialEvents = SkytimesUtils.allEventDetails();
+const initialEventsSignature = getEventSignature(initialEvents);
+
+export const useEventsStore = create<{
+  events: [EventKey, EventDetails][];
+  eventsSignature: string;
+}>((set) => ({
+  events: initialEvents,
+  eventsSignature: initialEventsSignature,
+}));
+
 const globalClock = globalThis as typeof globalThis & {
   __gameAppClockStarted?: boolean;
 };
@@ -58,7 +74,12 @@ const globalClock = globalThis as typeof globalThis & {
 if (!globalClock.__gameAppClockStarted) {
   globalClock.__gameAppClockStarted = true;
   setInterval(() => {
+    const events = SkytimesUtils.allEventDetails();
     useClockStore.setState({ now: Date.now() });
+    useEventsStore.setState({
+      events,
+      eventsSignature: getEventSignature(events),
+    });
   }, 1000);
 }
 

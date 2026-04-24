@@ -50,7 +50,6 @@ export default function EventCategory(props: EventCategoryProps) {
           <View key={item.key} style={{ backgroundColor: "transparent" }}>
             <EventCategoryItem
               item={item}
-              now={props.now}
               onTogglePin={props.onTogglePin}
               onEnableNotification={props.onEnableNotification}
               onDisableNotification={props.onDisableNotification}
@@ -101,7 +100,6 @@ const styles = StyleSheet.create({
 interface EventCategoryProps {
   title: string;
   events: GroupedEvent[];
-  now: number;
   onTogglePin: (key: EventKey) => void;
   onEnableNotification: (key: EventKey, eventName: string) => void;
   onDisableNotification: (key: EventKey, eventName: string) => void;

@@ -61,7 +61,7 @@ const plugins: ExpoConfig["plugins"] = [
   "react-native-video",
 ];
 
-// only do app sign in in prod
+// only do app signing in prod
 if (!isDev) {
   plugins.push([
     "expo-signed",

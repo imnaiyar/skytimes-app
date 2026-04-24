@@ -58,7 +58,7 @@ export function sortGroupedEvents(a: GroupedEvent, b: GroupedEvent) {
 }
 
 export function groupEvents(
-  events: Array<[EventKey, EventDetails]>,
+  events: [EventKey, EventDetails][],
   pinnedKeys: Set<EventKey>,
   notificationOffsetsById: NotificationOffsetsByEventId,
 ) {
@@ -80,4 +80,10 @@ export function groupEvents(
     },
     {} as Record<string, GroupedEvent[]>,
   );
+}
+
+export function getEventSignature(events: [EventKey, EventDetails][]) {
+  return events
+    .map(([k, e]) => `${k}:${e.nextOccurence.toMillis()}:${e.status.active}`)
+    .join("|");
 }

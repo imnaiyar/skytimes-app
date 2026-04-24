@@ -1,19 +1,22 @@
 import { SkyClock } from "@/components/events/Clock";
 import type { GroupedEvent } from "@/utils/event";
 import { groupEvents, sortGroupedEvents } from "@/utils/event";
-import { useCategoryOrder, useNow, usePinnedEvents } from "@/utils/hooks";
+import {
+  useCategoryOrder,
+  useEventsStore,
+  usePinnedEvents,
+} from "@/utils/hooks";
 import {
   DEFAULT_NOTIFICATION_OFFSET_MINUTES,
   type NotificationOffsetsByEventId,
 } from "@/utils/storage";
-import type { EventDetails, EventKey } from "@skyhelperbot/utils";
+import { type EventKey } from "@skyhelperbot/utils";
 import { useCallback, useMemo, useState } from "react";
 import { FlatList } from "react-native";
 import { OffsetPickerModal } from "../OffsetPickerModal";
 import { View } from "../Themed";
 import EventCategory from "./EventCategory";
 import { CategoryReorderDrawer } from "./ReorderCategoryDrawer";
-
 type NotificationPickerState = {
   mode: "enable" | "edit";
   key: EventKey;
@@ -22,45 +25,41 @@ type NotificationPickerState = {
 };
 
 export default function EventCategoryList({
-  events,
   notificationOffsetsById,
   onSetNotificationOffset,
   onDisableNotification,
   notificationsEnabled,
 }: {
-  events: [EventKey, EventDetails][];
   notificationOffsetsById: NotificationOffsetsByEventId;
   onSetNotificationOffset: (key: EventKey, offsetMinutes: number) => void;
   onDisableNotification: (key: EventKey) => void;
   notificationsEnabled: boolean;
 }) {
-  const now = useNow();
   const { pinnedSet, togglePin } = usePinnedEvents();
   const [pickerState, setPickerState] =
     useState<NotificationPickerState | null>(null);
-  const grouped = useMemo(
-    () => groupEvents(events, pinnedSet, notificationOffsetsById),
-    [events, pinnedSet, notificationOffsetsById],
-  );
+  const events = useEventsStore((s) => s.events);
+
+  const grouped = useMemo(() => {
+    return groupEvents(events, pinnedSet, notificationOffsetsById);
+  }, [events, pinnedSet, notificationOffsetsById]);
+
   const { categoryOrder, setCategoryOrder } = useCategoryOrder();
-  const hoistedEvents = useMemo(
-    () =>
-      categoryOrder
-        .flatMap((category) => grouped[category] ?? [])
-        .filter((item) => item.status === "active" || item.pinned)
-        .sort(sortGroupedEvents),
-    [categoryOrder, grouped],
-  );
-  const nonHoistedGrouped = useMemo(
-    () =>
-      categoryOrder.reduce<Record<string, GroupedEvent[]>>((acc, category) => {
-        acc[category] = (grouped[category] ?? []).filter(
-          (item) => item.status !== "active" && !item.pinned,
-        );
-        return acc;
-      }, {}),
-    [categoryOrder, grouped],
-  );
+
+  const hoistedEvents = categoryOrder
+    .flatMap((category) => grouped[category] ?? [])
+    .filter((item) => item.status === "active" || item.pinned)
+    .sort(sortGroupedEvents);
+
+  const nonHoistedGrouped = categoryOrder.reduce<
+    Record<string, GroupedEvent[]>
+  >((acc, category) => {
+    acc[category] = (grouped[category] ?? []).filter(
+      (item) => item.status !== "active" && !item.pinned,
+    );
+    return acc;
+  }, {});
+
   const openEnableOffsetPicker = useCallback(
     (key: EventKey, eventName: string) => {
       setPickerState({
@@ -110,7 +109,10 @@ export default function EventCategoryList({
 
   return (
     <View>
-      <CategoryReorderDrawer />
+      <CategoryReorderDrawer
+        categoryOrder={categoryOrder}
+        setCategoryOrder={setCategoryOrder}
+      />
       <FlatList
         data={categoryOrder}
         keyExtractor={(item) => item}
@@ -121,7 +123,6 @@ export default function EventCategoryList({
               <EventCategory
                 title="Pinned & Active"
                 events={hoistedEvents}
-                now={now}
                 onTogglePin={togglePin}
                 onEnableNotification={openEnableOffsetPicker}
                 onDisableNotification={(key) => onDisableNotification(key)}
@@ -136,7 +137,6 @@ export default function EventCategoryList({
           <EventCategory
             title={item}
             events={nonHoistedGrouped[item] ?? []}
-            now={now}
             onTogglePin={togglePin}
             onEnableNotification={openEnableOffsetPicker}
             onDisableNotification={(key) => onDisableNotification(key)}

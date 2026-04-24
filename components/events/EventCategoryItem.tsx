@@ -1,6 +1,6 @@
 import Colors from "@/constants/Colors";
 import { formatTime, getEventStatus, GroupedEvent } from "@/utils/event";
-import { usePulse } from "@/utils/hooks";
+import { useNow, usePulse } from "@/utils/hooks";
 import { DEFAULT_NOTIFICATION_OFFSET_MINUTES } from "@/utils/storage";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { EventKey } from "@skyhelperbot/utils";
@@ -15,7 +15,6 @@ const formatReadable = (date: DateTime) => date.toLocal().toFormat("hh:mm a");
 
 export default function EventCategoryItem({
   item,
-  now,
   onTogglePin,
   onEnableNotification,
   onDisableNotification,
@@ -24,7 +23,6 @@ export default function EventCategoryItem({
   index = 0,
 }: {
   item: GroupedEvent;
-  now: number;
   onTogglePin: (key: EventKey) => void;
   onEnableNotification: (key: EventKey, eventName: string) => void;
   onDisableNotification: (key: EventKey, eventName: string) => void;
@@ -36,6 +34,8 @@ export default function EventCategoryItem({
   notificationsEnabled: boolean;
   index?: number;
 }) {
+  const now = useNow();
+
   const status = getEventStatus(item.event.status);
 
   const colorScheme = useColorScheme();

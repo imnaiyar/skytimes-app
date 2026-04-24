@@ -1,5 +1,5 @@
 import { useThemeColor } from "@/constants/Colors";
-import { useCategoryOrder, useReorderMode } from "@/utils/hooks";
+import { useReorderMode } from "@/utils/hooks";
 import {
   Column,
   ElevatedButton,
@@ -25,9 +25,14 @@ import {
 import { useCallback, useRef } from "react";
 import { Callout } from "../ui/Callout";
 
-export function CategoryReorderDrawer() {
+export function CategoryReorderDrawer({
+  categoryOrder,
+  setCategoryOrder,
+}: {
+  categoryOrder: string[];
+  setCategoryOrder: (value: string[]) => void;
+}) {
   const { reorder, setReorder } = useReorderMode();
-  const { categoryOrder, setCategoryOrder } = useCategoryOrder();
 
   const themeColors = useThemeColor();
   const sheetRef = useRef<ModalBottomSheetRef>(null);
