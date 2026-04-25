@@ -58,7 +58,7 @@ const mappings = {
     A: {
       prairie: require("@/assets/images/shards/location/A/prairiea.png"),
       forest: require("@/assets/images/shards/location/A/foresta.png"),
-      valley: require("@/assets/images/shards/location/A/valley.png"),
+      valley: require("@/assets/images/shards/location/A/valleya.png"),
       wasteland: require("@/assets/images/shards/location/A/wastelanda.png"),
       vault: require("@/assets/images/shards/location/A/vaulta.png"),
     },
