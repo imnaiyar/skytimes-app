@@ -27,7 +27,7 @@ import { DateTime } from "luxon";
 import { useState } from "react";
 
 export function ShardDetails({ date }: { date: DateTime }) {
-  const [selected, setTab] = useState(1);
+  const [selected, setTab] = useState(0);
   const [visible, setVisible] = useState(false);
   const { currentShard } = ShardsUtil.shardsIndex(date);
   const details = shardsTimeline(date)[currentShard];

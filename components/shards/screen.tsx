@@ -4,8 +4,6 @@ import {
   AssistChip,
   Card,
   Column,
-  DatePickerDialog,
-  FlowRow,
   HorizontalDivider,
   Host,
   Icon,
@@ -22,6 +20,7 @@ import {
 import { ShardsUtil } from "@skyhelperbot/utils";
 import { DateTime } from "luxon";
 import { useState } from "react";
+import { DateDialog } from "../ui/DateTimePicker";
 import { Header } from "../ui/Header";
 import { ShardDetails } from "./sharddetails";
 import ShardLocationImage from "./shardsimage";
@@ -41,6 +40,25 @@ export default function Screen() {
     <>
       <Header title="Shards" />
       <Host style={{ flex: 1, backgroundColor: themeColor.background }}>
+        {showDatePicker && (
+          <DateDialog
+            onDismissRequest={() => setShowDatePicker(false)}
+            initialDate={date.toISODate()}
+            onDateSelected={(pickedDate) => {
+              const pickedInSkyZone = DateTime.fromObject(
+                {
+                  year: pickedDate.getFullYear(),
+                  month: pickedDate.getMonth() + 1,
+                  day: pickedDate.getDate(),
+                },
+                { zone: SKY_ZONE },
+              );
+
+              setDate(pickedInSkyZone);
+              setShowDatePicker(false);
+            }}
+          />
+        )}
         <LazyColumn>
           <Card
             colors={{ containerColor: themeColor.card }}
@@ -64,7 +82,7 @@ export default function Screen() {
                 </Text>
                 <AssistChip onClick={() => setShowDatePicker(true)}>
                   <AssistChip.Label>
-                    <Text>
+                    <Text color={themeColor.text}>
                       {date.hasSame(DateTime.now().setZone(SKY_ZONE), "day")
                         ? "Today"
                         : date.toFormat("dd-MM-yyyy")}
@@ -79,62 +97,42 @@ export default function Screen() {
                   </AssistChip.LeadingIcon>
                 </AssistChip>
               </Row>
-              {showDatePicker && (
-                <DatePickerDialog
-                  onDismissRequest={() => setShowDatePicker(false)}
-                  color={themeColor.tint}
-                  initialDate={date.toISODate()}
-                  showVariantToggle
-                  onDateSelected={(pickedDate) => {
-                    const pickedInSkyZone = DateTime.fromObject(
-                      {
-                        year: pickedDate.getFullYear(),
-                        month: pickedDate.getMonth() + 1,
-                        day: pickedDate.getDate(),
-                      },
-                      { zone: SKY_ZONE },
-                    );
-
-                    setDate(pickedInSkyZone);
-                    setShowDatePicker(false);
-                  }}
-                />
-              )}
               <HorizontalDivider />
               <Column
                 horizontalAlignment="center"
                 verticalArrangement={{ spacedBy: 15 }}
               >
                 {!shards ? (
-                  <Text>No Shards</Text>
+                  <Text color={themeColor.text}>No Shards</Text>
                 ) : (
                   <Column
                     verticalArrangement={{ spacedBy: 8 }}
                     horizontalAlignment="center"
                   >
-                    <FlowRow modifiers={[fillMaxWidth()]}>
+                    <Text
+                      color={themeColor.text}
+                      style={{ typography: "titleMedium" }}
+                    >
                       <Text
                         color={shards.type === "black" ? "#000000" : `#8C1D18`}
-                        style={{ typography: "titleSmall" }}
+                        style={{
+                          shadow: { offsetY: 3 },
+                          textDecoration: "underline",
+                          fontWeight: "bold",
+                        }}
                       >
                         {shards.type === "black" ? "Black" : "Red"} Shard
                       </Text>
-                      <Text color={themeColor.text}> at</Text>
-                      <Text
-                        color={themeColor.text}
-                        style={{ typography: "titleSmall" }}
-                      >
-                        {" "}
-                        {shards.area.replace(emojiRegex, "")}
-                      </Text>
-                    </FlowRow>
+                      <Text> at</Text>
+                      <Text> {shards.area.replace(emojiRegex, "")}</Text>
+                    </Text>
 
                     <Spacer modifiers={[height(10)]} />
                     <ShardStatus date={date} />
                     <Spacer modifiers={[height(30)]} />
 
                     <ShardDetails date={date} />
-                    <ShardLocationImage info={shards} />
+                    <ShardLocationImage date={date} info={shards} />
                   </Column>
                 )}
               </Column>

@@ -1,7 +1,7 @@
 import { useThemeColor } from "@/constants/Colors";
 import { formatTime } from "@/utils/event";
 import { useNow } from "@/utils/hooks";
-import { Row, Text } from "@expo/ui/jetpack-compose";
+import { Column, Text } from "@expo/ui/jetpack-compose";
 import { ShardsUtil } from "@skyhelperbot/utils";
 import { DateTime } from "luxon";
 
@@ -29,17 +29,17 @@ export default function ShardStatus({ date }: { date: DateTime }) {
   const label = `${relativeShard.index}${ShardsUtil.getSuffix(relativeShard.index)} shard ${relativeShard.active ? "ends" : "lands"} in:`;
   return (
     <>
-      <Text color={themeColor.text} style={{ typography: "headlineSmall" }}>
+      <Text color={themeColor.text} style={{ typography: "bodyLarge" }}>
         {label}
       </Text>
-      <Row horizontalArrangement={{ spacedBy: 5 }} verticalAlignment="center">
+      <Column horizontalAlignment="center" verticalAlignment="center">
         <Text color={themeColor.tint} style={{ typography: "headlineLarge" }}>
           {formatTime(time.toMillis() - now)}
         </Text>
         <Text color={themeColor.mutedText} style={{ typography: "labelSmall" }}>
           (at {time.toFormat("hh:mm:ss a")})
         </Text>
-      </Row>
+      </Column>
     </>
   );
 }
