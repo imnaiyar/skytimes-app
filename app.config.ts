@@ -92,7 +92,7 @@ const backgroundColor = "#1C1B1F";
 const config: ExpoConfig = {
   name: packageName,
   slug: packageName.toLowerCase(),
-  version: "1.0.0",
+  version: "1.5.0",
   orientation: "portrait",
   icon: "./assets/images/sleepykid.png",
   scheme: "skytimes",
