@@ -23,34 +23,10 @@ import {
   weight,
   width,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { Image } from "expo-image";
-import { useVideoPlayer, VideoView } from "expo-video";
 import { useState } from "react";
-import { Linking, Pressable, View } from "react-native";
-import ImageView from "react-native-image-viewing";
-
-function QuestVideo({ uri }: { uri: string }) {
-  const player = useVideoPlayer({ useCaching: true, uri }, (player) => {
-    player.play();
-  });
-
-  return (
-    <RNHostView matchContents>
-      <View style={{ width: "100%", padding: 10 }}>
-        <VideoView
-          player={player}
-          style={{
-            width: "100%",
-            height: 200,
-            borderRadius: 10,
-          }}
-          contentFit="contain"
-          allowsPictureInPicture
-        />
-      </View>
-    </RNHostView>
-  );
-}
+import { Linking } from "react-native";
+import ImageView from "../ui/ImageView";
+import QuestVideo from "./QuestVideo";
 
 interface QuestCardProps {
   quest: DailyQuest;
@@ -66,7 +42,6 @@ export function QuestCard({
   title,
 }: QuestCardProps) {
   const themeColor = Colors[useColorScheme()];
-  const [imageModalVisible, setImageModal] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   const image = quest.images?.[0];
@@ -152,27 +127,7 @@ export function QuestCard({
           <QuestVideo uri={image.url} />
         ) : (
           <RNHostView matchContents>
-            <View style={{ width: "100%", padding: 10 }}>
-              <>
-                <Pressable onPress={() => setImageModal(true)}>
-                  <Image
-                    source={image.url}
-                    style={{
-                      width: "100%",
-                      height: 300,
-                      borderRadius: 10,
-                    }}
-                    contentFit="contain"
-                  />
-                </Pressable>
-                <ImageView
-                  images={[{ uri: image.url }]}
-                  imageIndex={0}
-                  visible={imageModalVisible}
-                  onRequestClose={() => setImageModal(false)}
-                />
-              </>
-            </View>
+            <ImageView url={image.url} />
           </RNHostView>
         )
       ) : null}

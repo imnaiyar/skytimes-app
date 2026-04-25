@@ -9,11 +9,9 @@ import {
 } from "@expo/ui/jetpack-compose";
 import { fillMaxWidth, height } from "@expo/ui/jetpack-compose/modifiers";
 import { ShardInfo, ShardsUtil } from "@skyhelperbot/utils";
-import { Image } from "expo-image";
 import { DateTime } from "luxon";
 import { useState } from "react";
-import { Pressable, View } from "react-native";
-import EnhancedImageViewing from "react-native-image-viewing";
+import ImageView from "../ui/ImageView";
 
 export default function ShardLocationImage({
   info,
@@ -23,7 +21,6 @@ export default function ShardLocationImage({
   date: DateTime;
 }) {
   const [selectedTab, setTab] = useState<"Location" | "Data">("Location");
-  const [imageView, setImageView] = useState(false);
 
   const themeColor = useThemeColor();
 
@@ -50,26 +47,7 @@ export default function ShardLocationImage({
         ))}
       </SingleChoiceSegmentedButtonRow>
       <RNHostView matchContents>
-        <View style={{ width: "100%", padding: 10 }}>
-          <Pressable onPress={() => setImageView(true)}>
-            <Image
-              source={url}
-              loading="lazy"
-              style={{
-                width: "100%",
-                height: 300,
-                borderRadius: 10,
-              }}
-              contentFit="contain"
-            />
-          </Pressable>
-          <EnhancedImageViewing
-            images={[{ uri: url }]}
-            imageIndex={0}
-            visible={imageView}
-            onRequestClose={() => setImageView(false)}
-          />
-        </View>
+        <ImageView url={url} />
       </RNHostView>
     </Column>
   );
@@ -78,11 +56,11 @@ export default function ShardLocationImage({
 const mappings = {
   location: {
     A: {
-      prairie: require("@/assets/images/shards/location/A/prairie.png"),
-      forest: require("@/assets/images/shards/location/A/forest.png"),
+      prairie: require("@/assets/images/shards/location/A/prairiea.png"),
+      forest: require("@/assets/images/shards/location/A/foresta.png"),
       valley: require("@/assets/images/shards/location/A/valley.png"),
-      wasteland: require("@/assets/images/shards/location/A/wasteland.png"),
-      vault: require("@/assets/images/shards/location/A/vault.png"),
+      wasteland: require("@/assets/images/shards/location/A/wastelanda.png"),
+      vault: require("@/assets/images/shards/location/A/vaulta.png"),
     },
     a: {
       prairie: require("@/assets/images/shards/location/a/prairie.png"),
@@ -99,11 +77,11 @@ const mappings = {
       vault: require("@/assets/images/shards/location/a/vault.png"),
     },
     B: {
-      prairie: require("@/assets/images/shards/location/B/prairie.jpeg"),
-      forest: require("@/assets/images/shards/location/B/forest.png"),
-      valley: require("@/assets/images/shards/location/B/valley.png"),
-      wasteland: require("@/assets/images/shards/location/B/wasteland.png"),
-      vault: require("@/assets/images/shards/location/A/vault.png"),
+      prairie: require("@/assets/images/shards/location/B/prairieb.jpeg"),
+      forest: require("@/assets/images/shards/location/B/forestb.png"),
+      valley: require("@/assets/images/shards/location/B/valleyb.png"),
+      wasteland: require("@/assets/images/shards/location/B/wastelandb.png"),
+      vault: require("@/assets/images/shards/location/A/vaultb.png"),
     },
     C: {
       prairie: require("@/assets/images/shards/location/C/prairie.png"),
@@ -115,11 +93,11 @@ const mappings = {
   },
   data: {
     A: {
-      prairie: require("@/assets/images/shards/data/A/prairie.png"),
-      forest: require("@/assets/images/shards/data/A/forest.png"),
-      valley: require("@/assets/images/shards/data/A/valley.png"),
-      wasteland: require("@/assets/images/shards/data/A/wasteland.png"),
-      vault: require("@/assets/images/shards/data/A/vault.png"),
+      prairie: require("@/assets/images/shards/data/A/prairiea.png"),
+      forest: require("@/assets/images/shards/data/A/foresta.png"),
+      valley: require("@/assets/images/shards/data/A/valleya.png"),
+      wasteland: require("@/assets/images/shards/data/A/wastelanda.png"),
+      vault: require("@/assets/images/shards/data/A/vaulta.png"),
     },
     a: {
       prairie: require("@/assets/images/shards/data/a/prairie.png"),
@@ -136,11 +114,11 @@ const mappings = {
       vault: require("@/assets/images/shards/data/a/vault.png"),
     },
     B: {
-      prairie: require("@/assets/images/shards/data/B/prairie.png"),
-      forest: require("@/assets/images/shards/data/B/forest.png"),
-      valley: require("@/assets/images/shards/data/B/valley.png"),
-      wasteland: require("@/assets/images/shards/data/B/wasteland.png"),
-      vault: require("@/assets/images/shards/data/A/vault.png"),
+      prairie: require("@/assets/images/shards/data/B/prairieb.png"),
+      forest: require("@/assets/images/shards/data/B/forestb.png"),
+      valley: require("@/assets/images/shards/data/B/valleyb.png"),
+      wasteland: require("@/assets/images/shards/data/B/wastelandb.png"),
+      vault: require("@/assets/images/shards/data/A/vaultb.png"),
     },
     C: {
       prairie: require("@/assets/images/shards/data/C/prairie.jpg"),

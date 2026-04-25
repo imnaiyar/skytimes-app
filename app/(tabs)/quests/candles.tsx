@@ -1,4 +1,4 @@
-import { QuestCard } from "@/components/QuestCard";
+import { QuestCard } from "@/components/quests/QuestCard";
 import { Text } from "@/components/Themed";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { useColorScheme } from "@/components/useColorScheme";

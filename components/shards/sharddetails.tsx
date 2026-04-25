@@ -116,11 +116,7 @@ export function ShardDetails({ date }: { date: DateTime }) {
               details[selected].end,
               details[selected].shardMusic,
             ].map((time, i) => (
-              <Column
-                key={i}
-                horizontalAlignment="start"
-                verticalArrangement={{ spacedBy: 5 }}
-              >
+              <Column key={i} horizontalAlignment="center">
                 <Row verticalAlignment="center" horizontalArrangement={"start"}>
                   <Text
                     color={themeColor.text}

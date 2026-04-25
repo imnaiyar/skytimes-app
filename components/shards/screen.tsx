@@ -36,6 +36,22 @@ export default function Screen() {
 
   const shards = ShardsUtil.getShard(date);
 
+  const RewardIcon = (
+    <Row verticalAlignment="center">
+      <Text color={themeColor.text} style={{ typography: "titleMedium" }}>
+        {shards?.ac || shards?.wax}
+      </Text>
+
+      <Icon
+        source={
+          shards?.ac
+            ? require("@/assets/icons/ac.png")
+            : require("@/assets/icons/wax.png")
+        }
+        size={20}
+      />
+    </Row>
+  );
   return (
     <>
       <Header title="Shards" />
@@ -74,12 +90,28 @@ export default function Screen() {
                 verticalAlignment="center"
                 modifiers={[fillMaxWidth()]}
               >
-                <Text
-                  color={themeColor.text}
-                  style={{ typography: "titleLarge" }}
+                {/** Title Header */}
+                <Row
+                  verticalAlignment="center"
+                  horizontalArrangement={{ spacedBy: 5 }}
                 >
-                  Shards
-                </Text>
+                  <Text
+                    color={themeColor.text}
+                    style={{ typography: "titleLarge" }}
+                  >
+                    Shards
+                  </Text>
+
+                  {(shards?.ac || shards?.wax) && (
+                    <>
+                      <Text>(</Text>
+                      {RewardIcon}
+                      <Text>)</Text>
+                    </>
+                  )}
+                </Row>
+
+                {/** DatePicker Chip */}
                 <AssistChip onClick={() => setShowDatePicker(true)}>
                   <AssistChip.Label>
                     <Text color={themeColor.text}>
@@ -98,6 +130,7 @@ export default function Screen() {
                 </AssistChip>
               </Row>
               <HorizontalDivider />
+
               <Column
                 horizontalAlignment="center"
                 verticalArrangement={{ spacedBy: 15 }}

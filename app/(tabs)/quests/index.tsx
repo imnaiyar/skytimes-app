@@ -1,4 +1,4 @@
-import { QuestCard } from "@/components/QuestCard";
+import { QuestCard } from "@/components/quests/QuestCard";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useDailyQuestsStore } from "@/utils/quests";
