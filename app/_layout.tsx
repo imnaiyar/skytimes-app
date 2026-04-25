@@ -16,10 +16,10 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import "react-native-reanimated";
 
-import { SplashScreen as CustomSplash } from "@/components/ui/SplashScreen";
 import { useColorScheme } from "@/components/useColorScheme";
-import Colors from "@/constants/Colors";
+import Colors, { useThemeColor } from "@/constants/Colors";
 import { initializeNotifications } from "@/utils/notifications";
+import { Box, Host, PullToRefreshBox, Text } from "@expo/ui/jetpack-compose";
 import { StatusBar, ToastAndroid } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
@@ -66,8 +66,24 @@ export default function RootLayout() {
     );
   }, []);
 
+  const themeColor = useThemeColor();
+
   if (!loaded) {
-    return <CustomSplash message="Initializing..." />;
+    return (
+      <Host style={{ flex: 1 }}>
+        <Box contentAlignment="center">
+          <PullToRefreshBox
+            indicator={{
+              color: themeColor.iconMuted,
+              containerColor: themeColor.overlay,
+            }}
+            isRefreshing
+          >
+            <Text> </Text>
+          </PullToRefreshBox>
+        </Box>
+      </Host>
+    );
   }
 
   return <RootLayoutNav />;
@@ -75,7 +91,7 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const themeColors = Colors[colorScheme ?? "light"];
+  const themeColors = Colors[colorScheme];
   const navigationTheme = colorScheme === "dark" ? DarkTheme : DefaultTheme;
   StatusBar.setBarStyle(
     colorScheme === "dark" ? "light-content" : "dark-content",
@@ -103,8 +119,8 @@ function RootLayoutNav() {
               options={{ presentation: "modal", title: "Instructions" }}
             />
             <Stack.Screen
-              name="widget_preview"
-              options={{ presentation: "modal", title: "Widget" }}
+              name="debug"
+              options={{ presentation: "modal", title: "Debug Stuff" }}
             />
           </Stack>
         </React.StrictMode>

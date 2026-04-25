@@ -1,12 +1,34 @@
-import { Text, View } from "@/components/Themed";
+import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useWidgetSettings } from "@/utils/hooks";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Column,
+  FilterChip,
+  FlowRow,
+  HorizontalDivider,
+  Host,
+  LazyColumn,
+  Row,
+  Switch,
+  Text,
+} from "@expo/ui/jetpack-compose";
+import {
+  fillMaxWidth,
+  padding,
+  paddingAll,
+  weight,
+} from "@expo/ui/jetpack-compose/modifiers";
 import { EventKey, SkytimesUtils } from "@skyhelperbot/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, StyleSheet, Switch, useColorScheme } from "react-native";
-import { WidgetConfigurationScreenProps } from "react-native-android-widget";
+import {
+  WidgetConfigurationScreenProps,
+  WidgetPreview,
+} from "react-native-android-widget";
 import { getWidgetEventRows } from "./events-widget-data";
-import { DARK_PALETTE, EventsWidget } from "./EventsWidget";
+import { EventsWidget } from "./EventsWidget";
 
 const MAX_WIDGET_EVENTS = 6;
 const DEFAULT_6_EVENTS: EventKey[] = [
@@ -42,7 +64,7 @@ export function WidgetConfigurationScreen({
     [localSelectedKeys],
   );
 
-  const theme = Colors[useColorScheme() ?? "dark"];
+  const theme = Colors[useColorScheme()];
 
   const isDisabled = useCallback(
     (key: string) =>
@@ -69,16 +91,6 @@ export function WidgetConfigurationScreen({
     [selectedSet],
   );
 
-  const warning = useMemo(
-    () =>
-      selectedSet.size >= 6
-        ? "Max 6 events can be selected to display on the widget"
-        : selectedSet.size <= 2
-          ? "Min. 2 events should be selected to show on the widget"
-          : null,
-    [selectedSet.size],
-  );
-
   const handleToggleEnabled = useCallback((value: boolean) => {
     setLocalEnabled(value);
     if (value) {
@@ -87,104 +99,164 @@ export function WidgetConfigurationScreen({
       setLocalSelectedKeys([]);
     }
   }, []);
-
+  const [showClickArea, setClickArea] = useState(false);
   return (
-    <View style={style.container}>
-      <View
-        style={{
-          ...style.row,
-          marginBottom: 8,
-          borderBottomWidth: 1,
-          borderBottomColor: theme.border,
-          paddingBottom: 8,
-        }}
+    <Host style={{ flex: 1, backgroundColor: theme.background }}>
+      <Column
+        modifiers={[fillMaxWidth(), paddingAll(12), padding(0, 20, 0, 0)]}
+        horizontalAlignment="center"
       >
-        <View style={{ gap: 2 }}>
-          <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-            Display custom events on the widget?
-          </Text>
-          <Text style={{ fontSize: 10, color: theme.mutedText }}>
-            Choose which event shows up on the widget.
-          </Text>
-        </View>
-        <Switch value={localEnabled} onValueChange={handleToggleEnabled} />
-      </View>
-      {warning && localEnabled && (
-        <Text style={{ color: theme.danger, fontSize: 10, textAlign: "left" }}>
-          {warning}
-        </Text>
-      )}
-      <View style={{ padding: 10, marginBottom: 10 }}>
-        {event.map(([key, event]) => {
-          return (
-            <View key={key} style={{ ...style.row, marginBottom: 10 }}>
-              <Text>{event.event.name}</Text>
-              <Switch
-                value={selectedSet.has(key)}
-                disabled={isDisabled(key)}
-                onValueChange={() => toggleSelectEvent(key)}
-              />
-            </View>
-          );
-        })}
-      </View>
-
-      <View style={style.actions}>
-        <Button
-          title={"Cancel"}
-          color={theme.iconMuted}
-          onPress={() => setResult("cancel")}
+        <WidgetPreview
+          highlightClickableAreas={showClickArea}
+          renderWidget={() => (
+            <EventsWidget
+              rows={getWidgetEventRows(undefined, localSelectedKeys)}
+              palette={Colors["dark"]}
+            />
+          )}
+          height={220}
+          width={320}
         />
-        <Button
-          title={"Save"}
-          color={theme.success}
-          onPress={() => {
-            const config = {
-              enabled: localEnabled,
-              selectedEventKeys: localSelectedKeys,
-            };
-            const rows = config.enabled
-              ? getWidgetEventRows(undefined, config.selectedEventKeys)
-              : getWidgetEventRows();
+        <Box contentAlignment="topEnd">
+          <Row
+            verticalAlignment="center"
+            horizontalArrangement={{ spacedBy: 3 }}
+          >
+            <Text color={theme.mutedText} style={{ typography: "bodySmall" }}>
+              Show clickable area?
+            </Text>
+            <Checkbox value={showClickArea} onCheckedChange={setClickArea} />
+          </Row>
+        </Box>
+        <HorizontalDivider color={theme.border} />
+        <LazyColumn
+          modifiers={[fillMaxWidth(), weight(1)]}
+          verticalArrangement={{ spacedBy: 16 }}
+        >
+          {/* Header Section */}
 
-            renderWidget(<EventsWidget rows={rows} palette={DARK_PALETTE} />);
+          <Row
+            modifiers={[fillMaxWidth(), padding(0, 8, 0, 8)]}
+            verticalAlignment="center"
+            horizontalArrangement={"spaceBetween"}
+          >
+            <Column verticalArrangement={{ spacedBy: 4 }}>
+              <Text
+                color={theme.text}
+                style={{
+                  typography: "titleLarge",
+                }}
+              >
+                Display custom events?
+              </Text>
+              <Text
+                color={theme.mutedText}
+                style={{
+                  typography: "labelSmall",
+                }}
+              >
+                Choose which event shows up on the widget
+              </Text>
+            </Column>
+            <Switch
+              value={localEnabled}
+              colors={{
+                checkedTrackColor: theme.tint,
+                checkedThumbColor: theme.border,
+                uncheckedTrackColor: theme.overlay,
+                uncheckedThumbColor: theme.divider,
+                uncheckedBorderColor: theme.divider,
+              }}
+              onCheckedChange={handleToggleEnabled}
+            />
+          </Row>
 
-            updateWidgetSettings(config);
+          {/* Events Selection */}
+          <Column
+            verticalArrangement={{ spacedBy: 8 }}
+            modifiers={[fillMaxWidth()]}
+          >
+            <Text
+              color={theme.text}
+              style={{
+                typography: "labelMedium",
+              }}
+            >
+              Select Events (2-6)
+            </Text>
+            <FlowRow horizontalArrangement={{ spacedBy: 8 }}>
+              {event.map((eventData) => {
+                const key = eventData.key;
+                const isSelected = selectedSet.has(key);
+                const isDisabledState = isDisabled(key);
+                return (
+                  <FilterChip
+                    key={key}
+                    selected={isSelected}
+                    onClick={() => {
+                      if (!isDisabledState) {
+                        toggleSelectEvent(key);
+                      }
+                    }}
+                    colors={{
+                      selectedContainerColor: theme.success,
 
-            setResult("ok");
-          }}
-        />
-      </View>
-    </View>
+                      containerColor: theme.overlay,
+                    }}
+                    enabled={!isDisabledState}
+                  >
+                    <FilterChip.Label>
+                      <Text
+                        color={isDisabledState ? theme.mutedText : theme.text}
+                      >
+                        {eventData.event.name}
+                      </Text>
+                    </FilterChip.Label>
+                  </FilterChip>
+                );
+              })}
+            </FlowRow>
+          </Column>
+        </LazyColumn>
+
+        <Row
+          horizontalArrangement={{ spacedBy: 15 }}
+          modifiers={[fillMaxWidth(), paddingAll(16)]}
+        >
+          <Button
+            colors={{
+              containerColor: theme.card,
+            }}
+            onClick={() => setResult("cancel")}
+          >
+            <Text color={theme.text}>Cancel</Text>
+          </Button>
+          <Button
+            colors={{
+              containerColor: theme.success,
+            }}
+            onClick={() => {
+              const config = {
+                enabled: localEnabled,
+                selectedEventKeys: localSelectedKeys,
+              };
+              const rows = config.enabled
+                ? getWidgetEventRows(undefined, config.selectedEventKeys)
+                : getWidgetEventRows();
+
+              renderWidget(
+                <EventsWidget rows={rows} palette={Colors["dark"]} />,
+              );
+
+              updateWidgetSettings(config);
+
+              setResult("ok");
+            }}
+          >
+            <Text color={theme.text}>Save</Text>
+          </Button>
+        </Row>
+      </Column>
+    </Host>
   );
 }
-
-const style = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 10,
-  },
-
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-  },
-
-  actions: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 20,
-  },
-  actionButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: 10,
-  },
-  actionText: {
-    fontWeight: "700",
-  },
-});

@@ -26,6 +26,9 @@ const widgetConfig: WithAndroidWidgetsParams = {
 
 const plugins: ExpoConfig["plugins"] = [
   "expo-router",
+  "expo-font",
+  "expo-image",
+  "expo-web-browser",
   [
     "expo-notifications",
     {
@@ -42,6 +45,8 @@ const plugins: ExpoConfig["plugins"] = [
         enableShrinkResourcesInReleaseBuilds: true,
         enableMinifyInReleaseBuilds: true,
         useLegacyPackaging: true,
+        useHermesV1: true,
+        buildReactNativeFromSource: true,
       },
     },
   ],
@@ -52,9 +57,11 @@ const plugins: ExpoConfig["plugins"] = [
     },
   ],
   ["react-native-android-widget", widgetConfig],
+  ["expo-gradle-jvmargs", { xmx: "4g", maxMetaspace: "1024m" }],
+  "react-native-video",
 ];
 
-// only do app sign in in prod
+// only do app signing in prod
 if (!isDev) {
   plugins.push([
     "expo-signed",
@@ -80,6 +87,8 @@ if (!isDev) {
   ]);
 }
 
+const backgroundColor = "#1C1B1F";
+
 const config: ExpoConfig = {
   name: packageName,
   slug: packageName.toLowerCase(),
@@ -87,13 +96,11 @@ const config: ExpoConfig = {
   orientation: "portrait",
   icon: "./assets/images/sleepykid.png",
   scheme: "skytimes",
-  userInterfaceStyle: "dark",
   jsEngine: "hermes",
-  newArchEnabled: true,
   splash: {
     image: "./assets/images/sleepykid.png",
     resizeMode: "contain",
-    backgroundColor: "#0d1423",
+    backgroundColor,
   },
   ios: {
     supportsTablet: true,
@@ -105,9 +112,8 @@ const config: ExpoConfig = {
   android: {
     adaptiveIcon: {
       foregroundImage: "./assets/images/sleepykid.png",
-      backgroundColor: "#0d1423",
+      backgroundColor,
     },
-    edgeToEdgeEnabled: true,
     package: identifier,
     predictiveBackGestureEnabled: false,
   },

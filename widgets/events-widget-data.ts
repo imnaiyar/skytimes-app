@@ -1,8 +1,4 @@
-import {
-  SkytimesUtils,
-  type EventDetails,
-  type EventKey,
-} from "@skyhelperbot/utils";
+import { SkytimesUtils, type EventDetails } from "@skyhelperbot/utils";
 
 import type { GroupedEvent } from "@/utils/event";
 import { getEventStatus, sortGroupedEvents } from "@/utils/event";
@@ -22,9 +18,9 @@ const formatReadableTime = (ms: number) =>
     minute: "2-digit",
   });
 
-function toGroupedEvent([key, event]: [EventKey, EventDetails]): GroupedEvent {
+function toGroupedEvent(event: EventDetails): GroupedEvent {
   return {
-    key,
+    key: event.key,
     event,
     status: getEventStatus(event.status),
     pinned: false,
@@ -33,7 +29,7 @@ function toGroupedEvent([key, event]: [EventKey, EventDetails]): GroupedEvent {
 }
 
 export function getWidgetEventRows(
-  events: Array<[EventKey, EventDetails]> = SkytimesUtils.allEventDetails(),
+  events: EventDetails[] = SkytimesUtils.allEventDetails(),
   selectedEventKeys?: string[],
 ): WidgetEventRow[] {
   let mapped = events.map(toGroupedEvent).sort(sortGroupedEvents);
@@ -49,7 +45,7 @@ export function getWidgetEventRows(
     statusLabel:
       item.status === "active"
         ? "Active"
-        : formatReadableTime(item.event.nextOccurence.toMillis()),
+        : formatReadableTime(item.event.nextOccurence),
     active: item.status === "active",
   }));
 }

@@ -153,25 +153,42 @@ export default function TabLayout() {
         }}
       />
 
-      {
-        <TopTabs.Screen
-          name="quests"
-          options={{
-            title: "Quests",
-            tabBarIcon: ({ color, size }) => (
-              <Image
-                source={require("@/assets/images/quest_icon.svg")}
-                style={{
-                  width: size,
-                  height: size,
-                  borderRadius: 10,
-                  tintColor: color,
-                }}
-              />
-            ),
-          }}
-        />
-      }
+      <TopTabs.Screen
+        name="quests"
+        options={{
+          title: "Quests",
+          tabBarIcon: ({ color, size }) => (
+            <Image
+              source={require("@/assets/images/quest_icon.svg")}
+              style={{
+                width: size,
+                height: size,
+                borderRadius: 10,
+                tintColor: color,
+              }}
+            />
+          ),
+        }}
+      />
+
+      <TopTabs.Screen
+        name="shards"
+        options={{
+          title: "Shards",
+          tabBarIcon: ({ color, size }) => (
+            <Image
+              source={require("@/assets/images/shards_icon.svg")}
+              style={{
+                width: size,
+                height: size,
+                borderRadius: 10,
+                tintColor: color,
+              }}
+            />
+          ),
+        }}
+      />
+
       <TopTabs.Screen
         name="settings"
         options={{

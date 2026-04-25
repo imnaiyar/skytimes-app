@@ -19,7 +19,11 @@ export default function QuestsLayout() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Header title="Quests" right={<AnimatedRefreshButton />} />
+      <Header
+        bottomBorder={false}
+        title="Quests"
+        right={<AnimatedRefreshButton />}
+      />
       <TopTabs
         screenOptions={{
           tabBarStyle: {

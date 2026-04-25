@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import type { EventDetails, EventKey } from "@skyhelperbot/utils";
+import type { EventDetails } from "@skyhelperbot/utils";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import type {
@@ -32,14 +32,11 @@ function isNativePlatform() {
   return Platform.OS === "ios" || Platform.OS === "android";
 }
 
-function toNotificationEvent([key, event]: [
-  EventKey,
-  EventDetails,
-]): NotificationEvent {
+function toNotificationEvent(event: EventDetails): NotificationEvent {
   return {
-    id: String(key),
+    id: String(event.key),
     name: event.event.name,
-    startAtMs: event.nextOccurence.toMillis(),
+    startAtMs: event.nextOccurence,
   };
 }
 
@@ -268,7 +265,7 @@ export async function cancelEventNotification(eventId: string) {
 }
 
 export async function resyncAllNotifications(
-  events: Array<[EventKey, EventDetails]>,
+  events: EventDetails[],
   settings: NotificationSettings,
   notificationOffsetsById: NotificationOffsetsByEventId,
 ) {
@@ -319,7 +316,7 @@ export async function resyncAllNotifications(
 }
 
 export async function syncNotifications(
-  events: Array<[EventKey, EventDetails]>,
+  events: EventDetails[],
   notificationOffsetsById: NotificationOffsetsByEventId,
   settings: NotificationSettings,
 ) {

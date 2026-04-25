@@ -7,40 +7,17 @@ import {
   type WidgetRepresentation,
 } from "react-native-android-widget";
 
+import Colors from "@/constants/Colors";
 import { DateTime } from "luxon";
 import type { WidgetEventRow } from "./events-widget-data";
 import { getWidgetEventRows } from "./events-widget-data";
-
-type WidgetPalette = {
-  background: `#${string}`;
-  border: `#${string}`;
-  text: `#${string}`;
-  mutedText: `#${string}`;
-  success: `#${string}`;
-};
-
-const LIGHT_PALETTE: WidgetPalette = {
-  background: "#f8faff",
-  border: "#d4def3",
-  text: "#111827",
-  mutedText: "#5c6b86",
-  success: "#22c55e",
-};
-
-export const DARK_PALETTE: WidgetPalette = {
-  background: "#111b2f",
-  border: "#334665",
-  text: "#e5edff",
-  mutedText: "#9eb0cf",
-  success: "#4ade80",
-};
 
 export function EventsWidget({
   rows,
   palette,
 }: {
   rows: WidgetEventRow[];
-  palette: WidgetPalette;
+  palette: (typeof Colors)["dark"] | (typeof Colors)["light"];
 }) {
   const grouped = rows.reduce<WidgetEventRow[][]>((acc, _, i) => {
     if (i % 2 === 0) acc.push(rows.slice(i, i + 2));
@@ -148,6 +125,7 @@ export function EventsWidget({
 
       {grouped.map((row, index) => (
         <FlexWidget
+          key={index}
           style={{
             flexDirection: "row",
             width: "match_parent",
@@ -169,7 +147,7 @@ export function renderEventsWidget(
   rows: WidgetEventRow[] = getWidgetEventRows(),
 ): WidgetRepresentation {
   return {
-    light: <EventsWidget rows={rows} palette={LIGHT_PALETTE} />,
-    dark: <EventsWidget rows={rows} palette={DARK_PALETTE} />,
+    light: <EventsWidget rows={rows} palette={Colors["light"]} />,
+    dark: <EventsWidget rows={rows} palette={Colors["dark"]} />,
   };
 }

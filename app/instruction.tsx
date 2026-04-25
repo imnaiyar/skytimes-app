@@ -8,7 +8,7 @@ import { APP_INSTRUCTIONS } from "@/constants/instructions";
 
 export default function ModalScreen() {
   const colorScheme = useColorScheme();
-  const themeColors = Colors[colorScheme ?? "light"];
+  const themeColors = Colors[colorScheme];
 
   return (
     <View style={styles.container}>
