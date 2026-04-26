@@ -81,14 +81,14 @@ const mappings = {
       forest: require("@/assets/images/shards/location/B/forestb.png"),
       valley: require("@/assets/images/shards/location/B/valleyb.png"),
       wasteland: require("@/assets/images/shards/location/B/wastelandb.png"),
-      vault: require("@/assets/images/shards/location/A/vaultb.png"),
+      vault: require("@/assets/images/shards/location/A/vaulta.png"),
     },
     C: {
       prairie: require("@/assets/images/shards/location/C/prairie.png"),
       forest: require("@/assets/images/shards/location/C/forest.png"),
       valley: require("@/assets/images/shards/location/C/valley.png"),
       wasteland: require("@/assets/images/shards/location/C/wasteland.png"),
-      vault: require("@/assets/images/shards/location/A/vault.png"),
+      vault: require("@/assets/images/shards/location/A/vaulta.png"),
     },
   },
   data: {
@@ -118,14 +118,14 @@ const mappings = {
       forest: require("@/assets/images/shards/data/B/forestb.png"),
       valley: require("@/assets/images/shards/data/B/valleyb.png"),
       wasteland: require("@/assets/images/shards/data/B/wastelandb.png"),
-      vault: require("@/assets/images/shards/data/A/vaultb.png"),
+      vault: require("@/assets/images/shards/data/A/vaulta.png"),
     },
     C: {
       prairie: require("@/assets/images/shards/data/C/prairie.jpg"),
       forest: require("@/assets/images/shards/data/C/forest.png"),
       valley: require("@/assets/images/shards/data/C/valley.png"),
       wasteland: require("@/assets/images/shards/data/C/wasteland.png"),
-      vault: require("@/assets/images/shards/data/A/vault.png"),
+      vault: require("@/assets/images/shards/data/A/vaulta.png"),
     },
   },
 };
