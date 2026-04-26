@@ -1,6 +1,6 @@
 import type { ExpoConfig } from "expo/config";
 import type { WithAndroidWidgetsParams } from "react-native-android-widget";
-
+import pkg from "./package.json" with { type: "json" };
 const isDev = process.env.NODE_ENV === "development";
 
 const packageName = isDev ? "SkyTimesDev" : "SkyTimes";
@@ -86,7 +86,7 @@ const backgroundColor = "#1C1B1F";
 const config: ExpoConfig = {
   name: packageName,
   slug: packageName.toLowerCase(),
-  version: "1.5.2",
+  version: pkg.version,
   orientation: "portrait",
   icon: "./assets/images/sleepykid.png",
   scheme: "skytimes",
