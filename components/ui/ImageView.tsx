@@ -13,7 +13,6 @@ export default function ImageView({ url }: { url: string }) {
       <Pressable onPress={() => setImageView(true)}>
         <Image
           source={url}
-          loading="lazy"
           placeholder={{ blurhash }}
           style={{
             width: "100%",

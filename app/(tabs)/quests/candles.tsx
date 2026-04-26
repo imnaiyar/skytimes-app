@@ -1,54 +1,65 @@
 import { QuestCard } from "@/components/quests/QuestCard";
-import { Text } from "@/components/Themed";
+import { Text, View } from "@/components/Themed";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useDailyQuestsStore } from "@/utils/quests";
-import { Host, LazyColumn, PullToRefreshBox } from "@expo/ui/jetpack-compose";
-import { fillMaxHeight, padding } from "@expo/ui/jetpack-compose/modifiers";
 import { useEffect } from "react";
-import { StyleSheet } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet } from "react-native";
 
 export default function Candles() {
   const themeColor = Colors[useColorScheme() ?? "dark"];
   const { quests, loading, error, fetchQuests } = useDailyQuestsStore();
 
   useEffect(() => {
-    // fetch quests at least once
     fetchQuests();
   }, [fetchQuests]);
 
-  if (loading) return <LoadingScreen />;
-  if (error)
-    return <Text style={{ color: themeColor.danger }}>{error.message}</Text>;
-  const { rotating_candles, seasonal_candles } = quests!;
+  if (loading && !quests) return <LoadingScreen />;
+
   return (
-    <Host style={{ flex: 1 }}>
-      <PullToRefreshBox
-        contentAlignment="topCenter"
-        indicator={{
-          color: themeColor.card,
-          containerColor: themeColor.tint,
-        }}
-        isRefreshing={loading}
-        onRefresh={fetchQuests}
+    <View style={styles.screen}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={fetchQuests}
+            tintColor={themeColor.tint}
+            colors={[themeColor.tint]}
+            progressBackgroundColor={themeColor.card}
+          />
+        }
       >
-        <LazyColumn modifiers={[fillMaxHeight(), padding(5, 5, 5, 5)]}>
-          {rotating_candles && (
-            <QuestCard quest={rotating_candles} title="Rotating Candles" />
-          )}
-          {seasonal_candles && (
-            <QuestCard quest={seasonal_candles} title="Seasonal Candles" />
-          )}
-        </LazyColumn>
-      </PullToRefreshBox>
-    </Host>
+        {error ? (
+          <Text style={[styles.errorText, { color: themeColor.danger }]}>
+            {error.message}
+          </Text>
+        ) : null}
+
+        {quests?.rotating_candles ? (
+          <QuestCard quest={quests.rotating_candles} title="Rotating Candles" />
+        ) : null}
+
+        {quests?.seasonal_candles ? (
+          <QuestCard quest={quests.seasonal_candles} title="Seasonal Candles" />
+        ) : null}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
+  },
+  content: {
     padding: 5,
+    gap: 10,
+  },
+  errorText: {
+    fontSize: 14,
+    lineHeight: 20,
+    padding: 8,
   },
 });

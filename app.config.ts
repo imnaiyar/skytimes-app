@@ -50,12 +50,6 @@ const plugins: ExpoConfig["plugins"] = [
       },
     },
   ],
-  [
-    "expo-video",
-    {
-      supportsPictureInPicture: true,
-    },
-  ],
   ["react-native-android-widget", widgetConfig],
   ["expo-gradle-jvmargs", { xmx: "4g", maxMetaspace: "1024m" }],
   "react-native-video",

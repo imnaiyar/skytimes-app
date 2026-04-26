@@ -9,9 +9,15 @@ import {
 } from "@expo/ui/jetpack-compose";
 import { fillMaxWidth, height } from "@expo/ui/jetpack-compose/modifiers";
 import { ShardInfo, ShardsUtil } from "@skyhelperbot/utils";
+import { Image } from "expo-image";
 import { DateTime } from "luxon";
 import { useState } from "react";
 import ImageView from "../ui/ImageView";
+
+// Vault only has two shard variants, that is reused between different variants
+// For that reasons, there's only two image hosted and i have not opted to duplicate the image for the sake of it
+// So we need to map it correctly to point to right image
+const CommonVaultRedVariants = ["B", "C", "A"];
 
 export default function ShardLocationImage({
   info,
@@ -25,10 +31,26 @@ export default function ShardLocationImage({
   const themeColor = useThemeColor();
 
   const { currentRealm, currentShard } = ShardsUtil.shardsIndex(date);
+
+  const variant =
+    currentRealm === "vault"
+      ? CommonVaultRedVariants.includes(currentShard)
+        ? "A"
+        : "a"
+      : currentShard;
+
+  // prefecth so image transition feels seemless
+  Image.prefetch([
+    process.env.EXPO_PUBLIC_SKYHELPER_CDN +
+      `/shards/data/${variant}/${currentRealm}.png`,
+    process.env.EXPO_PUBLIC_SKYHELPER_CDN +
+      `/shards/Location/${variant}/${currentRealm}.png`,
+  ]);
+
   const url =
-    mappings[selectedTab.toLowerCase() as "data" | "location"][currentShard][
-      currentRealm
-    ];
+    process.env.EXPO_PUBLIC_SKYHELPER_CDN +
+    `/shards/${selectedTab.toLowerCase()}/${variant}/${currentRealm}.png`;
+
   return (
     <Column verticalArrangement={{ spacedBy: 8 }} modifiers={[fillMaxWidth()]}>
       <HorizontalDivider />
@@ -52,80 +74,3 @@ export default function ShardLocationImage({
     </Column>
   );
 }
-
-const mappings = {
-  location: {
-    A: {
-      prairie: require("@/assets/images/shards/location/A/prairiea.png"),
-      forest: require("@/assets/images/shards/location/A/foresta.png"),
-      valley: require("@/assets/images/shards/location/A/valleya.png"),
-      wasteland: require("@/assets/images/shards/location/A/wastelanda.png"),
-      vault: require("@/assets/images/shards/location/A/vaulta.png"),
-    },
-    a: {
-      prairie: require("@/assets/images/shards/location/a/prairie.png"),
-      forest: require("@/assets/images/shards/location/a/forest.png"),
-      valley: require("@/assets/images/shards/location/a/valley.png"),
-      wasteland: require("@/assets/images/shards/location/a/wasteland.png"),
-      vault: require("@/assets/images/shards/location/a/vault.png"),
-    },
-    b: {
-      prairie: require("@/assets/images/shards/location/b/prairie.png"),
-      forest: require("@/assets/images/shards/location/b/forest.png"),
-      valley: require("@/assets/images/shards/location/b/valley.png"),
-      wasteland: require("@/assets/images/shards/location/b/wasteland.png"),
-      vault: require("@/assets/images/shards/location/a/vault.png"),
-    },
-    B: {
-      prairie: require("@/assets/images/shards/location/B/prairieb.jpeg"),
-      forest: require("@/assets/images/shards/location/B/forestb.png"),
-      valley: require("@/assets/images/shards/location/B/valleyb.png"),
-      wasteland: require("@/assets/images/shards/location/B/wastelandb.png"),
-      vault: require("@/assets/images/shards/location/A/vaulta.png"),
-    },
-    C: {
-      prairie: require("@/assets/images/shards/location/C/prairie.png"),
-      forest: require("@/assets/images/shards/location/C/forest.png"),
-      valley: require("@/assets/images/shards/location/C/valley.png"),
-      wasteland: require("@/assets/images/shards/location/C/wasteland.png"),
-      vault: require("@/assets/images/shards/location/A/vaulta.png"),
-    },
-  },
-  data: {
-    A: {
-      prairie: require("@/assets/images/shards/data/A/prairiea.png"),
-      forest: require("@/assets/images/shards/data/A/foresta.png"),
-      valley: require("@/assets/images/shards/data/A/valleya.png"),
-      wasteland: require("@/assets/images/shards/data/A/wastelanda.png"),
-      vault: require("@/assets/images/shards/data/A/vaulta.png"),
-    },
-    a: {
-      prairie: require("@/assets/images/shards/data/a/prairie.png"),
-      forest: require("@/assets/images/shards/data/a/forest.png"),
-      valley: require("@/assets/images/shards/data/a/valley.png"),
-      wasteland: require("@/assets/images/shards/data/a/wasteland.png"),
-      vault: require("@/assets/images/shards/data/a/vault.png"),
-    },
-    b: {
-      prairie: require("@/assets/images/shards/data/b/prairie.png"),
-      forest: require("@/assets/images/shards/data/b/forest.png"),
-      valley: require("@/assets/images/shards/data/b/valley.png"),
-      wasteland: require("@/assets/images/shards/data/b/wasteland.png"),
-      vault: require("@/assets/images/shards/data/a/vault.png"),
-    },
-    B: {
-      prairie: require("@/assets/images/shards/data/B/prairieb.png"),
-      forest: require("@/assets/images/shards/data/B/forestb.png"),
-      valley: require("@/assets/images/shards/data/B/valleyb.png"),
-      wasteland: require("@/assets/images/shards/data/B/wastelandb.png"),
-      vault: require("@/assets/images/shards/data/A/vaulta.png"),
-    },
-    C: {
-      prairie: require("@/assets/images/shards/data/C/prairie.jpg"),
-      forest: require("@/assets/images/shards/data/C/forest.png"),
-      valley: require("@/assets/images/shards/data/C/valley.png"),
-      wasteland: require("@/assets/images/shards/data/C/wasteland.png"),
-      vault: require("@/assets/images/shards/data/A/vaulta.png"),
-    },
-  },
-};

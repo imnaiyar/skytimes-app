@@ -53,6 +53,7 @@ jobs:
           ANDROID_KEYSTORE_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
           ANDROID_KEY_PASS: ${{ secrets.ANDROID_KEY_PASS }}
           NODE_ENV: production
+          EXPO_PUBLIC_SKYHELPER_CDN: ${{ secrets.EXPO_PUBLIC_SKYHELPER_CDN }}
 
       - name: Decode keystore
         run: |

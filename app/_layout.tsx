@@ -120,7 +120,7 @@ function RootLayoutNav() {
             />
             <Stack.Screen
               name="debug"
-              options={{ presentation: "modal", title: "Debug Stuff" }}
+              options={{ presentation: "formSheet", title: "Debug Stuff" }}
             />
           </Stack>
         </React.StrictMode>
