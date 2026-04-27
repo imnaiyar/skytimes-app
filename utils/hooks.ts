@@ -1,10 +1,12 @@
 import { CATEGORY_ORDER } from "@/constants/common";
+
 import {
   EventDetails,
   SkytimesUtils,
   type EventKey,
 } from "@skyhelperbot/utils";
-import { useCallback, useEffect, useMemo, useState } from "react";
+
+import { useCallback, useEffect, useMemo } from "react";
 import {
   interpolate,
   useAnimatedStyle,
@@ -12,8 +14,11 @@ import {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
+
 import { create } from "zustand";
 import { getEventSignature } from "./event";
+
+import { useDailyQuestsStore } from "./quests";
 import {
   clampNotificationOffsetMinutes,
   DEFAULT_NOTIFICATION_SETTINGS,
@@ -52,6 +57,34 @@ export const useReorderMode = create<ReorderModeState>((set) => ({
   setReorder: (v: boolean) => set({ reorder: v }),
 }));
 
+type SettingsState = {
+  hydrated: boolean;
+  hydrating: boolean;
+  pinnedKeys: EventKey[];
+  notificationOffsetsById: NotificationOffsetsByEventId;
+  categoryOrder: string[];
+  notificationSettings: NotificationSettings;
+  widgetSettings: WidgetSettings;
+  hydrate: () => Promise<void>;
+  setPinnedKeys: (
+    updater: EventKey[] | ((prev: EventKey[]) => EventKey[]),
+  ) => void;
+  setNotificationOffsetsById: (
+    updater:
+      | NotificationOffsetsByEventId
+      | ((prev: NotificationOffsetsByEventId) => NotificationOffsetsByEventId),
+  ) => void;
+  setCategoryOrder: (order: string[]) => void;
+  setNotificationSettings: (
+    updater:
+      | NotificationSettings
+      | ((prev: NotificationSettings) => NotificationSettings),
+  ) => void;
+  setWidgetSettings: (
+    updater: WidgetSettings | ((prev: WidgetSettings) => WidgetSettings),
+  ) => void;
+};
+
 const useClockStore = create<{ now: number }>(() => ({
   now: Date.now(),
 }));
@@ -89,23 +122,97 @@ export function useNow() {
 
 const DEFAULT_CATEGORY_ORDER: string[] = [...CATEGORY_ORDER];
 
-export function usePinnedEvents() {
-  const [pinnedKeys, setPinnedKeys] = useState<EventKey[]>([]);
+const useSettingsStore = create<SettingsState>((set, get) => ({
+  hydrated: false,
+  hydrating: false,
+  pinnedKeys: [],
+  notificationOffsetsById: {},
+  categoryOrder: DEFAULT_CATEGORY_ORDER,
+  notificationSettings: DEFAULT_NOTIFICATION_SETTINGS,
+  widgetSettings: DEFAULT_WIDGET_SETTINGS,
+  setPinnedKeys: (updater) =>
+    set((state) => ({
+      pinnedKeys:
+        typeof updater === "function" ? updater(state.pinnedKeys) : updater,
+    })),
+  setNotificationOffsetsById: (updater) =>
+    set((state) => ({
+      notificationOffsetsById:
+        typeof updater === "function"
+          ? updater(state.notificationOffsetsById)
+          : updater,
+    })),
+  setCategoryOrder: (order) => set({ categoryOrder: order }),
+  setNotificationSettings: (updater) =>
+    set((state) => ({
+      notificationSettings:
+        typeof updater === "function"
+          ? updater(state.notificationSettings)
+          : updater,
+    })),
+  setWidgetSettings: (updater) =>
+    set((state) => ({
+      widgetSettings:
+        typeof updater === "function" ? updater(state.widgetSettings) : updater,
+    })),
+  hydrate: async () => {
+    if (get().hydrated || get().hydrating) return;
+    set({ hydrating: true });
+
+    const [
+      pinnedResult,
+      offsetsResult,
+      orderResult,
+      notificationSettingsResult,
+      widgetSettingsResult,
+    ] = await Promise.allSettled([
+      loadPinnedEvents(),
+      loadNotificationOffsets(),
+      loadCategoryOrder(),
+      loadNotificationSettings(),
+      loadWidgetSettings(),
+      useDailyQuestsStore.getState().fetchQuests(),
+    ]);
+
+    set({
+      pinnedKeys: pinnedResult.status === "fulfilled" ? pinnedResult.value : [],
+      notificationOffsetsById:
+        offsetsResult.status === "fulfilled" ? offsetsResult.value : {},
+      categoryOrder:
+        orderResult.status === "fulfilled"
+          ? orderResult.value
+          : DEFAULT_CATEGORY_ORDER,
+      notificationSettings:
+        notificationSettingsResult.status === "fulfilled"
+          ? notificationSettingsResult.value
+          : DEFAULT_NOTIFICATION_SETTINGS,
+      widgetSettings:
+        widgetSettingsResult.status === "fulfilled"
+          ? widgetSettingsResult.value
+          : DEFAULT_WIDGET_SETTINGS,
+      hydrated: true,
+      hydrating: false,
+    });
+  },
+}));
+
+export function useSettingsHydration() {
+  const hydrated = useSettingsStore((state) => state.hydrated);
+  const hydrating = useSettingsStore((state) => state.hydrating);
+  const hydrate = useSettingsStore((state) => state.hydrate);
 
   useEffect(() => {
-    let mounted = true;
+    if (!hydrated && !hydrating) {
+      hydrate().catch(() => undefined);
+    }
+  }, [hydrated, hydrating, hydrate]);
 
-    loadPinnedEvents()
-      .then((keys) => {
-        if (!mounted) return;
-        setPinnedKeys(keys);
-      })
-      .catch(() => undefined);
+  return { hydrated, hydrating };
+}
 
-    return () => {
-      mounted = false;
-    };
-  }, []);
+export function usePinnedEvents() {
+  const pinnedKeys = useSettingsStore((state) => state.pinnedKeys);
+  const setPinnedKeys = useSettingsStore((state) => state.setPinnedKeys);
 
   const pinnedSet = new Set(pinnedKeys);
 
@@ -124,23 +231,12 @@ export function usePinnedEvents() {
 }
 
 export function useNotifiedEvents() {
-  const [notificationOffsetsById, setNotificationOffsetsById] =
-    useState<NotificationOffsetsByEventId>({});
-
-  useEffect(() => {
-    let mounted = true;
-
-    loadNotificationOffsets()
-      .then((map) => {
-        if (!mounted) return;
-        setNotificationOffsetsById(map);
-      })
-      .catch(() => undefined);
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const notificationOffsetsById = useSettingsStore(
+    (state) => state.notificationOffsetsById,
+  );
+  const setNotificationOffsetsById = useSettingsStore(
+    (state) => state.setNotificationOffsetsById,
+  );
 
   const notificationEnabledSet = useMemo(() => {
     return new Set(
@@ -187,24 +283,10 @@ export function useNotifiedEvents() {
 }
 
 export function useCategoryOrder() {
-  const [categoryOrder, setCategoryOrderState] = useState<string[]>(
-    DEFAULT_CATEGORY_ORDER,
+  const categoryOrder = useSettingsStore((state) => state.categoryOrder);
+  const setCategoryOrderState = useSettingsStore(
+    (state) => state.setCategoryOrder,
   );
-
-  useEffect(() => {
-    let mounted = true;
-
-    loadCategoryOrder()
-      .then((order) => {
-        if (!mounted) return;
-        setCategoryOrderState(order);
-      })
-      .catch(() => undefined);
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   const setCategoryOrder = useCallback((order: string[]) => {
     const normalized = normalizeCategoryOrder(order);
@@ -241,24 +323,10 @@ export function usePulse(active = true) {
 }
 
 export function useNotificationSettings() {
-  const [settings, setSettingsState] = useState<NotificationSettings>(
-    DEFAULT_NOTIFICATION_SETTINGS,
+  const settings = useSettingsStore((state) => state.notificationSettings);
+  const setSettingsState = useSettingsStore(
+    (state) => state.setNotificationSettings,
   );
-
-  useEffect(() => {
-    let mounted = true;
-
-    loadNotificationSettings()
-      .then((value) => {
-        if (!mounted) return;
-        setSettingsState(value);
-      })
-      .catch(() => undefined);
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   const updateSettings = useCallback((next: Partial<NotificationSettings>) => {
     setSettingsState((previous) => {
@@ -272,24 +340,10 @@ export function useNotificationSettings() {
 }
 
 export function useWidgetSettings() {
-  const [widgetSettings, setWidgetSettings] = useState<WidgetSettings>(
-    DEFAULT_WIDGET_SETTINGS,
+  const widgetSettings = useSettingsStore((state) => state.widgetSettings);
+  const setWidgetSettings = useSettingsStore(
+    (state) => state.setWidgetSettings,
   );
-
-  useEffect(() => {
-    let mounted = true;
-
-    loadWidgetSettings()
-      .then((value) => {
-        if (!mounted) return;
-        setWidgetSettings(value);
-      })
-      .catch(() => undefined);
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   const updateWidgetSettings = useCallback((next: Partial<WidgetSettings>) => {
     setWidgetSettings((prev) => {

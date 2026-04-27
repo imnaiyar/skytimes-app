@@ -18,6 +18,7 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors, { useThemeColor } from "@/constants/Colors";
+import { useSettingsHydration } from "@/utils/hooks";
 import { initializeNotifications } from "@/utils/notifications";
 import { Box, Host, PullToRefreshBox, Text } from "@expo/ui/jetpack-compose";
 import { StatusBar, ToastAndroid } from "react-native";
@@ -45,6 +46,7 @@ export default function RootLayout() {
     ...AntDesign.font,
     ...FontAwesome.font,
   });
+  const { hydrated: settingsHydrated } = useSettingsHydration();
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -52,10 +54,10 @@ export default function RootLayout() {
   }, [error]);
 
   useEffect(() => {
-    if (loaded) {
+    if (loaded && settingsHydrated) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [loaded, settingsHydrated]);
 
   useEffect(() => {
     initializeNotifications().catch((err) =>
@@ -68,7 +70,7 @@ export default function RootLayout() {
 
   const themeColor = useThemeColor();
 
-  if (!loaded) {
+  if (!loaded || !settingsHydrated) {
     return (
       <Host style={{ flex: 1 }}>
         <Box contentAlignment="center">
