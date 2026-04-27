@@ -46,6 +46,11 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}
 
+       # expo only loads env variables from .env file (or its variants), so we need to create it
+      - name: Create .env file
+        run: |
+          echo "EXPO_PUBLIC_SKYHELPER_CDN=${{ secrets.EXPO_PUBLIC_SKYHELPER_CDN }}" >> .env
+
       - name: Prebuild
         run: npx expo prebuild --platform android --no-install
         env:
@@ -53,7 +58,6 @@ jobs:
           ANDROID_KEYSTORE_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
           ANDROID_KEY_PASS: ${{ secrets.ANDROID_KEY_PASS }}
           NODE_ENV: production
-          EXPO_PUBLIC_SKYHELPER_CDN: ${{ secrets.EXPO_PUBLIC_SKYHELPER_CDN }}
 
       - name: Decode keystore
         run: |

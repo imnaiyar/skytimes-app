@@ -1,6 +1,7 @@
 import { Header } from "@/components/ui/Header";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
+import pkg from "@/package.json" with { type: "json" };
 import {
   useDebugMode,
   useNotificationSettings,
@@ -30,10 +31,6 @@ import {
 import { SkytimesUtils } from "@skyhelperbot/utils";
 import { Appearance, View } from "react-native";
 
-/**
- * Settings screen using Jetpack Compose
- * Features Material Design 3 components with app theme consistency
- */
 export default function SettingsScreen() {
   const { settings, updateSettings } = useNotificationSettings();
   const { notificationOffsetsById } = useNotifiedEvents();
@@ -150,7 +147,7 @@ export default function SettingsScreen() {
                 typography: "bodySmall",
               }}
             >
-              App version 1.0.0
+              App version {pkg.version}
             </Text>
           </Box>
         </LazyColumn>
