@@ -9,7 +9,7 @@ import type {
 
 const SCHEDULED_NOTIFICATIONS_STORAGE_KEY = "notifications:scheduled";
 const NOTIFICATION_SOURCE = "game-app-event";
-const ANDROID_CHANNEL_ID = "event-reminders";
+const ANDROID_CHANNEL_ID = "sky-event-reminders" + (__DEV__ ? "-dev" : "");
 
 export type NotificationEvent = {
   id: string;

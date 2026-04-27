@@ -1,5 +1,6 @@
 import type { ExpoConfig } from "expo/config";
 import type { WithAndroidWidgetsParams } from "react-native-android-widget";
+import "tsx/cjs";
 import pkg from "./package.json" with { type: "json" };
 const isDev = process.env.NODE_ENV === "development";
 
@@ -53,6 +54,7 @@ const plugins: ExpoConfig["plugins"] = [
   ["react-native-android-widget", widgetConfig],
   ["expo-gradle-jvmargs", { xmx: "4g", maxMetaspace: "1024m" }],
   "react-native-video",
+  "./plugins/manifest.ts",
 ];
 
 // only do app signing in prod
