@@ -2,9 +2,9 @@ import type { ExpoConfig } from "expo/config";
 import type { WithAndroidWidgetsParams } from "react-native-android-widget";
 import "tsx/cjs";
 import pkg from "./package.json" with { type: "json" };
-
-const packageName = __DEV__ ? "SkyTimesDev" : "SkyTimes";
-const identifier = __DEV__ ? "com.skytimes.dev" : "com.skytimes.app";
+const isDev = process.env.NODE_ENV === "development";
+const packageName = isDev ? "SkyTimesDev" : "SkyTimes";
+const identifier = isDev ? "com.skytimes.dev" : "com.skytimes.app";
 const widgetConfig: WithAndroidWidgetsParams = {
   widgets: [
     {
@@ -57,7 +57,7 @@ const plugins: ExpoConfig["plugins"] = [
 ];
 
 // only do app signing in prod
-if (!__DEV__) {
+if (!isDev) {
   plugins.push(
     [
       "expo-signed",
@@ -128,7 +128,7 @@ const config: ExpoConfig = {
   extra: {
     router: {},
     eas: {
-      projectId: __DEV__
+      projectId: isDev
         ? "036f17e4-3bc6-4d50-bb1c-f7d7aa2a8362"
         : "6479b648-2cdf-472f-ba57-55fbdeeb9f9e",
     },
