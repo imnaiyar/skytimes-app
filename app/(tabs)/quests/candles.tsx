@@ -24,7 +24,7 @@ export default function Candles() {
         refreshControl={
           <RefreshControl
             refreshing={loading}
-            onRefresh={fetchQuests}
+            onRefresh={() => fetchQuests({ refresh: true })}
             tintColor={themeColor.tint}
             colors={[themeColor.tint]}
             progressBackgroundColor={themeColor.card}

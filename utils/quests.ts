@@ -1,4 +1,5 @@
 import { SKY_ZONE } from "@/constants/common";
+import { loadDailyQuests, saveDailyQuests } from "@/utils/storage";
 import { DateTime } from "luxon";
 import { create } from "zustand";
 
@@ -44,16 +45,26 @@ type DailyQuestsState = {
   quests: DailyQuestsSchema | null;
   loading: boolean;
   error: Error | null;
-  fetchQuests: () => Promise<void>;
+  fetchQuests: (options?: { refresh?: boolean }) => Promise<void>;
   clearQuests: () => void;
 };
 
-export const useDailyQuestsStore = create<DailyQuestsState>((set) => ({
+export const useDailyQuestsStore = create<DailyQuestsState>((set, get) => ({
   quests: null,
   loading: true,
   error: null,
 
-  fetchQuests: async () => {
+  fetchQuests: async ({ refresh = false } = {}) => {
+    const cached = await loadDailyQuests();
+
+    const cachedQuests =
+      cached && isTodaysDate(cached.last_updated) ? cached : null;
+
+    if (!refresh && cachedQuests) {
+      set({ quests: cachedQuests, loading: false, error: null });
+      return;
+    }
+
     set({ loading: true, error: null });
 
     try {
@@ -64,13 +75,23 @@ export const useDailyQuestsStore = create<DailyQuestsState>((set) => ({
 
       const json = (await res.json()) as DailyQuestsSchema;
 
-      set({
-        quests: isTodaysDate(json.last_updated) ? json : null,
-      });
+      if (isTodaysDate(json.last_updated)) {
+        await saveDailyQuests(json);
+        set({ quests: json, error: null });
+      } else {
+        set({
+          quests: cachedQuests ?? null,
+          error: null,
+        });
+      }
     } catch (error) {
       set({
-        quests: null,
-        error: error instanceof Error ? error : new Error("Unknown error"),
+        quests: cachedQuests ?? null,
+        error: cachedQuests
+          ? null
+          : error instanceof Error
+            ? error
+            : new Error("Unknown error"),
       });
     } finally {
       set({ loading: false });

@@ -1,4 +1,5 @@
 import { CATEGORY_ORDER } from "@/constants/common";
+import type { DailyQuestsSchema } from "@/utils/quests";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { EventKey } from "@skyhelperbot/utils";
 
@@ -7,6 +8,7 @@ const NOTIFIED_EVENTS_STORAGE_KEY = "events:notified";
 const CATEGORY_ORDER_STORAGE_KEY = "categories:order";
 const NOTIFICATION_SETTINGS_STORAGE_KEY = "notifications:settings";
 const WIDGET_SETTINGS_STORAGE_KEY = "widget:events:settings";
+const DAILY_QUESTS_STORAGE = "quests:daily";
 const DEFAULT_CATEGORY_ORDER: readonly string[] = CATEGORY_ORDER;
 export const MIN_NOTIFICATION_OFFSET_MINUTES = 0;
 export const MAX_NOTIFICATION_OFFSET_MINUTES = 15;
@@ -187,4 +189,23 @@ export async function saveWidgetSettings(settings: WidgetSettings) {
     WIDGET_SETTINGS_STORAGE_KEY,
     JSON.stringify(settings),
   );
+}
+
+export async function loadDailyQuests() {
+  const value = await AsyncStorage.getItem(DAILY_QUESTS_STORAGE);
+
+  if (!value) return null;
+
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === "object"
+      ? (parsed as DailyQuestsSchema)
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function saveDailyQuests(quests: DailyQuestsSchema) {
+  await AsyncStorage.setItem(DAILY_QUESTS_STORAGE, JSON.stringify(quests));
 }

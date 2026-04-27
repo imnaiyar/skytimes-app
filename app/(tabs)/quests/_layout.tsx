@@ -7,10 +7,10 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Pressable, ToastAndroid, View } from "react-native";
 import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
+    useAnimatedStyle,
+    useSharedValue,
+    withRepeat,
+    withTiming,
 } from "react-native-reanimated";
 
 export default function QuestsLayout() {
@@ -81,7 +81,7 @@ function AnimatedRefreshButton() {
     setIsAnimating(true);
     rotation.value = 0;
     rotation.value = withRepeat(withTiming(360, { duration: 600 }), 1, false);
-    fetchQuests().then(() => {
+    fetchQuests({ refresh: true }).then(() => {
       setIsAnimating(false);
       ToastAndroid.show("Refetched Quests", ToastAndroid.SHORT);
     });
