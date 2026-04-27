@@ -2,10 +2,9 @@ import type { ExpoConfig } from "expo/config";
 import type { WithAndroidWidgetsParams } from "react-native-android-widget";
 import "tsx/cjs";
 import pkg from "./package.json" with { type: "json" };
-const isDev = process.env.NODE_ENV === "development";
 
-const packageName = isDev ? "SkyTimesDev" : "SkyTimes";
-const identifier = isDev ? "com.skytimes.dev" : "com.skytimes.app";
+const packageName = __DEV__ ? "SkyTimesDev" : "SkyTimes";
+const identifier = __DEV__ ? "com.skytimes.dev" : "com.skytimes.app";
 const widgetConfig: WithAndroidWidgetsParams = {
   widgets: [
     {
@@ -58,29 +57,32 @@ const plugins: ExpoConfig["plugins"] = [
 ];
 
 // only do app signing in prod
-if (!isDev) {
-  plugins.push([
-    "expo-signed",
-    {
-      store_file: {
-        key: "STORE_FILE",
-        value: "release-key.keystore",
+if (!__DEV__) {
+  plugins.push(
+    [
+      "expo-signed",
+      {
+        store_file: {
+          key: "STORE_FILE",
+          value: "release-key.keystore",
+        },
+        key_alias: {
+          key: "KEY_ALIAS",
+          value: process.env.ANDROID_KEYSTORE_ALIAS,
+        },
+        store_password: {
+          key: "STORE_PASSWORD",
+          value: process.env.ANDROID_KEYSTORE_PASS,
+        },
+        key_password: {
+          key: "KEY_PASSWORD",
+          value: process.env.ANDROID_KEY_PASS,
+        },
+        keystorePath: "./android/app",
       },
-      key_alias: {
-        key: "KEY_ALIAS",
-        value: process.env.ANDROID_KEYSTORE_ALIAS,
-      },
-      store_password: {
-        key: "STORE_PASSWORD",
-        value: process.env.ANDROID_KEYSTORE_PASS,
-      },
-      key_password: {
-        key: "KEY_PASSWORD",
-        value: process.env.ANDROID_KEY_PASS,
-      },
-      keystorePath: "./android/app",
-    },
-  ]);
+    ],
+    "./plugins/abi-splits.ts",
+  );
 }
 
 const backgroundColor = "#1C1B1F";
@@ -126,7 +128,7 @@ const config: ExpoConfig = {
   extra: {
     router: {},
     eas: {
-      projectId: isDev
+      projectId: __DEV__
         ? "036f17e4-3bc6-4d50-bb1c-f7d7aa2a8362"
         : "6479b648-2cdf-472f-ba57-55fbdeeb9f9e",
     },
