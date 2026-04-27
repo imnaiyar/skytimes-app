@@ -23,10 +23,13 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { EventKey, SkytimesUtils } from "@skyhelperbot/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ToastAndroid } from "react-native";
 import {
+  requestWidgetUpdate,
   WidgetConfigurationScreenProps,
   WidgetPreview,
 } from "react-native-android-widget";
+import { SKY_EVENTS_WIDGET_NAME } from "./constants";
 import { getWidgetEventRows } from "./events-widget-data";
 import { EventsWidget } from "./EventsWidget";
 
@@ -40,9 +43,7 @@ const DEFAULT_6_EVENTS: EventKey[] = [
   "aurora",
 ];
 export function WidgetConfigurationScreen({
-  widgetInfo,
   setResult,
-  renderWidget,
 }: WidgetConfigurationScreenProps) {
   const { widgetSettings, updateWidgetSettings } = useWidgetSettings();
 
@@ -111,7 +112,7 @@ export function WidgetConfigurationScreen({
           renderWidget={() => (
             <EventsWidget
               rows={getWidgetEventRows(undefined, localSelectedKeys)}
-              palette={Colors["dark"]}
+              palette={theme}
             />
           )}
           height={220}
@@ -240,15 +241,21 @@ export function WidgetConfigurationScreen({
                 enabled: localEnabled,
                 selectedEventKeys: localSelectedKeys,
               };
+
+              updateWidgetSettings(config);
+
               const rows = config.enabled
                 ? getWidgetEventRows(undefined, config.selectedEventKeys)
                 : getWidgetEventRows();
 
-              renderWidget(
-                <EventsWidget rows={rows} palette={Colors["dark"]} />,
+              requestWidgetUpdate({
+                widgetName: SKY_EVENTS_WIDGET_NAME,
+                renderWidget: () => (
+                  <EventsWidget rows={rows} palette={Colors["dark"]} />
+                ),
+              }).then(() =>
+                ToastAndroid.show("Widget Configured", ToastAndroid.SHORT),
               );
-
-              updateWidgetSettings(config);
 
               setResult("ok");
             }}
