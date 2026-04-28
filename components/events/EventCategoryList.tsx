@@ -11,7 +11,7 @@ import {
   type NotificationOffsetsByEventId,
 } from "@/utils/storage";
 import { type EventKey } from "@skyhelperbot/utils";
-import { useCallback, useMemo, useState } from "react";
+import { useState } from "react";
 import { FlatList } from "react-native";
 import { OffsetPickerModal } from "../OffsetPickerModal";
 import { View } from "../Themed";
@@ -40,9 +40,7 @@ export default function EventCategoryList({
     useState<NotificationPickerState | null>(null);
   const events = useEventsStore((s) => s.events);
 
-  const grouped = useMemo(() => {
-    return groupEvents(events, pinnedSet, notificationOffsetsById);
-  }, [events, pinnedSet, notificationOffsetsById]);
+  const grouped = groupEvents(events, pinnedSet, notificationOffsetsById);
 
   const { categoryOrder, setCategoryOrder } = useCategoryOrder();
 
@@ -60,42 +58,37 @@ export default function EventCategoryList({
     return acc;
   }, {});
 
-  const openEnableOffsetPicker = useCallback(
-    (key: EventKey, eventName: string) => {
-      setPickerState({
-        mode: "enable",
-        key,
-        eventName,
-        initialOffsetMinutes: DEFAULT_NOTIFICATION_OFFSET_MINUTES,
-      });
-    },
-    [],
-  );
+  const openEnableOffsetPicker = (key: EventKey, eventName: string) => {
+    setPickerState({
+      mode: "enable",
+      key,
+      eventName,
+      initialOffsetMinutes: DEFAULT_NOTIFICATION_OFFSET_MINUTES,
+    });
+  };
 
-  const openEditOffsetPicker = useCallback(
-    (key: EventKey, eventName: string, currentOffsetMinutes: number) => {
-      setPickerState({
-        mode: "edit",
-        key,
-        eventName,
-        initialOffsetMinutes: currentOffsetMinutes,
-      });
-    },
-    [],
-  );
+  const openEditOffsetPicker = (
+    key: EventKey,
+    eventName: string,
+    currentOffsetMinutes: number,
+  ) => {
+    setPickerState({
+      mode: "edit",
+      key,
+      eventName,
+      initialOffsetMinutes: currentOffsetMinutes,
+    });
+  };
 
-  const closeOffsetPicker = useCallback(() => {
+  const closeOffsetPicker = () => {
     setPickerState(null);
-  }, []);
+  };
 
-  const saveOffsetPickerValue = useCallback(
-    (offsetMinutes: number) => {
-      if (!pickerState) return;
-      onSetNotificationOffset(pickerState.key, offsetMinutes);
-      setPickerState(null);
-    },
-    [onSetNotificationOffset, pickerState],
-  );
+  const saveOffsetPickerValue = (offsetMinutes: number) => {
+    if (!pickerState) return;
+    onSetNotificationOffset(pickerState.key, offsetMinutes);
+    setPickerState(null);
+  };
 
   const pickerTitle = pickerState
     ? pickerState.mode === "enable"

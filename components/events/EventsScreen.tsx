@@ -46,18 +46,12 @@ function useSync() {
     setEventNotificationOffset,
     disableEventNotification,
   } = useNotifiedEvents();
-  const eventsSyncSignature = useMemo(
-    () => getEventSignature(events),
-    [events],
-  );
-  const notificationOffsetsSignature = useMemo(
-    () =>
-      Object.entries(notificationOffsetsById)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([eventId, minutes]) => `${eventId}:${minutes}`)
-        .join("|"),
-    [notificationOffsetsById],
-  );
+  const eventsSyncSignature = getEventSignature(events);
+  const notificationOffsetsSignature = Object.entries(notificationOffsetsById)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([eventId, minutes]) => `${eventId}:${minutes}`)
+    .join("|");
+
   const notificationSyncInput = useMemo(
     () => ({
       events,
@@ -65,16 +59,12 @@ function useSync() {
     }),
     [eventsSyncSignature, notificationOffsetsSignature],
   );
-  const widgetSyncSignature = useMemo(
-    () =>
-      events
-        .map(({ key, ...event }) => {
-          const endTime = event.status.endTime ?? 0;
-          return `${String(key)}:${event.status.active ? "active" : "upcoming"}:${endTime}:${event.nextOccurence}`;
-        })
-        .join("|"),
-    [events],
-  );
+  const widgetSyncSignature = events
+    .map(({ key, ...event }) => {
+      const endTime = event.status.endTime ?? 0;
+      return `${String(key)}:${event.status.active ? "active" : "upcoming"}:${endTime}:${event.nextOccurence}`;
+    })
+    .join("|");
 
   useEffect(() => {
     syncNotifications(
@@ -104,7 +94,6 @@ function useSync() {
   }, [widgetSyncSignature, widgetSettings]);
 
   return {
-    events,
     setEventNotificationOffset,
     disableEventNotification,
     notificationOffsetsById,

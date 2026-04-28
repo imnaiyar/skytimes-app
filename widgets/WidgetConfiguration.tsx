@@ -22,7 +22,7 @@ import {
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { EventKey, SkytimesUtils } from "@skyhelperbot/utils";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ToastAndroid } from "react-native";
 import {
   requestWidgetUpdate,
@@ -60,46 +60,37 @@ export function WidgetConfigurationScreen({
   }, [widgetSettings]);
 
   const event = SkytimesUtils.allEventDetails();
-  const selectedSet = useMemo(
-    () => new Set(localSelectedKeys),
-    [localSelectedKeys],
-  );
+  const selectedSet = new Set(localSelectedKeys);
 
   const theme = Colors[useColorScheme()];
 
-  const isDisabled = useCallback(
-    (key: string) =>
-      !localEnabled ||
-      (!selectedSet.has(key) && selectedSet.size >= MAX_WIDGET_EVENTS) ||
-      (selectedSet.has(key) && selectedSet.size <= 2),
-    [localEnabled, selectedSet],
-  );
+  const isDisabled = (key: string) =>
+    !localEnabled ||
+    (!selectedSet.has(key) && selectedSet.size >= MAX_WIDGET_EVENTS) ||
+    (selectedSet.has(key) && selectedSet.size <= 2);
 
-  const toggleSelectEvent = useCallback(
-    (key: string) => {
-      const newSelectedKeys = Array.from(selectedSet);
-      const isSelected = newSelectedKeys.includes(key);
+  const toggleSelectEvent = (key: string) => {
+    const newSelectedKeys = Array.from(selectedSet);
+    const isSelected = newSelectedKeys.includes(key);
 
-      if (isSelected) {
-        newSelectedKeys.splice(newSelectedKeys.indexOf(key), 1);
-      } else {
-        if (newSelectedKeys.length >= MAX_WIDGET_EVENTS) return;
-        newSelectedKeys.push(key);
-      }
+    if (isSelected) {
+      newSelectedKeys.splice(newSelectedKeys.indexOf(key), 1);
+    } else {
+      if (newSelectedKeys.length >= MAX_WIDGET_EVENTS) return;
+      newSelectedKeys.push(key);
+    }
 
-      setLocalSelectedKeys(newSelectedKeys);
-    },
-    [selectedSet],
-  );
+    setLocalSelectedKeys(newSelectedKeys);
+  };
 
-  const handleToggleEnabled = useCallback((value: boolean) => {
+  const handleToggleEnabled = (value: boolean) => {
     setLocalEnabled(value);
     if (value) {
       setLocalSelectedKeys(DEFAULT_6_EVENTS);
     } else {
       setLocalSelectedKeys([]);
     }
-  }, []);
+  };
   const [showClickArea, setClickArea] = useState(false);
   return (
     <Host style={{ flex: 1, backgroundColor: theme.background }}>

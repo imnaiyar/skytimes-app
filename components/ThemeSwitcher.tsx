@@ -1,7 +1,7 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { Host, Icon, IconButton } from "@expo/ui/jetpack-compose";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Animated, Easing } from "react-native";
 
 export function ThemeSwitcherButton({ onToggle }: { onToggle: () => void }) {
@@ -48,9 +48,9 @@ export function ThemeSwitcherButton({ onToggle }: { onToggle: () => void }) {
     outputRange: ["0deg", "360deg"],
   });
 
-  const handlePress = useCallback(() => {
+  const handlePress = () => {
     onToggle();
-  }, [onToggle]);
+  };
 
   return (
     <Animated.View

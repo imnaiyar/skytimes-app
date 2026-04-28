@@ -6,7 +6,7 @@ import {
   type EventKey,
 } from "@skyhelperbot/utils";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import {
   interpolate,
   useAnimatedStyle,
@@ -223,7 +223,7 @@ export function usePinnedEvents() {
 
   const pinnedSet = new Set(pinnedKeys);
 
-  const togglePin = useCallback((key: EventKey) => {
+  const togglePin = (key: EventKey) => {
     setPinnedKeys((prev) => {
       const next = prev.includes(key)
         ? prev.filter((existing) => existing !== key)
@@ -238,7 +238,7 @@ export function usePinnedEvents() {
       }).catch(() => undefined);
       return next;
     });
-  }, []);
+  };
 
   return { pinnedSet, togglePin };
 }
@@ -251,40 +251,33 @@ export function useNotifiedEvents() {
     (state) => state.setNotificationOffsetsById,
   );
 
-  const notificationEnabledSet = useMemo(() => {
-    return new Set(
-      Object.keys(notificationOffsetsById).map((key) => key as EventKey),
-    );
-  }, [notificationOffsetsById]);
-
-  const getEventNotificationOffset = useCallback(
-    (key: EventKey) => notificationOffsetsById[String(key)],
-    [notificationOffsetsById],
+  const notificationEnabledSet = new Set(
+    Object.keys(notificationOffsetsById).map((key) => key as EventKey),
   );
 
-  const setEventNotificationOffset = useCallback(
-    (key: EventKey, offsetMinutes: number) => {
-      setNotificationOffsetsById((previous) => {
-        const next = {
-          ...previous,
-          [String(key)]: clampNotificationOffsetMinutes(offsetMinutes),
-        };
+  const getEventNotificationOffset = (key: EventKey) =>
+    notificationOffsetsById[String(key)];
 
-        saveNotificationOffsets(next).catch(() => undefined);
-        return next;
-      });
-    },
-    [],
-  );
+  const setEventNotificationOffset = (key: EventKey, offsetMinutes: number) => {
+    setNotificationOffsetsById((previous) => {
+      const next = {
+        ...previous,
+        [String(key)]: clampNotificationOffsetMinutes(offsetMinutes),
+      };
 
-  const disableEventNotification = useCallback((key: EventKey) => {
+      saveNotificationOffsets(next).catch(() => undefined);
+      return next;
+    });
+  };
+
+  const disableEventNotification = (key: EventKey) => {
     setNotificationOffsetsById((previous) => {
       const next = { ...previous };
       delete next[String(key)];
       saveNotificationOffsets(next).catch(() => undefined);
       return next;
     });
-  }, []);
+  };
 
   return {
     notificationOffsetsById,
@@ -301,7 +294,7 @@ export function useCategoryOrder() {
     (state) => state.setCategoryOrder,
   );
 
-  const setCategoryOrder = useCallback((order: string[]) => {
+  const setCategoryOrder = (order: string[]) => {
     const normalized = normalizeCategoryOrder(order);
     setCategoryOrderState(normalized);
     const state = useSettingsStore.getState();
@@ -311,7 +304,7 @@ export function useCategoryOrder() {
       notificationSettings: state.notificationSettings,
       clock24h: state.clock24h,
     }).catch(() => undefined);
-  }, []);
+  };
 
   return { categoryOrder, setCategoryOrder };
 }
@@ -347,7 +340,7 @@ export function useNotificationSettings() {
     (state) => state.setNotificationSettings,
   );
 
-  const updateSettings = useCallback((next: Partial<NotificationSettings>) => {
+  const updateSettings = (next: Partial<NotificationSettings>) => {
     setSettingsState((previous) => {
       const merged = { ...previous, ...next };
       const state = useSettingsStore.getState();
@@ -359,7 +352,7 @@ export function useNotificationSettings() {
       }).catch(() => undefined);
       return merged;
     });
-  }, []);
+  };
 
   return { settings, updateSettings };
 }
@@ -370,13 +363,13 @@ export function useWidgetSettings() {
     (state) => state.setWidgetSettings,
   );
 
-  const updateWidgetSettings = useCallback((next: Partial<WidgetSettings>) => {
+  const updateWidgetSettings = (next: Partial<WidgetSettings>) => {
     setWidgetSettings((prev) => {
       const merged = { ...prev, ...next };
       saveWidgetSettings(merged).catch(() => undefined);
       return merged;
     });
-  }, []);
+  };
 
   return { widgetSettings, updateWidgetSettings };
 }
@@ -385,7 +378,7 @@ export function useClockFormatPreference() {
   const clock24h = useSettingsStore((state) => state.clock24h);
   const setClock24h = useSettingsStore((state) => state.setClock24h);
 
-  const updateClock24h = useCallback((enabled: boolean) => {
+  const updateClock24h = (enabled: boolean) => {
     setClock24h(enabled);
     const state = useSettingsStore.getState();
     saveUserPreferences({
@@ -394,7 +387,7 @@ export function useClockFormatPreference() {
       notificationSettings: state.notificationSettings,
       clock24h: enabled,
     }).catch(() => undefined);
-  }, []);
+  };
 
   return { clock24h, updateClock24h };
 }

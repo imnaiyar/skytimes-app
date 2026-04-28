@@ -22,7 +22,7 @@ import {
   paddingAll,
   rotate,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { useCallback, useRef } from "react";
+import { useRef } from "react";
 import { Callout } from "../ui/Callout";
 
 export function CategoryReorderDrawer({
@@ -42,18 +42,15 @@ export function CategoryReorderDrawer({
     setReorder(false);
   };
 
-  const moveCategory = useCallback(
-    (fromIndex: number, direction: -1 | 1) => {
-      const targetIndex = fromIndex + direction;
-      if (targetIndex < 0 || targetIndex >= categoryOrder.length) return;
+  const moveCategory = (fromIndex: number, direction: -1 | 1) => {
+    const targetIndex = fromIndex + direction;
+    if (targetIndex < 0 || targetIndex >= categoryOrder.length) return;
 
-      const next = [...categoryOrder];
-      const [moved] = next.splice(fromIndex, 1);
-      next.splice(targetIndex, 0, moved);
-      setCategoryOrder(next);
-    },
-    [categoryOrder, setCategoryOrder],
-  );
+    const next = [...categoryOrder];
+    const [moved] = next.splice(fromIndex, 1);
+    next.splice(targetIndex, 0, moved);
+    setCategoryOrder(next);
+  };
 
   if (!reorder) return null;
   return (
