@@ -47,13 +47,13 @@ const plugins: ExpoConfig["plugins"] = [
         useLegacyPackaging: true,
         useHermesV1: true,
         buildReactNativeFromSource: true,
+        extraProguardRules: "-keep class expo.modules.notifications.** { *; } ",
       },
     },
   ],
   ["react-native-android-widget", widgetConfig],
   ["expo-gradle-jvmargs", { xmx: "4g", maxMetaspace: "1024m" }],
   "react-native-video",
-  "./plugins/manifest.ts",
 ];
 
 // only do app signing and abi splits in prod
@@ -114,6 +114,7 @@ const config: ExpoConfig = {
     },
     package: identifier,
     predictiveBackGestureEnabled: false,
+    permissions: ["android.permission.SCHEDULE_EXACT_ALARM"],
   },
   web: {
     bundler: "metro",
