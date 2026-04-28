@@ -17,21 +17,6 @@ export function getEventStatus(event: Times): EventStatus {
   return "upcoming";
 }
 
-export function formatTime(ms: number) {
-  const total = Math.max(0, Math.floor(ms / 1000));
-
-  const d = Math.floor(total / 86400);
-  const h = Math.floor((total % 86400) / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-
-  const parts = [d && `${d}d`, h && `${h}h`, m && `${m}m`, s && `${s}s`].filter(
-    Boolean,
-  );
-
-  return parts.length ? parts.join(" ") : "0s";
-}
-
 function getSortPriority(status: EventStatus, pinned: boolean) {
   if (status === "active" && pinned) return 0;
   if (status === "active") return 1;

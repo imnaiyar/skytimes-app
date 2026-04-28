@@ -3,6 +3,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import pkg from "@/package.json" with { type: "json" };
 import {
+  useClockFormatPreference,
   useDebugMode,
   useNotificationSettings,
   useNotifiedEvents,
@@ -34,6 +35,7 @@ import { Appearance, View } from "react-native";
 export default function SettingsScreen() {
   const { settings, updateSettings } = useNotificationSettings();
   const { notificationOffsetsById } = useNotifiedEvents();
+  const { clock24h, updateClock24h } = useClockFormatPreference();
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme ?? "light"];
   const events = SkytimesUtils.allEventDetails();
@@ -119,6 +121,19 @@ export default function SettingsScreen() {
                   onCheckedChange={(v) =>
                     Appearance.setColorScheme(v ? "dark" : "light")
                   }
+                />
+              }
+            />
+            <HorizontalDivider color={themeColors.border} />
+            <SettingsItem
+              title="24 Hour Clock"
+              description="Display times in 24-hour format"
+              icon={require("@/assets/icons/calendar_24px.xml")}
+              trailing={
+                <Switch
+                  {...switchStyle}
+                  value={clock24h}
+                  onCheckedChange={updateClock24h}
                 />
               }
             />

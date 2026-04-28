@@ -1,6 +1,7 @@
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useNow } from "@/utils/hooks";
+import { formatToClock } from "@/utils/time";
 import { DateTime } from "luxon";
 import { Image, StyleSheet } from "react-native";
 import { Text, View } from "../Themed";
@@ -12,7 +13,7 @@ export function SkyClock() {
   const [local, ingame] = [
     DateTime.fromMillis(now),
     DateTime.fromMillis(now, { zone: "America/Los_Angeles" }),
-  ].map((date) => date.toFormat("hh:mm a"));
+  ].map(formatToClock);
 
   return (
     <View style={styles.container}>

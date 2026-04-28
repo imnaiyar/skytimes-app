@@ -1,5 +1,6 @@
 import { useThemeColor } from "@/constants/Colors";
 import { useNow } from "@/utils/hooks";
+import { formatToClock } from "@/utils/time";
 import {
   Column,
   FlowRow,
@@ -45,7 +46,7 @@ export function ShardDetails({ date }: { date: DateTime }) {
           textDecoration: isPast ? "lineThrough" : "none",
         }}
       >
-        {instance.toLocal().toFormat("hh:mm:ss a")}
+        {formatToClock(instance, true)}
       </Text>
     );
   };

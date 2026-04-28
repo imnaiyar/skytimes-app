@@ -1,6 +1,6 @@
 import { useThemeColor } from "@/constants/Colors";
-import { formatTime } from "@/utils/event";
 import { useNow } from "@/utils/hooks";
+import { formatTime, formatToClock } from "@/utils/time";
 import { Column, Text } from "@expo/ui/jetpack-compose";
 import { ShardsUtil } from "@skyhelperbot/utils";
 import { DateTime } from "luxon";
@@ -37,7 +37,7 @@ export default function ShardStatus({ date }: { date: DateTime }) {
           {formatTime(time.toMillis() - now)}
         </Text>
         <Text color={themeColor.mutedText} style={{ typography: "labelSmall" }}>
-          (at {time.toFormat("hh:mm:ss a")})
+          (at {formatToClock(time)})
         </Text>
       </Column>
     </>

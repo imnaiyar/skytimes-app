@@ -23,19 +23,16 @@ import {
   clampNotificationOffsetMinutes,
   DEFAULT_NOTIFICATION_SETTINGS,
   DEFAULT_WIDGET_SETTINGS,
-  loadCategoryOrder,
   loadNotificationOffsets,
-  loadNotificationSettings,
-  loadPinnedEvents,
+  loadUserPreferences,
   loadWidgetSettings,
   normalizeCategoryOrder,
-  saveCategoryOrder,
   saveNotificationOffsets,
-  saveNotificationSettings,
-  savePinnedEvents,
+  saveUserPreferences,
   saveWidgetSettings,
   type NotificationOffsetsByEventId,
   type NotificationSettings,
+  type UserPreferences,
   type WidgetSettings,
 } from "./storage";
 
@@ -64,6 +61,7 @@ type SettingsState = {
   notificationOffsetsById: NotificationOffsetsByEventId;
   categoryOrder: string[];
   notificationSettings: NotificationSettings;
+  clock24h: boolean;
   widgetSettings: WidgetSettings;
   hydrate: () => Promise<void>;
   setPinnedKeys: (
@@ -80,6 +78,7 @@ type SettingsState = {
       | NotificationSettings
       | ((prev: NotificationSettings) => NotificationSettings),
   ) => void;
+  setClock24h: (value: boolean) => void;
   setWidgetSettings: (
     updater: WidgetSettings | ((prev: WidgetSettings) => WidgetSettings),
   ) => void;
@@ -95,7 +94,7 @@ const initialEventsSignature = getEventSignature(initialEvents);
 export const useEventsStore = create<{
   events: EventDetails[];
   eventsSignature: string;
-}>((set) => ({
+}>(() => ({
   events: initialEvents,
   eventsSignature: initialEventsSignature,
 }));
@@ -129,6 +128,7 @@ const useSettingsStore = create<SettingsState>((set, get) => ({
   notificationOffsetsById: {},
   categoryOrder: DEFAULT_CATEGORY_ORDER,
   notificationSettings: DEFAULT_NOTIFICATION_SETTINGS,
+  clock24h: false,
   widgetSettings: DEFAULT_WIDGET_SETTINGS,
   setPinnedKeys: (updater) =>
     set((state) => ({
@@ -150,6 +150,7 @@ const useSettingsStore = create<SettingsState>((set, get) => ({
           ? updater(state.notificationSettings)
           : updater,
     })),
+  setClock24h: (value) => set({ clock24h: value }),
   setWidgetSettings: (updater) =>
     set((state) => ({
       widgetSettings:
@@ -160,32 +161,38 @@ const useSettingsStore = create<SettingsState>((set, get) => ({
     set({ hydrating: true });
 
     const [
-      pinnedResult,
+      preferencesResult,
       offsetsResult,
-      orderResult,
-      notificationSettingsResult,
       widgetSettingsResult,
+      questsResult,
     ] = await Promise.allSettled([
-      loadPinnedEvents(),
+      loadUserPreferences(),
       loadNotificationOffsets(),
-      loadCategoryOrder(),
-      loadNotificationSettings(),
       loadWidgetSettings(),
       useDailyQuestsStore.getState().fetchQuests(),
     ]);
 
+    void questsResult;
+
+    const fallbackPreferences: UserPreferences = {
+      pinnedKeys: [],
+      categoryOrder: DEFAULT_CATEGORY_ORDER,
+      notificationSettings: DEFAULT_NOTIFICATION_SETTINGS,
+      clock24h: false,
+    };
+
+    const preferences =
+      preferencesResult.status === "fulfilled"
+        ? preferencesResult.value
+        : fallbackPreferences;
+
     set({
-      pinnedKeys: pinnedResult.status === "fulfilled" ? pinnedResult.value : [],
+      pinnedKeys: preferences.pinnedKeys,
       notificationOffsetsById:
         offsetsResult.status === "fulfilled" ? offsetsResult.value : {},
-      categoryOrder:
-        orderResult.status === "fulfilled"
-          ? orderResult.value
-          : DEFAULT_CATEGORY_ORDER,
-      notificationSettings:
-        notificationSettingsResult.status === "fulfilled"
-          ? notificationSettingsResult.value
-          : DEFAULT_NOTIFICATION_SETTINGS,
+      categoryOrder: preferences.categoryOrder,
+      notificationSettings: preferences.notificationSettings,
+      clock24h: preferences.clock24h,
       widgetSettings:
         widgetSettingsResult.status === "fulfilled"
           ? widgetSettingsResult.value
@@ -222,7 +229,13 @@ export function usePinnedEvents() {
         ? prev.filter((existing) => existing !== key)
         : [...prev, key];
 
-      savePinnedEvents(next).catch(() => undefined);
+      const state = useSettingsStore.getState();
+      saveUserPreferences({
+        pinnedKeys: next,
+        categoryOrder: state.categoryOrder,
+        notificationSettings: state.notificationSettings,
+        clock24h: state.clock24h,
+      }).catch(() => undefined);
       return next;
     });
   }, []);
@@ -291,7 +304,13 @@ export function useCategoryOrder() {
   const setCategoryOrder = useCallback((order: string[]) => {
     const normalized = normalizeCategoryOrder(order);
     setCategoryOrderState(normalized);
-    saveCategoryOrder(normalized).catch(() => undefined);
+    const state = useSettingsStore.getState();
+    saveUserPreferences({
+      pinnedKeys: state.pinnedKeys,
+      categoryOrder: normalized,
+      notificationSettings: state.notificationSettings,
+      clock24h: state.clock24h,
+    }).catch(() => undefined);
   }, []);
 
   return { categoryOrder, setCategoryOrder };
@@ -331,7 +350,13 @@ export function useNotificationSettings() {
   const updateSettings = useCallback((next: Partial<NotificationSettings>) => {
     setSettingsState((previous) => {
       const merged = { ...previous, ...next };
-      saveNotificationSettings(merged).catch(() => undefined);
+      const state = useSettingsStore.getState();
+      saveUserPreferences({
+        pinnedKeys: state.pinnedKeys,
+        categoryOrder: state.categoryOrder,
+        notificationSettings: merged,
+        clock24h: state.clock24h,
+      }).catch(() => undefined);
       return merged;
     });
   }, []);
@@ -354,4 +379,26 @@ export function useWidgetSettings() {
   }, []);
 
   return { widgetSettings, updateWidgetSettings };
+}
+
+export function useClockFormatPreference() {
+  const clock24h = useSettingsStore((state) => state.clock24h);
+  const setClock24h = useSettingsStore((state) => state.setClock24h);
+
+  const updateClock24h = useCallback((enabled: boolean) => {
+    setClock24h(enabled);
+    const state = useSettingsStore.getState();
+    saveUserPreferences({
+      pinnedKeys: state.pinnedKeys,
+      categoryOrder: state.categoryOrder,
+      notificationSettings: state.notificationSettings,
+      clock24h: enabled,
+    }).catch(() => undefined);
+  }, []);
+
+  return { clock24h, updateClock24h };
+}
+
+export function isClock24hEnabled() {
+  return useSettingsStore.getState().clock24h;
 }

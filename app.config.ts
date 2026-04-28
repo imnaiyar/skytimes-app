@@ -56,7 +56,7 @@ const plugins: ExpoConfig["plugins"] = [
   "./plugins/manifest.ts",
 ];
 
-// only do app signing in prod
+// only do app signing and abi splits in prod
 if (!isDev) {
   plugins.push(
     [

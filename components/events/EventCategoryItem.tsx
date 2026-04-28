@@ -1,8 +1,9 @@
 import Colors from "@/constants/Colors";
 import { SKY_ZONE } from "@/constants/common";
-import { formatTime, getEventStatus, GroupedEvent } from "@/utils/event";
+import { getEventStatus, GroupedEvent } from "@/utils/event";
 import { useNow, usePulse } from "@/utils/hooks";
 import { DEFAULT_NOTIFICATION_OFFSET_MINUTES } from "@/utils/storage";
+import { formatTime, formatToClock } from "@/utils/time";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { EventKey } from "@skyhelperbot/utils";
 import { DateTime } from "luxon";
@@ -11,8 +12,6 @@ import Animated from "react-native-reanimated";
 import { Text } from "../Themed";
 import { ConfirmAlert } from "../ui/Alert";
 import { useColorScheme } from "../useColorScheme";
-
-const formatReadable = (date: DateTime) => date.toLocal().toFormat("hh:mm a");
 
 export default function EventCategoryItem({
   item,
@@ -35,6 +34,9 @@ export default function EventCategoryItem({
   notificationsEnabled: boolean;
   index?: number;
 }) {
+  // eslint-disable-next-line
+  "use no memo";
+
   const now = useNow();
 
   const status = getEventStatus(item.event.status);
@@ -45,7 +47,7 @@ export default function EventCategoryItem({
   const endTime = status === "active" ? item.event.status.endTime : null;
   const nextTime = item.event.nextOccurence;
 
-  let timeLabel = `${formatReadable(DateTime.fromMillis(endTime ?? nextTime, { zone: SKY_ZONE }))} `;
+  let timeLabel = `${formatToClock(DateTime.fromMillis(endTime ?? nextTime, { zone: SKY_ZONE }))} `;
   if (status === "upcoming") {
     timeLabel += `(in ${formatTime(nextTime - now)})`;
   } else if (status === "active") {
