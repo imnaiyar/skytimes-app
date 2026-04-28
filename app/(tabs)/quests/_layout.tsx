@@ -7,10 +7,10 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Pressable, ToastAndroid, View } from "react-native";
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withRepeat,
-    withTiming,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
 } from "react-native-reanimated";
 
 export default function QuestsLayout() {
@@ -23,6 +23,7 @@ export default function QuestsLayout() {
         bottomBorder={false}
         title="Quests"
         right={<AnimatedRefreshButton />}
+        leftIcon={require("@/assets/images/quest.png")}
       />
       <TopTabs
         screenOptions={{

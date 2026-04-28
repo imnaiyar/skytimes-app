@@ -11,7 +11,7 @@ import {
   type NotificationOffsetsByEventId,
 } from "@/utils/storage";
 import { type EventKey } from "@skyhelperbot/utils";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FlatList } from "react-native";
 import { OffsetPickerModal } from "../OffsetPickerModal";
 import { View } from "../Themed";
@@ -38,9 +38,14 @@ export default function EventCategoryList({
   const { pinnedSet, togglePin } = usePinnedEvents();
   const [pickerState, setPickerState] =
     useState<NotificationPickerState | null>(null);
-  const events = useEventsStore((s) => s.events);
+  const { events, eventsSignature } = useEventsStore();
 
-  const grouped = groupEvents(events, pinnedSet, notificationOffsetsById);
+  // idk what in "events" that changes every second that triggers re-render, even though it shouldn't
+  // so using event signature, that only changes when nextOccurence or active status changes for any event
+  const grouped = useMemo(
+    () => groupEvents(events, pinnedSet, notificationOffsetsById),
+    [eventsSignature, pinnedSet, notificationOffsetsById],
+  );
 
   const { categoryOrder, setCategoryOrder } = useCategoryOrder();
 

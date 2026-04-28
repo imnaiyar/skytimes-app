@@ -318,15 +318,15 @@ export function usePulse(active = true) {
       return;
     }
 
-    progress.value = withRepeat(withTiming(1, { duration: 1200 }), -1, true);
+    progress.value = withRepeat(withTiming(1, { duration: 1000 }), -1, true);
   }, [active]);
 
   const style = useAnimatedStyle(() => {
-    const scale = interpolate(progress.value, [0, 1], [1, 1.01]);
-    const opacity = interpolate(progress.value, [0, 1], [0.9, 1]);
+    const borderWidth = interpolate(progress.value, [0, 1], [1, 3]);
+    const opacity = interpolate(progress.value, [0, 1], [0.85, 1]);
 
     return {
-      transform: [{ scale }],
+      borderWidth,
       opacity,
     };
   });

@@ -57,7 +57,6 @@ export default function EventCategoryItem({
   }
 
   const pulseStyle = usePulse(status === "active");
-  const Container = status === "active" ? Animated.View : View;
 
   const iTemcolors = [themeColors.eventRowA, themeColors.eventRowB];
 
@@ -66,18 +65,23 @@ export default function EventCategoryItem({
     item.notificationOffsetMinutes ?? DEFAULT_NOTIFICATION_OFFSET_MINUTES;
 
   return (
-    <Container
+    <View
       style={[
         styles.eventCard,
         { backgroundColor: iTemcolors[index % iTemcolors.length] },
-        status === "active" && styles.activeCard,
-        status === "active" && {
-          backgroundColor: themeColors.success,
-          borderColor: themeColors.successSurface,
-        },
-        status === "active" && pulseStyle,
+        status === "active" && {},
       ]}
     >
+      {status === "active" && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.activeBorder,
+            { borderColor: themeColors.successSurface },
+            pulseStyle,
+          ]}
+        />
+      )}
       <View
         style={{
           flexDirection: "row",
@@ -131,7 +135,7 @@ export default function EventCategoryItem({
               size={20}
               color={
                 item.notified
-                  ? themeColors.successSurface
+                  ? themeColors.tint
                   : notificationsEnabled
                     ? themeColors.icon
                     : themeColors.iconMuted
@@ -143,9 +147,7 @@ export default function EventCategoryItem({
             <MaterialCommunityIcons
               name={item.pinned ? "pin" : "pin-outline"}
               size={20}
-              color={
-                item.pinned ? themeColors.successSurface : themeColors.icon
-              }
+              color={item.pinned ? themeColors.tint : themeColors.icon}
             />
           </Pressable>
         </View>
@@ -166,7 +168,7 @@ export default function EventCategoryItem({
           LIVE
         </Text>
       )}
-    </Container>
+    </View>
   );
 }
 
@@ -183,13 +185,13 @@ const styles = StyleSheet.create({
 
   eventCard: {
     padding: 8,
+    position: "relative",
   },
   activeTimer: {
     fontWeight: "bold",
   },
-
-  activeCard: {
-    borderWidth: 1,
+  activeBorder: {
+    ...StyleSheet.absoluteFillObject,
   },
 
   timer: {

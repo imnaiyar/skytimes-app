@@ -54,7 +54,7 @@ export default function Screen() {
   );
   return (
     <>
-      <Header title="Shards" />
+      <Header title="Shards" leftIcon={require("@/assets/images/shards.png")} />
       <Host style={{ flex: 1, backgroundColor: themeColor.background }}>
         {showDatePicker && (
           <DateDialog

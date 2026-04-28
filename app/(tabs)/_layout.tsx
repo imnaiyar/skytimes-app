@@ -109,7 +109,6 @@ function CustomTabBar({
                 {options.tabBarIcon?.({
                   focused,
                   color: focused ? themeCOlor.tint : themeCOlor.tabIconDefault,
-                  size: 24,
                 })}
               </View>
             </View>
@@ -147,8 +146,8 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "SkyTimes",
-          tabBarIcon: ({ color, size }) => (
-            <AntDesign name="clock-circle" size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <AntDesign name="clock-circle" size={24} color={color} />
           ),
         }}
       />
@@ -157,12 +156,12 @@ export default function TabLayout() {
         name="quests"
         options={{
           title: "Quests",
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color }) => (
             <Image
               source={require("@/assets/images/quest_icon.svg")}
               style={{
-                width: size,
-                height: size,
+                width: 24,
+                height: 24,
                 borderRadius: 10,
                 tintColor: color,
               }}
@@ -175,12 +174,12 @@ export default function TabLayout() {
         name="shards"
         options={{
           title: "Shards",
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color }) => (
             <Image
               source={require("@/assets/images/shards_icon.svg")}
               style={{
-                width: size,
-                height: size,
+                width: 30,
+                height: 30,
                 borderRadius: 10,
                 tintColor: color,
               }}
@@ -193,8 +192,8 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: "Settings",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="cog-outline" size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="cog-outline" size={24} color={color} />
           ),
         }}
       />

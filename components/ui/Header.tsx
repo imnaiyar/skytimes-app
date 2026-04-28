@@ -1,4 +1,5 @@
 import Colors from "@/constants/Colors";
+import { Image } from "expo-image";
 import React from "react";
 import { StyleSheet, View, ViewStyle } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -8,6 +9,7 @@ import { useColorScheme } from "../useColorScheme";
 interface HeaderProps {
   title: string;
   right?: React.ReactNode;
+  leftIcon?: string;
   bottomBorder?: boolean;
   style?: ViewStyle;
 }
@@ -15,6 +17,7 @@ export function Header({
   title,
   right,
   bottomBorder = true,
+  leftIcon,
   style = {},
 }: HeaderProps) {
   const theme = Colors[useColorScheme() ?? "dark"];
@@ -38,7 +41,27 @@ export function Header({
           },
         ]}
       >
-        <Text style={styles.title}>{title}</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 5,
+          }}
+        >
+          {leftIcon && (
+            <Image
+              source={leftIcon}
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: 10,
+              }}
+            />
+          )}
+          <Text style={[styles.title, { elevation: 4, color: theme.tint }]}>
+            {title}
+          </Text>
+        </View>
         {right && right}
       </View>
     </SafeAreaView>
@@ -60,8 +83,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 18,
-    fontWeight: "600",
-    alignSelf: "flex-start",
+    fontSize: 22,
+    fontWeight: "bold",
   },
 });

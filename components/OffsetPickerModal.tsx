@@ -176,7 +176,7 @@ export function OffsetPickerModal({
                   onSave(clampNotificationOffsetMinutes(offsetMinutes))
                 }
                 colors={{
-                  containerColor: themeColors.success,
+                  containerColor: themeColors.successSurface,
                   contentColor: themeColors.background,
                 }}
               >
