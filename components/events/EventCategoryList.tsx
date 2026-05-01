@@ -17,6 +17,7 @@ import { OffsetPickerModal } from "../OffsetPickerModal";
 import { View } from "../Themed";
 import EventCategory from "./EventCategory";
 import { CategoryReorderDrawer } from "./ReorderCategoryDrawer";
+import SkyGameDataSections from "./SkyGameDataSections";
 type NotificationPickerState = {
   mode: "enable" | "edit";
   key: EventKey;
@@ -117,6 +118,7 @@ export default function EventCategoryList({
         ListHeaderComponent={
           <>
             <SkyClock />
+            <SkyGameDataSections />
             {!!hoistedEvents.length && (
               <EventCategory
                 title="Pinned & Active"
