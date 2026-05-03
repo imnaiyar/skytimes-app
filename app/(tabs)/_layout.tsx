@@ -4,8 +4,9 @@ import Colors from "@/constants/Colors";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { MaterialTopTabBarProps } from "@react-navigation/material-top-tabs";
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -132,71 +133,133 @@ function CustomTabBar({
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme ?? "light"];
+  const router = useRouter();
   return (
-    <TopTabs
-      tabBarPosition="bottom"
-      screenOptions={{
-        sceneStyle: {
-          backgroundColor: themeColors.background,
-        },
-      }}
-      tabBar={(props) => <CustomTabBar {...props} />}
-    >
-      <TopTabs.Screen
-        name="index"
-        options={{
-          title: "SkyTimes",
-          tabBarIcon: ({ color }) => (
-            <AntDesign name="clock-circle" size={24} color={color} />
-          ),
+    <View style={styles.root}>
+      <TopTabs
+        tabBarPosition="bottom"
+        screenOptions={{
+          sceneStyle: {
+            backgroundColor: themeColors.background,
+          },
         }}
-      />
+        tabBar={(props) => <CustomTabBar {...props} />}
+      >
+        <TopTabs.Screen
+          name="index"
+          options={{
+            title: "SkyTimes",
+            tabBarIcon: ({ color }) => (
+              <AntDesign name="clock-circle" size={24} color={color} />
+            ),
+          }}
+        />
 
-      <TopTabs.Screen
-        name="quests"
-        options={{
-          title: "Quests",
-          tabBarIcon: ({ color }) => (
-            <Image
-              source={require("@/assets/images/quest_icon.svg")}
-              style={{
-                width: 24,
-                height: 24,
-                borderRadius: 10,
-                tintColor: color,
-              }}
-            />
-          ),
-        }}
-      />
+        <TopTabs.Screen
+          name="quests"
+          options={{
+            title: "Quests",
+            tabBarIcon: ({ color }) => (
+              <Image
+                source={require("@/assets/images/quest_icon.svg")}
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: 10,
+                  tintColor: color,
+                }}
+              />
+            ),
+          }}
+        />
 
-      <TopTabs.Screen
-        name="shards"
-        options={{
-          title: "Shards",
-          tabBarIcon: ({ color }) => (
-            <Image
-              source={require("@/assets/images/shards_icon.svg")}
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: 10,
-                tintColor: color,
-              }}
-            />
-          ),
-        }}
-      />
+        <TopTabs.Screen
+          name="shards"
+          options={{
+            title: "Shards",
+            tabBarIcon: ({ color }) => (
+              <Image
+                source={require("@/assets/images/shards_icon.svg")}
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 10,
+                  tintColor: color,
+                }}
+              />
+            ),
+          }}
+        />
 
-      <TopTabs.Screen
-        name="settings"
-        options={{
-          title: "Settings",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="cog-outline" size={24} color={color} />
-          ),
-        }}
-      />
-    </TopTabs>
+        <TopTabs.Screen
+          name="settings"
+          options={{
+            title: "Settings",
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="cog-outline" size={24} color={color} />
+            ),
+          }}
+        />
+      </TopTabs>
+
+      <View pointerEvents="box-none" style={styles.fabWrapper}>
+        <Pressable
+          onPress={() => router.push("/archive")}
+          style={({ pressed }) => [
+            styles.vaultButton,
+            {
+              backgroundColor: themeColors.card,
+              borderColor: themeColors.border,
+            },
+            pressed && styles.vaultButtonPressed,
+          ]}
+        >
+          <Ionicons
+            name="archive-outline"
+            size={18}
+            color={themeColors.tint}
+            style={styles.vaultIcon}
+          />
+          <Text style={[styles.vaultText, { color: themeColors.text }]}>
+            Vault Archive
+          </Text>
+        </Pressable>
+      </View>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  fabWrapper: {
+    position: "absolute",
+    right: 10,
+    bottom: 100,
+    alignItems: "center",
+  },
+  vaultButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 14,
+    borderWidth: 2,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+  },
+  vaultButtonPressed: {
+    transform: [{ scale: 0.98 }],
+  },
+  vaultIcon: {
+    marginRight: 8,
+  },
+  vaultText: {
+    fontSize: 13,
+    fontWeight: "600",
+  },
+});

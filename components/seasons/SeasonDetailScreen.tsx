@@ -58,7 +58,12 @@ export default function SeasonDetailScreen({ seasonId }: { seasonId: string }) {
 
   return (
     <>
-      <Stack.Screen options={{ title: season?.shortName ?? "Season" }} />
+      <Stack.Screen
+        options={{
+          title: season?.shortName ?? "Season",
+          presentation: "modal",
+        }}
+      />
       <ScrollView
         contentContainerStyle={styles.content}
         style={{ backgroundColor: themeColors.background }}

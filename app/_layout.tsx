@@ -124,6 +124,14 @@ function RootLayoutNav() {
               name="debug"
               options={{ presentation: "formSheet", title: "Debug Stuff" }}
             />
+            <Stack.Screen
+              name="archive"
+              options={{ presentation: "modal", title: "Vault Archive" }}
+            />
+            <Stack.Screen
+              name="seasons/[seasonId]"
+              options={{ presentation: "modal" }}
+            />
           </Stack>
         </React.StrictMode>
       </GestureHandlerRootView>

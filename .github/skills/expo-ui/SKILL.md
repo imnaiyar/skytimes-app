@@ -1,10 +1,9 @@
 ---
 name: expo-ui
-description: "`@expo/ui/jetpack-compose` package lets you use Jetpack Compose Views and modifiers in your app."
+description: "Build or refactor Android-native Expo UI with `@expo/ui/jetpack-compose` on Expo SDK 55. Use when Codex needs to add or edit Jetpack Compose components, modifiers, icons, theming, layout, or scrollable UI inside an Expo app, especially when React Native primitives should be replaced with Expo UI equivalents."
 ---
 
-
-> The instructions in this skill apply to SDK 55 only. For other SDK versions, refer to the Expo UI Jetpack Compose docs for that version for the most accurate information.
+These instructions target Expo SDK 55. For any other SDK version, confirm the matching Expo UI docs before coding.
 
 ## Installation
 
@@ -12,16 +11,42 @@ description: "`@expo/ui/jetpack-compose` package lets you use Jetpack Compose Vi
 npx expo install @expo/ui
 ```
 
-A native rebuild is required after installation (`npx expo run:android`).
+A native rebuild is required after installation:
 
-## Instructions
+```bash
+npx expo run:android
+```
 
-- Expo UI's API mirrors Jetpack Compose's API. Use Jetpack Compose and Material Design 3 knowledge to decide which components or modifiers to use. If you need deeper Jetpack Compose or Material 3 guidance (e.g. which component to pick, layout patterns, theming), spawn a subagent to research [Jetpack Compose](https://developer.android.com/develop/ui/compose/components) and [Material Design 3](https://m3.material.io/) best practices.
-- Components are imported from `@expo/ui/jetpack-compose`, modifiers from `@expo/ui/jetpack-compose/modifiers`.
-- **Always read the `.d.ts` type files** to confirm the exact API before using a component or modifier. Run `node -e "console.log(path.dirname(require.resolve('@expo/ui/jetpack-compose')))"` to locate the package, then read the relevant `{ComponentName}/index.d.ts` files. This is the most reliable source of truth.
-- When about to use a component, fetch its docs to confirm the API - https://docs.expo.dev/versions/v55.0.0/sdk/ui/jetpack-compose/{component-name}/index.md
-- When unsure about a modifier's API, refer to the docs - https://docs.expo.dev/versions/v55.0.0/sdk/ui/jetpack-compose/modifiers/index.md
-- Every Jetpack Compose tree must be wrapped in `Host`. Use `<Host matchContents>` for intrinsic sizing, or `<Host style={{ flex: 1 }}>` when you need explicit size (e.g. as a parent of `LazyColumn`). Example:
+## Workflow
+
+1. Confirm the project uses Expo SDK 55 and `@expo/ui`.
+2. Locate the installed package before writing code:
+
+```bash
+node -e "const path=require('path'); console.log(path.dirname(require.resolve('@expo/ui/jetpack-compose')))"
+```
+
+3. Read the relevant `.d.ts` files in that package directory before using any component or modifier.
+4. Check the SDK 55 docs for the exact component or modifier when the local types are not enough.
+5. Wrap every Compose tree in `Host`.
+6. Rebuild Android after any native Expo UI change.
+
+## Use the Local Types as Source of Truth
+
+- Import components from `@expo/ui/jetpack-compose`.
+- Import modifiers from `@expo/ui/jetpack-compose/modifiers`.
+- Treat the installed `.d.ts` files as the primary source of truth for props, child structure, and modifier signatures.
+- Use Jetpack Compose and Material 3 knowledge to choose patterns, but validate them against the Expo UI package types before finalizing code.
+- Reach for deeper Jetpack Compose or Material 3 guidance only when the local types and Expo docs leave a design decision unresolved.
+
+## Host and Layout Rules
+
+- Wrap every Jetpack Compose subtree in `Host`.
+- Use `<Host matchContents>` for intrinsic sizing.
+- Use `<Host style={{ flex: 1 }}>` when the Compose subtree must fill available space, including `LazyColumn` and other scroll containers.
+- Prefer Expo UI layout primitives over mixing React Native layout wrappers around Compose content.
+
+Example:
 
 ```jsx
 import { Host, Column, Button, Text } from "@expo/ui/jetpack-compose";
@@ -35,7 +60,19 @@ import { fillMaxWidth, paddingAll } from "@expo/ui/jetpack-compose/modifiers";
 </Host>;
 ```
 
-## Key Components
+## Common Patterns
 
-- **LazyColumn** — Use instead of react-native `ScrollView`/`FlatList` for scrollable lists. Wrap in `<Host style={{ flex: 1 }}>`.
-- **Icon** — Use `<Icon source={require('./icon.xml')} size={24} />` with Android XML vector drawables. To get icons: go to [Material Symbols](https://fonts.google.com/icons), select an icon, choose the Android platform, and download the XML vector drawable. Save these as `.xml` files in your project's `assets/` directory (e.g. `assets/icons/wifi.xml`). Metro bundles `.xml` assets automatically — no metro config changes needed.
+- Use `LazyColumn` instead of React Native `ScrollView` or `FlatList` for Compose-native scrolling. Wrap it in `<Host style={{ flex: 1 }}>`.
+- Use `Icon` with Android XML vector drawables:
+
+```jsx
+<Icon source={require("./assets/icons/wifi.xml")} size={24} />
+```
+
+- Download XML drawables from Material Symbols by choosing the Android export, then store them under `assets/` such as `assets/icons/wifi.xml`.
+- Keep modifier arrays explicit and readable. Compose layout behavior is often clearer in modifiers than in React Native `style` objects.
+
+## Docs
+
+- Component docs: `https://docs.expo.dev/versions/v55.0.0/sdk/ui/jetpack-compose/{component-name}/index.md`
+- Modifier docs: `https://docs.expo.dev/versions/v55.0.0/sdk/ui/jetpack-compose/modifiers/index.md`

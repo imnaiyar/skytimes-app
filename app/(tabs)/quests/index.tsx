@@ -6,10 +6,10 @@ import { useDailyQuestsStore } from "@/utils/quests";
 import { DateTime } from "luxon";
 import { useEffect } from "react";
 import {
-    ActivityIndicator,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
 } from "react-native";
 
 export default function Quests() {

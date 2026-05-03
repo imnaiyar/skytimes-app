@@ -5,7 +5,7 @@ import {
   type ISpiritTree,
 } from "@skyhelperbot/skygame-data";
 import { Image } from "expo-image";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { Text } from "../Themed";
 import { useColorScheme } from "../useColorScheme";
 
@@ -249,8 +249,8 @@ function TreeNodeCard({
   const url = item?.icon;
 
   return (
-    <View
-      style={[
+    <Pressable
+      style={({ pressed }) => [
         styles.nodeCard,
         compact && {
           ...styles.nodeCardCompact,
@@ -259,6 +259,7 @@ function TreeNodeCard({
           borderColor: themeColors.border,
           borderWidth: 1,
         },
+        pressed && { transform: [{ scale: 0.95 }] },
       ]}
     >
       <Image source={url} style={{ height: 50, width: 50 }} />
@@ -288,7 +289,7 @@ function TreeNodeCard({
           />
         </View>
       )}
-    </View>
+    </Pressable>
   );
 }
 
