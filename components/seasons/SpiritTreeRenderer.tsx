@@ -1,4 +1,5 @@
-import Colors from "@/constants/Colors";
+import Colors, { useThemeColor } from "@/constants/Colors";
+import { currencyIconMappings } from "@/constants/common";
 import {
   SpiritTreeHelper,
   type INode,
@@ -242,8 +243,7 @@ function TreeNodeCard({
   node: INode;
   compact?: boolean;
 }) {
-  const colorScheme = useColorScheme();
-  const themeColors = Colors[colorScheme];
+  const themeColors = useThemeColor();
   const item = node.item;
   const costs = formatCosts(node);
   const url = item?.icon;
@@ -279,8 +279,12 @@ function TreeNodeCard({
             {costs.cost}
           </Text>
           <Image
-            source={require("@/assets/icons/sc.svg")}
-            tintColor={"#b06509"}
+            source={currencyIconMappings[costs.type]}
+            tintColor={
+              ["sc", "sh"].includes(costs.type)
+                ? themeColors.seasonCurrency
+                : undefined
+            }
             style={{
               height: 15,
               width: 15,

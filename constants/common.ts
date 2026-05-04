@@ -16,3 +16,12 @@ export const CATEGORY_ORDER = ["Wax", "Resets", "Activity/Concerts"] as const;
 export const SKYHELPER_API_URL = process.env.EXPO_SKYHELPER_API_URL;
 
 export const SKY_ZONE = "America/Los_Angeles";
+
+export const currencyIconMappings = {
+  c: require("@/assets/icons/candle.svg"),
+  h: require("@/assets/icons/heart.svg"),
+  sc: require("@/assets/icons/candle.svg"),
+  sh: require("@/assets/icons/heart.svg"),
+  ec: require("@/assets/icons/event-ticket.svg"),
+  ac: require("@/assets/icons/ac.svg"),
+};

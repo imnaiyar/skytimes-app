@@ -45,7 +45,7 @@ export default function Screen() {
       <Icon
         source={
           shards?.ac
-            ? require("@/assets/icons/ac.png")
+            ? require("@/assets/icons/ac.svg")
             : require("@/assets/icons/wax.png")
         }
         size={20}

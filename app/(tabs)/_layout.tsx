@@ -204,7 +204,7 @@ export default function TabLayout() {
 
       <View pointerEvents="box-none" style={styles.fabWrapper}>
         <Pressable
-          onPress={() => router.push("/archive")}
+          onPress={() => router.push("/archive/seasons")}
           style={({ pressed }) => [
             styles.vaultButton,
             {

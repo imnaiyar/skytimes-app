@@ -4,12 +4,17 @@ import {
   getSkyGameDataSnapshot,
   type SkyGameDataSnapshot,
 } from "@/utils/sky-game-data";
-import type { ISeason, ISpiritTree } from "@skyhelperbot/skygame-data";
+import type { ISeason, ISpirit, ISpiritTree } from "@skyhelperbot/skygame-data";
 import { Image } from "expo-image";
 import { Stack } from "expo-router";
 import { DateTime } from "luxon";
 import { useEffect, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from "react-native-reanimated";
 import { Text } from "../Themed";
 import { useColorScheme } from "../useColorScheme";
 import SpiritTreeRenderer from "./SpiritTreeRenderer";
@@ -109,16 +114,18 @@ export default function SeasonDetailScreen({ seasonId }: { seasonId: string }) {
 }
 
 function SeasonContent({ season }: { season: ISeason }) {
-  const colorScheme = useColorScheme();
-  const themeColors = Colors[colorScheme];
-  const startsAt = season.date.toMillis();
-  const endsAt = season.endDate.toMillis();
-  const now = Date.now();
   const seasonTrees = season.spirits.slice().sort((a, b) => {
     if (a.type === "Guide" && b.type !== "Guide") return -1;
     if (a.type !== "Guide" && b.type === "Guide") return 1;
     return a.name.localeCompare(b.name);
   });
+  const [selectedTree, setSelectedTree] = useState<ISpirit>(seasonTrees[0]);
+
+  const colorScheme = useColorScheme();
+  const themeColors = Colors[colorScheme];
+  const startsAt = season.date.toMillis();
+  const endsAt = season.endDate.toMillis();
+  const now = Date.now();
 
   return (
     <>
@@ -168,41 +175,66 @@ function SeasonContent({ season }: { season: ISeason }) {
       </View>
 
       <SectionTitle title="Season Spirits" />
+      <View
+        style={[
+          styles.selectorFrame,
+          {
+            backgroundColor: themeColors.card,
+            borderColor: themeColors.border,
+          },
+        ]}
+      >
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.selectorContent}
+          style={styles.selectorScroll}
+        >
+          {seasonTrees.map((s) => {
+            return (
+              <TreeSelectorChip
+                key={s.guid}
+                spirit={s}
+                isSelected={selectedTree.guid === s.guid}
+                onPress={() => setSelectedTree(s)}
+              />
+            );
+          })}
+        </ScrollView>
+      </View>
       <View style={styles.cards}>
-        {seasonTrees.map((spirit) => (
-          <View
-            key={spirit.guid}
-            style={[
-              styles.spiritCard,
-              {
-                backgroundColor: themeColors.card,
-                borderColor: themeColors.border,
-              },
-            ]}
-          >
-            <View style={styles.spiritHeader}>
-              <View style={styles.spiritHeaderText}>
-                <Text style={styles.spiritTitle}>{spirit.name}</Text>
-                <Text
-                  style={[styles.spiritMeta, { color: themeColors.mutedText }]}
-                >
-                  {spirit.type}
-                  {spirit.area?.name ? ` • ${spirit.area.name}` : ""}
-                </Text>
-              </View>
-
-              {!!spirit.imageUrl && (
-                <Image
-                  source={spirit.imageUrl}
-                  style={styles.spiritImage}
-                  contentFit="cover"
-                />
-              )}
+        <View
+          key={selectedTree.guid}
+          style={[
+            styles.spiritCard,
+            {
+              backgroundColor: themeColors.card,
+              borderColor: themeColors.border,
+            },
+          ]}
+        >
+          <View style={styles.spiritHeader}>
+            <View style={styles.spiritHeaderText}>
+              <Text style={styles.spiritTitle}>{selectedTree.name}</Text>
+              <Text
+                style={[styles.spiritMeta, { color: themeColors.mutedText }]}
+              >
+                {selectedTree.type}
+                {selectedTree.area?.name ? ` • ${selectedTree.area.name}` : ""}
+              </Text>
             </View>
 
-            <SpiritTreeRenderer tree={spirit.tree} />
+            {!!selectedTree.imageUrl && (
+              <Image
+                source={selectedTree.imageUrl}
+                style={styles.spiritImage}
+                contentFit="contain"
+              />
+            )}
           </View>
-        ))}
+
+          <SpiritTreeRenderer tree={selectedTree.tree} />
+        </View>
       </View>
 
       {!!season.includedTrees?.length && (
@@ -216,6 +248,56 @@ function SeasonContent({ season }: { season: ISeason }) {
         </>
       )}
     </>
+  );
+}
+
+function TreeSelectorChip({
+  spirit,
+  isSelected,
+  onPress,
+}: {
+  spirit: ISpirit;
+  isSelected: boolean;
+  onPress: () => void;
+}) {
+  const colorScheme = useColorScheme();
+  const themeColors = Colors[colorScheme];
+
+  return (
+    <Animated.View layout={LinearTransition.duration(300)}>
+      <Pressable
+        disabled={isSelected}
+        onPress={onPress}
+        style={[
+          styles.selectorChip,
+          {
+            backgroundColor: themeColors.background,
+            borderWidth: isSelected ? 1 : 0,
+            borderColor: themeColors.background,
+          },
+        ]}
+      >
+        {isSelected && (
+          <Animated.View
+            entering={FadeIn.duration(180)}
+            exiting={FadeOut.duration(140)}
+          >
+            <Text style={styles.selectorChipLabel}>{spirit.name}</Text>
+          </Animated.View>
+        )}
+        {!!spirit.imageUrl && (
+          <Animated.View
+            layout={LinearTransition.duration(300)}
+            style={[
+              styles.selectorChipIconWrap,
+              { backgroundColor: themeColors.card },
+            ]}
+          >
+            <Image style={styles.selectorChipIcon} source={spirit.imageUrl} />
+          </Animated.View>
+        )}
+      </Pressable>
+    </Animated.View>
   );
 }
 
@@ -306,6 +388,42 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "800",
+  },
+  selectorChip: {
+    alignItems: "center",
+    borderRadius: 12,
+    flexDirection: "row",
+    gap: 5,
+    overflow: "hidden",
+  },
+  selectorChipIcon: {
+    height: 20,
+    width: 20,
+  },
+  selectorChipIconWrap: {
+    justifyContent: "center",
+    padding: 10,
+  },
+  selectorChipLabel: {
+    paddingLeft: 10,
+    paddingRight: 5,
+  },
+  selectorContent: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    paddingHorizontal: 8,
+  },
+  selectorFrame: {
+    backgroundColor: "transparent",
+    borderRadius: 16,
+    borderWidth: 1,
+    height: 50,
+    overflow: "hidden",
+    width: "100%",
+  },
+  selectorScroll: {
+    flexDirection: "row",
   },
   spiritCard: {
     borderRadius: 22,

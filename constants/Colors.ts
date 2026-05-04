@@ -7,7 +7,7 @@ const Colors = {
   light: {
     text: "#1C1B1F",
     mutedText: "#49454F",
-    background: "#FFFBFE",
+    background: "#e3dee2",
     card: "#FFFBFE",
     surface: "#FFFBFE",
     surfaceMuted: "#E7E0EC",
@@ -51,10 +51,17 @@ const Colors = {
     tabIconSelected: "#49454F",
     link: tintColorDark,
   },
+
+  seasonCurrency: "#f4b01f",
+  currency: "#eee",
 } as const;
 
 export default Colors;
 
 export function useThemeColor() {
-  return Colors[useColorScheme()];
+  return {
+    ...Colors[useColorScheme()],
+    seasonCurrency: Colors.seasonCurrency,
+    currency: Colors.currency,
+  };
 }
