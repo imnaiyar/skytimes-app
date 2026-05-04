@@ -23,6 +23,7 @@ import { initializeNotifications } from "@/utils/notifications";
 import { Box, Host, PullToRefreshBox, Text } from "@expo/ui/jetpack-compose";
 import { StatusBar, ToastAndroid } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Provider } from "react-native-paper";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -113,27 +114,29 @@ function RootLayoutNav() {
       }}
     >
       <GestureHandlerRootView>
-        <React.StrictMode>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="instruction"
-              options={{ presentation: "modal", title: "Instructions" }}
-            />
-            <Stack.Screen
-              name="debug"
-              options={{ presentation: "formSheet", title: "Debug Stuff" }}
-            />
-            <Stack.Screen
-              name="archive"
-              options={{ presentation: "modal", title: "Vault Archive" }}
-            />
-            <Stack.Screen
-              name="seasons/[seasonId]"
-              options={{ presentation: "modal" }}
-            />
-          </Stack>
-        </React.StrictMode>
+        <Provider>
+          <React.StrictMode>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="instruction"
+                options={{ presentation: "modal", title: "Instructions" }}
+              />
+              <Stack.Screen
+                name="debug"
+                options={{ presentation: "formSheet", title: "Debug Stuff" }}
+              />
+              <Stack.Screen
+                name="archive"
+                options={{ presentation: "modal", title: "Vault Archive" }}
+              />
+              <Stack.Screen
+                name="seasons/[seasonId]"
+                options={{ presentation: "modal" }}
+              />
+            </Stack>
+          </React.StrictMode>
+        </Provider>
       </GestureHandlerRootView>
     </ThemeProvider>
   );

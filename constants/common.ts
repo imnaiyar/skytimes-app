@@ -25,3 +25,5 @@ export const currencyIconMappings = {
   ec: require("@/assets/icons/event-ticket.svg"),
   ac: require("@/assets/icons/ac.svg"),
 };
+
+export const questionIconSource = require("@/assets/icons/question.svg");

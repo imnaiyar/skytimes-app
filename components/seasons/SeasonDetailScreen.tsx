@@ -1,4 +1,5 @@
 import Colors from "@/constants/Colors";
+import { questionIconSource } from "@/constants/common";
 import {
   getSeasonByGuid,
   getSkyGameDataSnapshot,
@@ -224,16 +225,14 @@ function SeasonContent({ season }: { season: ISeason }) {
               </Text>
             </View>
 
-            {!!selectedTree.imageUrl && (
-              <Image
-                source={selectedTree.imageUrl}
-                style={styles.spiritImage}
-                contentFit="contain"
-              />
-            )}
+            <Image
+              source={selectedTree.imageUrl || questionIconSource}
+              style={styles.spiritImage}
+              contentFit="contain"
+            />
           </View>
 
-          <SpiritTreeRenderer tree={selectedTree.tree} />
+          <SpiritTreeRenderer tree={selectedTree.tree} season={season} />
         </View>
       </View>
 
@@ -285,17 +284,19 @@ function TreeSelectorChip({
             <Text style={styles.selectorChipLabel}>{spirit.name}</Text>
           </Animated.View>
         )}
-        {!!spirit.imageUrl && (
-          <Animated.View
-            layout={LinearTransition.duration(300)}
-            style={[
-              styles.selectorChipIconWrap,
-              { backgroundColor: themeColors.card },
-            ]}
-          >
-            <Image style={styles.selectorChipIcon} source={spirit.imageUrl} />
-          </Animated.View>
-        )}
+
+        <Animated.View
+          layout={LinearTransition.duration(300)}
+          style={[
+            styles.selectorChipIconWrap,
+            { backgroundColor: themeColors.card },
+          ]}
+        >
+          <Image
+            style={styles.selectorChipIcon}
+            source={spirit.imageUrl || questionIconSource}
+          />
+        </Animated.View>
       </Pressable>
     </Animated.View>
   );

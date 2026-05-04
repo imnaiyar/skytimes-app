@@ -1,12 +1,15 @@
 import Colors, { useThemeColor } from "@/constants/Colors";
 import { currencyIconMappings } from "@/constants/common";
+import { getNodeCost } from "@/utils/spirits";
 import {
+  ISeason,
   SpiritTreeHelper,
   type INode,
   type ISpiritTree,
 } from "@skyhelperbot/skygame-data";
 import { Image } from "expo-image";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { RenderCosts } from "../spirit-tree/render-costs";
 import { Text } from "../Themed";
 import { useColorScheme } from "../useColorScheme";
 
@@ -16,18 +19,21 @@ type PositionedNode = {
   y: number;
 };
 
-const NODE_WIDTH = 132;
-const NODE_HEIGHT = 92;
-const COLUMN_GAP = 22;
-const ROW_GAP = 22;
+const NODE_WIDTH = 88;
+const NODE_HEIGHT = 62;
+const COLUMN_GAP = 15;
+const ROW_GAP = 15;
 
 export default function SpiritTreeRenderer({
   tree,
+  season,
 }: {
   tree?: ISpiritTree | null;
+  season?: ISeason;
 }) {
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme];
+  const nodes = SpiritTreeHelper.getNodes(tree ?? undefined);
 
   if (!tree) {
     return (
@@ -69,7 +75,7 @@ export default function SpiritTreeRenderer({
             },
           ]}
         >
-          <Text style={styles.tierTitle}>Tree</Text>
+          <RenderCosts nodes={nodes} />
         </View>
         {tiers.map((tier, index) => (
           <View key={tier.guid}>
@@ -83,7 +89,9 @@ export default function SpiritTreeRenderer({
                       }
                       style={styles.tierCell}
                     >
-                      {node ? <TreeNodeCard node={node} compact /> : null}
+                      {node ? (
+                        <TreeNodeCard node={node} compact season={season} />
+                      ) : null}
                     </View>
                   ))}
                 </View>
@@ -118,17 +126,28 @@ export default function SpiritTreeRenderer({
   const height = (maxY + 1) * NODE_HEIGHT + maxY * ROW_GAP;
 
   return (
-    <ScrollView
-      horizontal
-      style={{
-        borderWidth: 1,
-        borderColor: themeColors.border,
-        borderRadius: 18,
-        padding: 20,
-        overflow: "hidden",
-      }}
-      showsHorizontalScrollIndicator={true}
+    <View
+      style={[
+        styles.treeBlock,
+        styles.tierCard,
+        {
+          borderColor: themeColors.border,
+          alignItems: "center",
+        },
+      ]}
     >
+      <View
+        style={[
+          styles.tierHeader,
+          {
+            backgroundColor: themeColors.overlay,
+            borderBottomColor: themeColors.border,
+            width: "100%",
+          },
+        ]}
+      >
+        <RenderCosts nodes={nodes} />
+      </View>
       <View
         style={[
           {
@@ -160,11 +179,11 @@ export default function SpiritTreeRenderer({
               top: topPosition(maxY - item.y),
             }}
           >
-            <TreeNodeCard node={item.node} />
+            <TreeNodeCard node={item.node} season={season} />
           </View>
         ))}
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
@@ -239,15 +258,16 @@ function Connector({
 function TreeNodeCard({
   node,
   compact = false,
+  season,
 }: {
   node: INode;
   compact?: boolean;
+  season?: ISeason;
 }) {
   const themeColors = useThemeColor();
   const item = node.item;
-  const costs = formatCosts(node);
+  const costs = getNodeCost(node);
   const url = item?.icon;
-
   return (
     <Pressable
       style={({ pressed }) => [
@@ -262,57 +282,56 @@ function TreeNodeCard({
         pressed && { transform: [{ scale: 0.95 }] },
       ]}
     >
-      <Image source={url} style={{ height: 50, width: 50 }} />
+      {season &&
+        season.iconUrl &&
+        ["SeasonPass", "Ultimate"].includes(node.item?.group ?? "") && (
+          <Image
+            source={season.iconUrl}
+            style={{
+              position: "absolute",
+              top: 10,
+              left: 10,
+              height: 20,
+              width: 20,
+              zIndex: 20,
+            }}
+          />
+        )}
+      <Image
+        source={url}
+        style={{ height: 40, width: 40 }}
+        contentFit="contain"
+      />
 
       {costs && (
         <View
           style={{
             position: "absolute",
-            bottom: 10,
+            bottom: 3,
             alignItems: "center",
             left: 10,
             zIndex: 20,
             flexDirection: "row",
+            gap: 1,
           }}
         >
-          <Text style={{ fontSize: 10, color: themeColors.mutedText }}>
-            {costs.cost}
-          </Text>
+          <Text style={{ fontSize: 10, color: "#fff" }}>{costs.cost}</Text>
           <Image
             source={currencyIconMappings[costs.type]}
             tintColor={
               ["sc", "sh"].includes(costs.type)
                 ? themeColors.seasonCurrency
-                : undefined
+                : themeColors.currency
             }
             style={{
               height: 15,
               width: 15,
-              opacity: 0.8,
             }}
           />
         </View>
       )}
     </Pressable>
   );
-}
-
-function formatType(type?: string) {
-  if (!type) return "Node";
-
-  return type
-    .replace("FaceAccessory", "Face")
-    .replace("HairAccessory", "Hair")
-    .replace("WingBuff", "Wing")
-    .replace("OutfitShoes", "Outfit")
-    .replace("HeadAccessory", "Head");
-}
-
-function formatCosts(node: INode) {
-  const types = ["c", "h", "sc", "sh", "ac", "ec"] as const;
-
-  const type = types.find((t) => Object.hasOwn(node, t));
-  return type ? { cost: node[type]!, type } : null;
 }
 
 const styles = StyleSheet.create({
@@ -333,8 +352,8 @@ const styles = StyleSheet.create({
     width: NODE_WIDTH,
   },
   nodeCardCompact: {
-    minHeight: 84,
-    width: "100%",
+    minHeight: 75,
+    width: "80%",
   },
   nodeSubtitle: {
     fontSize: 12,
@@ -347,7 +366,7 @@ const styles = StyleSheet.create({
   },
   tierCell: {
     flex: 1,
-    minHeight: 98,
+    minHeight: 49,
   },
   tierHeader: {
     borderBottomWidth: 1,
@@ -357,8 +376,8 @@ const styles = StyleSheet.create({
   tierRow: {
     flexDirection: "row",
     gap: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    justifyContent: "flex-end",
+    padding: 10,
   },
   tierTitle: {
     fontSize: 14,
