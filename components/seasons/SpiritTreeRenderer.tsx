@@ -235,7 +235,7 @@ function Connector({
   const themeColors = Colors[colorScheme];
   const dx = toX - fromX;
   const dy = toY - fromY;
-  const length = Math.sqrt(dx * dx + dy * dy);
+  const length = Math.sqrt(dx * dx + dy * dy) - 50;
   const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
 
   return (
